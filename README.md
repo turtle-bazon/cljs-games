@@ -1,4 +1,4 @@
 # ClojureScipt games
 
-Games, that implemented in ClojureScript.
+Games, that are implemented in ClojureScript.
 
