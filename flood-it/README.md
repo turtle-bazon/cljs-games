@@ -4,7 +4,7 @@ Make field one color
 
 ## Installation
 
-    $ lein ring cljsbuild auto
+    $ lein cljsbuild auto
 
 ## Usage
 
