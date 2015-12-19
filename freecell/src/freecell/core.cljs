@@ -31,6 +31,25 @@
       (js/setTimeout #(swap! seconds inc) 1000)
       [:p.elapsed-time "Elapsed: " @seconds])))
 
+;; TODO need block id
+(defn select-pile
+  [position event]
+  (let [offset {:x (.-clientX event)
+                :y (.-clientY event)}]
+    (swap! state #(assoc % :draggable-pile {:id position
+                                            :offset offset}))))
+
+(defn deselect-pile
+  [event]
+  (swap! state #(assoc % :draggable-pile nil)))
+
+;; (defn move-pile
+;;   [event]
+;;   (let [offset {:x (.-clientX event)
+;;                 :y (.-clientY event)}]
+;;     (swap! state #(update % :draggable-pile {:id position
+;;                                              :offset offset}))))
+
 (defn card-component
   [card position]
   (let [rank (:rank card)
@@ -42,28 +61,31 @@
                 :diamonds "red"
                 :clubs "black"
                 :spades "black")]
-    [:div.card-place.card {:style {:top (str (* position mini-card-height) "px") :color color}}
+    [:div.card-place.card
+     {:style {:top (str (* position mini-card-height) "px") :color color}
+      :on-mouse-down (fn [event]
+                       (select-pile position event))
+      :on-mouse-up (fn [event]
+                     (deselect-pile event))}
      (str rank-html suit-html)]))
 
-;; undone
 (defn pile-component
   [cards position placeholder]
   (let [height (+ card-height (* (count cards) mini-card-height))]
-    [:div.cards-column {:style {:left (str (* position card-width) "px")
-                                :height height}}
+    [:div.cards-pile {:style {:left (str (* position card-width) "px")
+                              :height height}}
      (if (not (empty? cards))
        (for [position (range 0 (count cards))
              :let [card (nth cards position)]]
          ^{:key (:key card)} [card-component card position])
        [:div.card-place placeholder])]))
 
-;; (defn cards-block-component
-;;   [cards]
-;;   (let [width (* (count cards) card-width)]
-;;     [:div.cards-block {:style {:width width}}
-;;      (for [card cards]
-;;        ^{:key card} [card-component card])]))
-
+(defn draggable-pile-component
+  []
+  (when-let [pile (:draggable-pile @state)]
+    (let [position 12.5
+          placeholder "D"]
+      [pile-component () position placeholder])))
 
 (defn cards-block-component
   ([piles]
@@ -92,6 +114,7 @@
   [:div.board
    ^{:key :freecells} [:div.row [freecells-component] [foundations-component]]
    ^{:key :tableau} [:div.row [tableau-component]]
+   ^{:key :draggable-pile} [draggable-pile-component]
    ^{:key :elapsed} [:div.row [elapsed-component]]])
 
 (defn mountit
@@ -113,7 +136,8 @@
      (into (vec (for [index (range 0 4)]
                   (take 7 (drop (* index 7) shuffled))))
            (vec (for [index (range 0 4)]
-                  (take 6 (drop (+ 28 (* index 6)) shuffled)))))}))
+                  (take 6 (drop (+ 28 (* index 6)) shuffled)))))
+     :draggable-pile nil}))
 
 (defn init-state
   []
