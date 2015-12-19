@@ -8,7 +8,7 @@ Freecell Solitaire
 
 ## Usage
 
-Open 'resources/index.html' file
+Open 'resources/public/index.html' file
 
 ## License
 

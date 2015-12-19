@@ -8,7 +8,7 @@ Make field one color
 
 ## Usage
 
-Open 'resources/index.html' file
+Open 'resources/public/index.html' file
 
 ## License
 
