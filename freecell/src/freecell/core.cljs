@@ -99,7 +99,7 @@
        (for [position (range 0 (count cards))
              :let [card (nth cards position)]]
          ^{:key (:key card)} [card-component card position])
-       [:div.card-place placeholder])]))
+       [:div.unselectable.card-place placeholder])]))
 
 (defn pile-component-at
   [cards location placeholder]
@@ -110,7 +110,7 @@
        (for [position (range 0 (count cards))
              :let [card (nth cards position)]]
          ^{:key (:key card)} [card-component card position])
-       [:div.card-place placeholder])]))
+       [:div.unselectable.card-place placeholder])]))
 
 (defn draggable-pile-component
   []
