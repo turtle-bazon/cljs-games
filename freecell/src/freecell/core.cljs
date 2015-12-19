@@ -2,42 +2,60 @@
   (:require [reagent.core :as r]))
 
 (def state (r/atom 0))
+(def card-width 80)
+(def card-height 100)
 
-(defn elapsed
+(defn elapsed-component
   []
   (let [seconds (r/atom 0)]
     (fn []
       (js/setTimeout #(swap! seconds inc) 1000)
       [:p "Elapsed: " @seconds])))
 
-(defn freecells
-  []
-  [:div
-   (for [item (range 0 4)]
-     ^{:key item} [:div.card])])
+(defn card-component
+  [card]
+  (let [position (:position card)
+        value (:value card)]
+    [:div.card {:style {:left (str (* position card-width) "px")}} value]))
 
-(defn foundations
-  []
-  [:div
-   (for [item (range 0 4)]
-     ^{:key item} [:div.card "A"])])
+(defn cards-block-component
+  [cards]
+  (let [width (* (count cards) card-width)]
+    [:div.cards-block {:style {:width width}}
+     (for [card cards]
+       ^{:key card} [card-component card])]))
 
-(defn tableau
+(defn freecells-component
   []
-  [:div
-   (for [item (range 0 8)]
-     ^{:key item} [:div.card "?"])])
+  (cards-block-component (map (fn [position]
+                                {:position position
+                                 :value nil})
+                              (range 0 4))))
 
-(defn board
+(defn foundations-component
+  []
+  (cards-block-component (map (fn [position]
+                                {:position position
+                                 :value "A"})
+                              (range 0 4))))
+
+(defn tableau-component
+  []
+  (cards-block-component (map (fn [position]
+                                {:position position
+                                 :value "?"})
+                              (range 0 8))))
+
+(defn board-component
   []
   [:div
-   [:div.row [freecells] [foundations]]
-   [:div.row [tableau]]
-   [:div.row [elapsed]]])
+   [:div.row [freecells-component] [foundations-component]]
+   [:div.row [tableau-component]]
+   [:div.row [elapsed-component]]])
 
 (defn mountit
   []
-  (r/render-component [board]
+  (r/render-component [board-component]
                       (.getElementById js/document "app")))
 
 (defn ^:export run

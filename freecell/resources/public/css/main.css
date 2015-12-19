@@ -2,10 +2,17 @@
   clear: both;
 }
 
+.cards-block {
+  height: 100px;
+  float: left;
+  position: relative;
+}
+
 .card {
   width: 70px;
   height: 90px;
   margin: 5px;
   float: left;
   border: solid 1px black;
+  position: absolute;
 }
