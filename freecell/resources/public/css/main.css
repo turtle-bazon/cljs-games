@@ -1,3 +1,15 @@
+body {
+  background-color: green;
+}
+
+.board {
+  margin: auto;
+  position: relative;
+  width: 656px;
+  height: 400px;
+  position: relative;
+}
+
 .row {
   clear: both;
 }
@@ -8,11 +20,30 @@
   position: relative;
 }
 
-.card {
+.cards-column {
   width: 70px;
   height: 90px;
   margin: 5px;
   float: left;
+  position: absolute;
+}
+
+.card-place {
+  width: 60px;
+  height: 90px;
+  margin: 5px;
+  padding: 1px 5px;
+  float: left;
   border: solid 1px black;
   position: absolute;
+}
+
+.card {
+  background-color: white;
+}
+
+.elapsed-time {
+  margin: 5px;
+  position: absolute;
+  bottom: 20px;
 }
