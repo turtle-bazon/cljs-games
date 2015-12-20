@@ -53,6 +53,10 @@ body {
   background-color: white;
 }
 
+.draggable-pile {
+   pointer-events: none;
+}
+
 .elapsed-time {
   position: absolute;
   bottom: 20px;
