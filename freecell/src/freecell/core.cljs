@@ -60,21 +60,33 @@
                   :y (- (.-clientY event) (:y origin-location) (:y offset))}]
     (swap! state #(assoc-in % [:draggable-pile :location] location))))
 
+(defn get-card-color
+  [card]
+  (case (:suit card)
+    :hearts :red
+    :diamonds :red
+    :clubs :black
+    :spades :black))
+
 (defn get-cards-to-drop-count
   [from-pile to-pile to-block]
   (case to-block
     :freecells 1
-    :foundations (do
-                   (if (empty? to-pile)
-                     (if (= (:rank (last from-pile)) 1)
-                       1 0)
-                     (let [from-card (last from-pile)
-                           to-card (last to-pile)]
-                       (if (and (= (:suit from-card) (:suit to-card))
-                                (= (- (:rank from-card) (:rank to-card)) 1))
-                         1 0))))
-    :tableau 1
-    ))
+    :foundations (if (empty? to-pile)
+                   (if (= (:rank (last from-pile)) 1)
+                     1 0)
+                   (let [from-card (last from-pile)
+                         to-card (last to-pile)]
+                     (if (and (= (:suit from-card) (:suit to-card))
+                              (= (- (:rank from-card) (:rank to-card)) 1))
+                       1 0)))
+    :tableau (if (empty? to-pile)
+               1
+               (let [from-card (last from-pile)
+                     to-card (last to-pile)]
+                 (if (and (not= (get-card-color from-card) (get-card-color to-card))
+                          (= (- (:rank to-card) (:rank from-card)) 1))
+                   1 0)))))
 
 (defn drop-pile-to
   [block position event]
