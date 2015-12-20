@@ -60,20 +60,38 @@
                   :y (- (.-clientY event) (:y origin-location) (:y offset))}]
     (swap! state #(assoc-in % [:draggable-pile :location] location))))
 
+(defn get-cards-to-drop-count
+  [from-pile to-pile to-block]
+  (case to-block
+    :freecells 1
+    :foundations (do
+                   (if (empty? to-pile)
+                     (if (= (:rank (last from-pile)) 1)
+                       1 0)
+                     (let [from-card (last from-pile)
+                           to-card (last to-pile)]
+                       (if (and (= (:suit from-card) (:suit to-card))
+                                (= (- (:rank from-card) (:rank to-card)) 1))
+                         1 0))))
+    :tableau 1
+    ))
+
 (defn drop-pile-to
   [block position event]
   (let [from-pile-info (:draggable-pile @state)
         from-pile (get-in @state [(:block from-pile-info)
                                   (:position from-pile-info)])
-        card (last from-pile)]
+        to-pile (get-in @state [block position])
+        cards-count (get-cards-to-drop-count from-pile to-pile block)]
+    (.log js/console cards-count)
     (swap! state (fn [state]
                    (update-in state [(:block from-pile-info)
                                      (:position from-pile-info)]
                               (fn [pile]
-                                (pop pile)))))
+                                (vec (drop-last cards-count pile))))))
     (swap! state (fn [state]
                    (update-in state [block position] (fn [pile]
-                                                       (conj pile card)))))))
+                                                       (into pile (take-last cards-count from-pile))))))))
 
 (defn drop-pile
   [event]
@@ -81,7 +99,7 @@
   (events/unlisten js/window EventType.MOUSEMOVE move-pile)
   (events/unlisten js/window EventType.MOUSEUP drop-pile))
 
-(defn on-card-click
+(defn on-pile-select
   [block position event]
   (select-pile block position event)
   (events/listen js/window EventType.MOUSEMOVE move-pile)
@@ -93,13 +111,16 @@
         rank-html (get ranks rank)
         suit (:suit card)
         suit-html (unescapeEntities (get suits suit))
+        location-y (if (not= block :foundations)
+                     (* position mini-card-height)
+                     0)
         color (case suit
                 :hearts "red"
                 :diamonds "red"
                 :clubs "black"
                 :spades "black")]
     [:div.unselectable.card-place.card
-     {:style {:top (str (* position mini-card-height) "px") :color color}}
+     {:style {:top (str location-y "px") :color color}}
      (str rank-html suit-html)]))
 
 (defn pile-component
@@ -110,7 +131,7 @@
               :height height}
       :on-mouse-down (fn [event]
                        (when (not (empty? cards))
-                         (on-card-click block position event)))
+                         (on-pile-select block position event)))
       :on-mouse-up (fn [event]
                      (when (:draggable-pile @state)
                        (drop-pile-to block position event)))}
