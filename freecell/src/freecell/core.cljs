@@ -26,6 +26,7 @@
             12 "Q"
             13 "K"})
 
+
 (defn elapsed-component
   []
   (let [seconds (r/atom 0)]
@@ -68,10 +69,36 @@
     :clubs :black
     :spades :black))
 
+(defn in-tableau-order?
+  [top-card bottom-card]
+  (and (not= (get-card-color top-card) (get-card-color bottom-card))
+       (= (- (:rank bottom-card) (:rank top-card)) 1)))
+
+(defn get-card-to-move
+  [from-pile to-pile]
+  (let [max-moves (+ (count (filter empty? (:freecells @state)))
+                     (count (filter empty? (:tableau @state)))
+                     1)
+        to-card (last to-pile)
+        reversed-pile (reverse from-pile)]
+    (.log js/console "max-moves: " max-moves)
+    (first (filter (fn [card]
+                     (in-tableau-order? card to-card))
+                   (cons (first reversed-pile)
+                         (take (dec max-moves)
+                               (take-while some?
+                                           (map (fn [top-card bottom-card]
+                                                  (if (in-tableau-order? top-card bottom-card)
+                                                    bottom-card
+                                                    nil))
+                                                reversed-pile
+                                                (rest reversed-pile)))))))))
+
 (defn get-cards-to-drop-count
   [from-pile to-pile to-block]
   (case to-block
-    :freecells 1
+    :freecells (if (empty? to-pile)
+                 1 0)
     :foundations (if (empty? to-pile)
                    (if (= (:rank (last from-pile)) 1)
                      1 0)
@@ -82,11 +109,9 @@
                        1 0)))
     :tableau (if (empty? to-pile)
                1
-               (let [from-card (last from-pile)
-                     to-card (last to-pile)]
-                 (if (and (not= (get-card-color from-card) (get-card-color to-card))
-                          (= (- (:rank to-card) (:rank from-card)) 1))
-                   1 0)))))
+               (if-let [from-card (get-card-to-move from-pile to-pile)]
+                 (inc (count (take-while #(not= % from-card) (reverse from-pile))))
+                 0))))
 
 (defn drop-pile-to
   [block position event]
@@ -95,7 +120,7 @@
                                   (:position from-pile-info)])
         to-pile (get-in @state [block position])
         cards-count (get-cards-to-drop-count from-pile to-pile block)]
-    (.log js/console cards-count)
+    (.log js/console "drop cards count: " cards-count)
     (swap! state (fn [state]
                    (update-in state [(:block from-pile-info)
                                      (:position from-pile-info)]
