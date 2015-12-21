@@ -1,0 +1,48 @@
+h1 {
+  text-align: center;
+}
+
+#color-buttons {
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+
+#canvas {
+  width: 420px;
+  height: 420px;
+}
+
+.btn-circle {
+  width: 40px;
+  height: 40px;
+  text-align: center;
+  padding: 6px 0;
+  font-size: 12px;
+  line-height: 1.428571429;
+  border-radius: 20px;
+}
+
+.btn-yellow {
+  background: yellow;
+}
+
+.btn-orange {
+  background: orange;
+}
+
+.btn-red {
+  background: red;
+}
+
+.btn-green {
+  background: green;
+}
+
+.btn-blue {
+  background: blue;
+}
+
+.btn-pink {
+  background: pink;
+}
+

@@ -44,7 +44,7 @@
         context (.getContext surface "2d")
         cell-width (/ (.-width surface) (get-field-width field))
         cell-height (/ (.-height surface) (get-field-height field))]
-    (set-info (str "turnes left " (get-field-turnes-left field)))
+    (set-info (str "turns left " (get-field-turnes-left field)))
     (doseq [y (range 0 (get-field-height field))
             x (range 0 (get-field-width field))
             :let [cell (get-cell-at field x y)]]

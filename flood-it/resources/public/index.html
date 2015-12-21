@@ -1,20 +1,34 @@
 <!DOCTYPE html>
 <html>
 <head>
- <title>Flood it</title>
+ <title>Flood-it</title>
+  <link rel="stylesheet" href="css/bootstrap.min.css"></link>
+  <link rel="stylesheet" href="css/main.css"></link>
 </head>
 <body>
-  <script type="text/javascript" src="js/main.js"></script>
-  <div id="color-buttons">
-    <div style="display: inline-block; width: 40px; height: 40px; background-color: yellow;" onclick="flood_it.core.set_color(0)"></div>
-    <div style="display: inline-block; width: 40px; height: 40px; background-color: orange;" onclick="flood_it.core.set_color(1)"></div>
-    <div style="display: inline-block; width: 40px; height: 40px; background-color: red;" onclick="flood_it.core.set_color(2)"></div>
-    <br>
-    <div style="display: inline-block; width: 40px; height: 40px; background-color: green;" onclick="flood_it.core.set_color(3)"></div>
-    <div style="display: inline-block; width: 40px; height: 40px; background-color: blue;" onclick="flood_it.core.set_color(4)"></div>
-    <div style="display: inline-block; width: 40px; height: 40px; background-color: pink;" onclick="flood_it.core.set_color(5)"></div>
+  <h1>Flood-it ClojureScript demo</h1>
+  <div class="container container-table">
+    <div id="game" class="row">
+      <div id="control" class="col-md-2 col-md-offset-2">
+        <button type="button" class="btn btn-xs btn-default" onclick="flood_it.core.start()">New game</button>
+        <p id="info"></p>
+        <div id="color-buttons">
+          <button type="button" class="btn btn-circle btn-yellow" onclick="flood_it.core.set_color(0)"></button>
+          <button type="button" class="btn btn-circle btn-orange" onclick="flood_it.core.set_color(1)"></button>
+          <button type="button" class="btn btn-circle btn-red" onclick="flood_it.core.set_color(2)"></button>
+          <button type="button" class="btn btn-circle btn-green" onclick="flood_it.core.set_color(3)"></button>
+          <button type="button" class="btn btn-circle btn-blue" onclick="flood_it.core.set_color(4)"></button>
+          <button type="button" class="btn btn-circle btn-pink" onclick="flood_it.core.set_color(5)"></button>
+        </div>
+        <p>Rules: fill whole board with one color. Click on colored circle buttons to start filling. Filling always starts in the top left corner of the game board.</p>
+        <p>Author: <a href="https://bitbucket.org/virvar/">Reval Akamolov</a></p>
+        <p><a href="https://bitbucket.org/turtle_bazon/cljs-games/src/">sources</a></p>
+      </div>
+      <div id="board" class="col-md-5">
+        <canvas id="canvas"></canvas>
+      </div>
+    </div>
   </div>
-  <p id="info"></p>
-  <canvas id="canvas" style="width: 400px; height: 400px;" widht="400" height="400"></canvas>
+  <script type="text/javascript" src="js/main.js"></script>
 </body>
 </html>
