@@ -84,7 +84,7 @@
 (defn update-game-state
   [field]
   (let [state (get-game-state field)]
-    (cond (= state :win) (set-info (str "Win! (turnes left " (get-field-turnes-left field) ")"))
+    (cond (= state :win) (set-info (str "Win! (turns left " (get-field-turnes-left field) ")"))
           (= state :loss) (set-info "Loss :(")
           :else nil)))
 
