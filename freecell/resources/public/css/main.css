@@ -53,6 +53,10 @@ body {
   background-color: white;
 }
 
+.selected-card {
+  background-color: #CCFF99;
+}
+
 .draggable-pile {
   pointer-events: none;
   opacity: 0.6;

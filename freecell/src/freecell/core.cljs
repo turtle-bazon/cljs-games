@@ -167,7 +167,7 @@
   (events/listen js/window EventType.MOUSEUP drop-pile))
 
 (defn card-component
-  [card block position]
+  [card block position selected]
   (let [rank (:rank card)
         rank-html (get ranks rank)
         suit (:suit card)
@@ -181,7 +181,8 @@
                 :clubs "black"
                 :spades "black")]
     [:div.unselectable.card-place.card
-     {:style {:top (str location-y "px") :color color}}
+     {:class (when selected "selected-card")
+      :style {:top (str location-y "px") :color color}}
      (str rank-html suit-html)]))
 
 (defn pile-component
@@ -200,9 +201,18 @@
                         (when (:draggable-pile @state)
                           (set-draggable-card block position event)))}
      (if (not (empty? cards))
-       (for [position (range 0 (count cards))
-             :let [card (nth cards position)]]
-         ^{:key (:key card)} [card-component card block position])
+       (let [draggable-pile (:draggable-pile @state)
+             draggable-card-position (if (and (= block (:block draggable-pile))
+                                              (= position (:position draggable-pile)))
+                                       (if-let [card (:card draggable-pile)]
+                                         (count (take-while #(not= % card) cards))))]
+         (if draggable-card-position
+           (.log js/console "draggable-card-position " draggable-card-position))
+         (for [position (range 0 (count cards))
+               :let [card (nth cards position)
+                     selected (and draggable-card-position
+                                   (<= draggable-card-position position))]]
+           ^{:key (:key card)} [card-component card block position selected]))
        [:div.unselectable.card-place placeholder])]))
 
 (defn pile-component-at
