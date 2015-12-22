@@ -75,24 +75,39 @@
        (= (- (:rank bottom-card) (:rank top-card)) 1)))
 
 (defn get-card-to-move
-  [from-pile to-pile]
-  (let [max-moves (+ (count (filter empty? (:freecells @state)))
-                     (count (filter empty? (:tableau @state)))
-                     1)
-        to-card (last to-pile)
-        reversed-pile (reverse from-pile)]
-    (.log js/console "max-moves: " max-moves)
-    (first (filter (fn [card]
-                     (in-tableau-order? card to-card))
-                   (cons (first reversed-pile)
-                         (take (dec max-moves)
-                               (take-while some?
-                                           (map (fn [top-card bottom-card]
-                                                  (if (in-tableau-order? top-card bottom-card)
-                                                    bottom-card
-                                                    nil))
-                                                reversed-pile
-                                                (rest reversed-pile)))))))))
+  [from-pile to-pile to-block]
+  (case to-block
+    :freecells (if (empty? to-pile)
+                 (last from-pile)
+                 nil)
+    :foundations (if (empty? to-pile)
+                   (if (= (:rank (last from-pile)) 1)
+                     (last from-pile)
+                     nil)
+                   (let [from-card (last from-pile)
+                         to-card (last to-pile)]
+                     (if (and (= (:suit from-card) (:suit to-card))
+                              (= (- (:rank from-card) (:rank to-card)) 1))
+                       (last from-pile)
+                       nil)))
+    :tableau
+    (let [max-moves (+ (count (filter empty? (:freecells @state)))
+                       (count (filter empty? (:tableau @state)))
+                       1)
+          to-card (last to-pile)
+          reversed-pile (reverse from-pile)]
+      (.log js/console "max-moves: " max-moves)
+      (first (filter (fn [card]
+                       (in-tableau-order? card to-card))
+                     (cons (first reversed-pile)
+                           (take (dec max-moves)
+                                 (take-while some?
+                                             (map (fn [top-card bottom-card]
+                                                    (if (in-tableau-order? top-card bottom-card)
+                                                      bottom-card
+                                                      nil))
+                                                  reversed-pile
+                                                  (rest reversed-pile))))))))))
 
 (defn get-cards-to-drop-count
   [from-pile to-pile to-block]
@@ -109,7 +124,7 @@
                        1 0)))
     :tableau (if (empty? to-pile)
                1
-               (if-let [from-card (get-card-to-move from-pile to-pile)]
+               (if-let [from-card (get-card-to-move from-pile to-pile :tableau)]
                  (inc (count (take-while #(not= % from-card) (reverse from-pile))))
                  0))))
 
@@ -135,6 +150,15 @@
   (swap! state #(assoc % :draggable-pile nil))
   (events/unlisten js/window EventType.MOUSEMOVE move-pile)
   (events/unlisten js/window EventType.MOUSEUP drop-pile))
+
+(defn set-draggable-card
+  [block position event]
+  (let [from-pile-info (:draggable-pile @state)
+        from-pile (get-in @state [(:block from-pile-info)
+                                  (:position from-pile-info)])
+        to-pile (get-in @state [block position])
+        card-to-move (get-card-to-move from-pile to-pile block)]
+    (swap! state #(assoc-in % [:draggable-pile :card] card-to-move))))
 
 (defn on-pile-select
   [block position event]
@@ -171,7 +195,10 @@
                          (on-pile-select block position event)))
       :on-mouse-up (fn [event]
                      (when (:draggable-pile @state)
-                       (drop-pile-to block position event)))}
+                       (drop-pile-to block position event)))
+      :on-mouse-enter (fn [event]
+                        (when (:draggable-pile @state)
+                          (set-draggable-card block position event)))}
      (if (not (empty? cards))
        (for [position (range 0 (count cards))
              :let [card (nth cards position)]]
@@ -179,21 +206,17 @@
        [:div.unselectable.card-place placeholder])]))
 
 (defn pile-component-at
-  [cards block location placeholder]
-  (let [height (+ card-height (* (count cards) mini-card-height))]
-    [:div.draggable-pile.cards-pile {:style {:left (str (:x location) "px")
-                                             :top (str (:y location) "px")}}
-     (if (not (empty? cards))
-       (for [position (range 0 (count cards))
-             :let [card (nth cards position)]]
-         ^{:key (:key card)} [card-component card block position])
-       [:div.unselectable.card-place placeholder])]))
+  [card block location]
+  [:div.draggable-pile.cards-pile {:style {:left (str (:x location) "px")
+                                           :top (str (:y location) "px")}}
+   (if card
+     [card-component card block 0]
+     [:div.unselectable.card-place])])
 
 (defn draggable-pile-component
   []
   (when-let [pile (:draggable-pile @state)]
-    (let [placeholder "D"]
-      [pile-component-at () (:block pile) (:location pile) placeholder])))
+    [pile-component-at (:card pile) (:block pile) (:location pile)]))
 
 (defn cards-block-component
   ([piles block]
