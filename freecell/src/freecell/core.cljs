@@ -148,6 +148,7 @@
 (defn drop-pile!
   [event]
   (swap! state #(assoc % :draggable-pile nil))
+  (swap! state #(assoc % :draggable-card nil))
   (events/unlisten js/window EventType.MOUSEMOVE move-pile!)
   (events/unlisten js/window EventType.MOUSEUP drop-pile!))
 
@@ -158,7 +159,7 @@
                                   (:position from-pile-info)])
         to-pile (get-in @state [block position])
         card-to-move (get-card-to-move! from-pile to-pile block)]
-    (swap! state #(assoc-in % [:draggable-pile :card] card-to-move))))
+    (swap! state #(assoc % :draggable-card card-to-move))))
 
 (defn on-pile-select!
   [block position event]
@@ -185,8 +186,8 @@
       :style {:top (str location-y "px") :color color}}
      (str rank-html suit-html)]))
 
-(defn pile-component!
-  [cards block position placeholder draggable-pile]
+(defn pile-component
+  [cards block position placeholder draggable-pile draggable-card draggable-card-position]
   (.log js/console "pile-component")
   (let [height (+ card-height (* (count cards) mini-card-height))]
     [:div.cards-pile
@@ -202,18 +203,11 @@
                         (when draggable-pile
                           (set-draggable-card! block position event)))}
      (if (not (empty? cards))
-       (let [draggable-pile draggable-pile
-             draggable-card-position (if (and (= block (:block draggable-pile))
-                                              (= position (:position draggable-pile)))
-                                       (if-let [card (:card draggable-pile)]
-                                         (count (take-while #(not= % card) cards))))]
-         (if draggable-card-position
-           (.log js/console "draggable-card-position " draggable-card-position))
-         (for [position (range 0 (count cards))
-               :let [card (nth cards position)
-                     selected (and draggable-card-position
-                                   (<= draggable-card-position position))]]
-           ^{:key (:key card)} [card-component card block position selected]))
+       (for [position (range 0 (count cards))
+             :let [card (nth cards position)
+                   selected (and draggable-card-position
+                                 (<= draggable-card-position position))]]
+         ^{:key (:key card)} [card-component card block position selected])
        [:div.unselectable.card-place placeholder])]))
 
 (defn pile-component-at
@@ -227,18 +221,23 @@
 (defn draggable-pile-component!
   []
   (when-let [pile (:draggable-pile @state)]
-    [pile-component-at (:card pile) (:block pile) (:draggable-pile-location @state)]))
+    [pile-component-at (:draggable-card @state) (:block pile) (:draggable-pile-location @state)]))
 
 (defn cards-block-component!
   ([piles block]
    (cards-block-component! piles block nil))
   ([piles block placeholder]
    (let [width (* (count piles) card-width)
-         draggable-pile (:draggable-pile @state)]
+         draggable-pile (:draggable-pile @state)
+         draggable-card (:draggable-card @state)]
      [:div.cards-block {:style {:width width}}
       (for [position (range 0 (count piles))
             :let [pile (nth piles position)]]
-        ^{:key position} [pile-component! pile block position placeholder draggable-pile])])))
+        (let [draggable-card-position (if (and (= block (:block draggable-pile))
+                                               (= position (:position draggable-pile)))
+                                        (if draggable-card
+                                          (count (take-while #(not= % draggable-card) pile))))]
+          ^{:key position} [pile-component pile block position placeholder draggable-pile (and draggable-card-position draggable-card) draggable-card-position]))])))
 
 (defn freecells-component!
   []
@@ -281,7 +280,8 @@
                   (vec (take 7 (drop (* index 7) shuffled)))))
            (vec (for [index (range 0 4)]
                   (vec (take 6 (drop (+ 28 (* index 6)) shuffled))))))
-     :draggable-pile nil}))
+     :draggable-pile nil
+     :draggable-card nil}))
 
 (defn init-state!
   []
