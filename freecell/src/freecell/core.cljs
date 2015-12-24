@@ -27,7 +27,7 @@
             13 "K"})
 
 
-(defn elapsed-component
+(defn elapsed-component!
   []
   (let [seconds (r/atom 0)]
     (fn []
@@ -40,7 +40,7 @@
     {:x (.-left rect)
      :y (.-top rect)}))
 
-(defn select-pile
+(defn select-pile!
   [block position event]
   (let [origin-location (get-client-location (.getElementById js/document "board"))
         target-location (get-client-location (.-target event))
@@ -50,16 +50,16 @@
                   :y (- (.-clientY event) (:y origin-location) (:y offset))}]
     (swap! state #(assoc % :draggable-pile {:block block
                                             :position position
-                                            :offset offset
-                                            :location location}))))
+                                            :offset offset}))
+    (swap! state #(assoc % :draggable-pile-location location))))
 
-(defn move-pile
+(defn move-pile!
   [event]
   (let [origin-location (get-client-location (.getElementById js/document "board"))
         offset (get-in @state [:draggable-pile :offset])
         location {:x (- (.-clientX event) (:x origin-location) (:x offset))
                   :y (- (.-clientY event) (:y origin-location) (:y offset))}]
-    (swap! state #(assoc-in % [:draggable-pile :location] location))))
+    (swap! state #(assoc % :draggable-pile-location location))))
 
 (defn get-card-color
   [card]
@@ -74,7 +74,7 @@
   (and (not= (get-card-color top-card) (get-card-color bottom-card))
        (= (- (:rank bottom-card) (:rank top-card)) 1)))
 
-(defn get-card-to-move
+(defn get-card-to-move!
   [from-pile to-pile to-block]
   (case to-block
     :freecells (if (empty? to-pile)
@@ -109,7 +109,7 @@
                                                   reversed-pile
                                                   (rest reversed-pile))))))))))
 
-(defn get-cards-to-drop-count
+(defn get-cards-to-drop-count!
   [from-pile to-pile to-block]
   (case to-block
     :freecells (if (empty? to-pile)
@@ -124,17 +124,17 @@
                        1 0)))
     :tableau (if (empty? to-pile)
                1
-               (if-let [from-card (get-card-to-move from-pile to-pile :tableau)]
+               (if-let [from-card (get-card-to-move! from-pile to-pile :tableau)]
                  (inc (count (take-while #(not= % from-card) (reverse from-pile))))
                  0))))
 
-(defn drop-pile-to
+(defn drop-pile-to!
   [block position event]
   (let [from-pile-info (:draggable-pile @state)
         from-pile (get-in @state [(:block from-pile-info)
                                   (:position from-pile-info)])
         to-pile (get-in @state [block position])
-        cards-count (get-cards-to-drop-count from-pile to-pile block)]
+        cards-count (get-cards-to-drop-count! from-pile to-pile block)]
     (.log js/console "drop cards count: " cards-count)
     (swap! state (fn [state]
                    (update-in state [(:block from-pile-info)
@@ -145,26 +145,26 @@
                    (update-in state [block position] (fn [pile]
                                                        (into pile (take-last cards-count from-pile))))))))
 
-(defn drop-pile
+(defn drop-pile!
   [event]
   (swap! state #(assoc % :draggable-pile nil))
-  (events/unlisten js/window EventType.MOUSEMOVE move-pile)
-  (events/unlisten js/window EventType.MOUSEUP drop-pile))
+  (events/unlisten js/window EventType.MOUSEMOVE move-pile!)
+  (events/unlisten js/window EventType.MOUSEUP drop-pile!))
 
-(defn set-draggable-card
+(defn set-draggable-card!
   [block position event]
   (let [from-pile-info (:draggable-pile @state)
         from-pile (get-in @state [(:block from-pile-info)
                                   (:position from-pile-info)])
         to-pile (get-in @state [block position])
-        card-to-move (get-card-to-move from-pile to-pile block)]
+        card-to-move (get-card-to-move! from-pile to-pile block)]
     (swap! state #(assoc-in % [:draggable-pile :card] card-to-move))))
 
-(defn on-pile-select
+(defn on-pile-select!
   [block position event]
-  (select-pile block position event)
-  (events/listen js/window EventType.MOUSEMOVE move-pile)
-  (events/listen js/window EventType.MOUSEUP drop-pile))
+  (select-pile! block position event)
+  (events/listen js/window EventType.MOUSEMOVE move-pile!)
+  (events/listen js/window EventType.MOUSEUP drop-pile!))
 
 (defn card-component
   [card block position selected]
@@ -185,23 +185,24 @@
       :style {:top (str location-y "px") :color color}}
      (str rank-html suit-html)]))
 
-(defn pile-component
-  [cards block position placeholder]
+(defn pile-component!
+  [cards block position placeholder draggable-pile]
+  (.log js/console "pile-component")
   (let [height (+ card-height (* (count cards) mini-card-height))]
     [:div.cards-pile
      {:style {:left (str (* position card-width) "px")
               :height height}
       :on-mouse-down (fn [event]
                        (when (not (empty? cards))
-                         (on-pile-select block position event)))
+                         (on-pile-select! block position event)))
       :on-mouse-up (fn [event]
-                     (when (:draggable-pile @state)
-                       (drop-pile-to block position event)))
+                     (when draggable-pile
+                       (drop-pile-to! block position event)))
       :on-mouse-enter (fn [event]
-                        (when (:draggable-pile @state)
-                          (set-draggable-card block position event)))}
+                        (when draggable-pile
+                          (set-draggable-card! block position event)))}
      (if (not (empty? cards))
-       (let [draggable-pile (:draggable-pile @state)
+       (let [draggable-pile draggable-pile
              draggable-card-position (if (and (= block (:block draggable-pile))
                                               (= position (:position draggable-pile)))
                                        (if-let [card (:card draggable-pile)]
@@ -223,44 +224,46 @@
      [card-component card block 0]
      [:div.unselectable.card-place])])
 
-(defn draggable-pile-component
+(defn draggable-pile-component!
   []
   (when-let [pile (:draggable-pile @state)]
-    [pile-component-at (:card pile) (:block pile) (:location pile)]))
+    [pile-component-at (:card pile) (:block pile) (:draggable-pile-location @state)]))
 
-(defn cards-block-component
+(defn cards-block-component!
   ([piles block]
-   (cards-block-component piles block nil))
+   (cards-block-component! piles block nil))
   ([piles block placeholder]
-   (let [width (* (count piles) card-width)]
+   (let [width (* (count piles) card-width)
+         draggable-pile (:draggable-pile @state)]
      [:div.cards-block {:style {:width width}}
       (for [position (range 0 (count piles))
             :let [pile (nth piles position)]]
-        ^{:key position} [pile-component pile block position placeholder])])))
+        ^{:key position} [pile-component! pile block position placeholder draggable-pile])])))
 
-(defn freecells-component
+(defn freecells-component!
   []
-  (cards-block-component (:freecells @state) :freecells))
+  (.log js/console "freecells-component")
+  (cards-block-component! (:freecells @state) :freecells))
 
-(defn foundations-component
+(defn foundations-component!
   []
-  (cards-block-component (:foundations @state) :foundations "A"))
+  (cards-block-component! (:foundations @state) :foundations "A"))
 
-(defn tableau-component
+(defn tableau-component!
   []
-  (cards-block-component (:tableau @state) :tableau))
+  (cards-block-component! (:tableau @state) :tableau))
 
-(defn board-component
+(defn board-component!
   []
   [:div#board.board
-   ^{:key :freecells} [:div.row [freecells-component] [foundations-component]]
-   ^{:key :tableau} [:div.row [tableau-component]]
-   ^{:key :draggable-pile} [draggable-pile-component]
-   ^{:key :elapsed} [:div.row [elapsed-component]]])
+   ^{:key :freecells} [:div.row [freecells-component!] [foundations-component!]]
+   ^{:key :tableau} [:div.row [tableau-component!]]
+   ^{:key :draggable-pile} [draggable-pile-component!]
+   ^{:key :elapsed} [:div.row [elapsed-component!]]])
 
-(defn mountit
+(defn mountit!
   []
-  (r/render-component [board-component]
+  (r/render-component [board-component!]
                       (.getElementById js/document "app")))
 
 (defn shuffle-deck
@@ -280,11 +283,11 @@
                   (vec (take 6 (drop (+ 28 (* index 6)) shuffled))))))
      :draggable-pile nil}))
 
-(defn init-state
+(defn init-state!
   []
   (reset! state (shuffle-deck)))
 
 (defn ^:export run
   []
-  (init-state)
-  (mountit))
+  (init-state!)
+  (mountit!))
