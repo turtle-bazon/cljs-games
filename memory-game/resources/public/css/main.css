@@ -1,0 +1,198 @@
+div.board {
+}
+
+div.board-row {
+    clear: both;
+}
+
+div.card {
+    border: 1px solid black;
+    width: 32px;
+    height: 32px;
+    float: left;
+}
+
+div[type="closed"] {
+    background-image: url("../img/pic.png");
+    background-repeat: no-repeat;
+}
+
+div[type="0"] {
+    background-image: url("../img/00.png");
+    background-repeat: no-repeat;
+}
+
+div[type="1"] {
+    background-image: url("../img/01.png");
+    background-repeat: no-repeat;
+}
+
+div[type="2"] {
+    background-image: url("../img/02.png");
+    background-repeat: no-repeat;
+}
+
+div[type="3"] {
+    background-image: url("../img/03.png");
+    background-repeat: no-repeat;
+}
+
+div[type="4"] {
+    background-image: url("../img/04.png");
+    background-repeat: no-repeat;
+}
+
+div[type="5"] {
+    background-image: url("../img/05.png");
+    background-repeat: no-repeat;
+}
+
+div[type="6"] {
+    background-image: url("../img/06.png");
+    background-repeat: no-repeat;
+}
+
+div[type="7"] {
+    background-image: url("../img/07.png");
+    background-repeat: no-repeat;
+}
+
+div[type="8"] {
+    background-image: url("../img/08.png");
+    background-repeat: no-repeat;
+}
+
+div[type="9"] {
+    background-image: url("../img/09.png");
+    background-repeat: no-repeat;
+}
+
+div[type="10"] {
+    background-image: url("../img/10.png");
+    background-repeat: no-repeat;
+}
+
+div[type="11"] {
+    background-image: url("../img/11.png");
+    background-repeat: no-repeat;
+}
+
+div[type="12"] {
+    background-image: url("../img/12.png");
+    background-repeat: no-repeat;
+}
+
+div[type="13"] {
+    background-image: url("../img/13.png");
+    background-repeat: no-repeat;
+}
+
+div[type="14"] {
+    background-image: url("../img/14.png");
+    background-repeat: no-repeat;
+}
+
+div[type="15"] {
+    background-image: url("../img/15.png");
+    background-repeat: no-repeat;
+}
+
+div[type="16"] {
+    background-image: url("../img/16.png");
+    background-repeat: no-repeat;
+}
+
+div[type="17"] {
+    background-image: url("../img/17.png");
+    background-repeat: no-repeat;
+}
+
+div[type="18"] {
+    background-image: url("../img/18.png");
+    background-repeat: no-repeat;
+}
+
+div[type="19"] {
+    background-image: url("../img/19.png");
+    background-repeat: no-repeat;
+}
+
+div[type="20"] {
+    background-image: url("../img/20.png");
+    background-repeat: no-repeat;
+}
+
+div[type="21"] {
+    background-image: url("../img/21.png");
+    background-repeat: no-repeat;
+}
+
+div[type="22"] {
+    background-image: url("../img/22.png");
+    background-repeat: no-repeat;
+}
+
+div[type="23"] {
+    background-image: url("../img/23.png");
+    background-repeat: no-repeat;
+}
+
+div[type="24"] {
+    background-image: url("../img/24.png");
+    background-repeat: no-repeat;
+}
+
+div[type="25"] {
+    background-image: url("../img/25.png");
+    background-repeat: no-repeat;
+}
+
+div[type="26"] {
+    background-image: url("../img/26.png");
+    background-repeat: no-repeat;
+}
+
+div[type="27"] {
+    background-image: url("../img/27.png");
+    background-repeat: no-repeat;
+}
+
+div[type="28"] {
+    background-image: url("../img/28.png");
+    background-repeat: no-repeat;
+}
+
+div[type="29"] {
+    background-image: url("../img/29.png");
+    background-repeat: no-repeat;
+}
+
+div[type="30"] {
+    background-image: url("../img/30.png");
+    background-repeat: no-repeat;
+}
+
+div[type="31"] {
+    background-image: url("../img/31.png");
+    background-repeat: no-repeat;
+}
+
+div[type="32"] {
+    background-image: url("../img/32.png");
+    background-repeat: no-repeat;
+}
+
+div[type="33"] {
+    background-image: url("../img/33.png");
+    background-repeat: no-repeat;
+}
+
+div[type="34"] {
+    background-image: url("../img/34.png");
+    background-repeat: no-repeat;
+}
+
+div[type="35"] {
+    background-image: url("../img/35.png");
+    background-repeat: no-repeat;
+}
