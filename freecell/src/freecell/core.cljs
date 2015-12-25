@@ -1,10 +1,10 @@
 (ns freecell.core
   (:require [reagent.core :as r]
             [goog.string :refer [unescapeEntities]]
-            [goog.events :as events])
+            [goog.events :as events]
+            [freecell.logic :as logic])
   (:import [goog.events EventType]))
 
-(def state (r/atom 0))
 (def card-width 80)
 (def card-height 100)
 (def mini-card-height 20)
@@ -26,6 +26,7 @@
             12 "Q"
             13 "K"})
 
+(def ui-state (r/atom {}))
 
 (defn elapsed-component!
   []
@@ -48,160 +49,23 @@
                 :y (- (.-clientY event) (:y target-location))}
         location {:x (- (.-clientX event) (:x origin-location) (:x offset))
                   :y (- (.-clientY event) (:y origin-location) (:y offset))}]
-    (swap! state #(assoc % :draggable-pile {:block block
-                                            :position position
-                                            :offset offset}))
-    (swap! state #(assoc % :draggable-pile-location location))))
+    (logic/select-pile! block position)
+    (swap! ui-state #(assoc % :draggable-pile {:offset offset
+                                               :location location}))))
 
 (defn on-drag-pile!
   [event]
   (let [origin-location (get-client-location (.getElementById js/document "board"))
-        offset (get-in @state [:draggable-pile :offset])
+        offset (get-in @ui-state [:draggable-pile :offset])
         location {:x (- (.-clientX event) (:x origin-location) (:x offset))
                   :y (- (.-clientY event) (:y origin-location) (:y offset))}]
-    (swap! state #(assoc % :draggable-pile-location location))))
-
-(defn get-card-color
-  [card]
-  (case (:suit card)
-    :hearts :red
-    :diamonds :red
-    :clubs :black
-    :spades :black))
-
-(defn in-tableau-order?
-  [top-card bottom-card]
-  (and (not= (get-card-color top-card) (get-card-color bottom-card))
-       (= (- (:rank bottom-card) (:rank top-card)) 1)))
-
-(defn get-card-to-move!
-  [from-pile to-pile to-block]
-  (case to-block
-    :freecells (if (empty? to-pile)
-                 (last from-pile)
-                 nil)
-    :foundations (if (empty? to-pile)
-                   (if (= (:rank (last from-pile)) 1)
-                     (last from-pile)
-                     nil)
-                   (let [from-card (last from-pile)
-                         to-card (last to-pile)]
-                     (if (and (= (:suit from-card) (:suit to-card))
-                              (= (- (:rank from-card) (:rank to-card)) 1))
-                       (last from-pile)
-                       nil)))
-    :tableau
-    (let [max-moves (+ (count (filter empty? (:freecells @state)))
-                       (count (filter empty? (:tableau @state)))
-                       1)
-          to-card (last to-pile)
-          reversed-pile (reverse from-pile)]
-      (.log js/console "max-moves: " max-moves)
-      (first (filter (fn [card]
-                       (in-tableau-order? card to-card))
-                     (cons (first reversed-pile)
-                           (take (dec max-moves)
-                                 (take-while some?
-                                             (map (fn [top-card bottom-card]
-                                                    (if (in-tableau-order? top-card bottom-card)
-                                                      bottom-card
-                                                      nil))
-                                                  reversed-pile
-                                                  (rest reversed-pile))))))))))
-
-(defn get-cards-to-drop-count!
-  [from-pile to-pile to-block]
-  (case to-block
-    :freecells (if (empty? to-pile)
-                 1 0)
-    :foundations (if (empty? to-pile)
-                   (if (= (:rank (last from-pile)) 1)
-                     1 0)
-                   (let [from-card (last from-pile)
-                         to-card (last to-pile)]
-                     (if (and (= (:suit from-card) (:suit to-card))
-                              (= (- (:rank from-card) (:rank to-card)) 1))
-                       1 0)))
-    :tableau (if (empty? to-pile)
-               1
-               (if-let [from-card (get-card-to-move! from-pile to-pile :tableau)]
-                 (inc (count (take-while #(not= % from-card) (reverse from-pile))))
-                 0))))
-
-(defn update-foundations-rank!
-  [card]
-  (swap! state (fn [state]
-                 (assoc state :foundations-rank
-                   (inc (apply min (map (fn [pile]
-                                          (:rank (last pile)))
-                                        (:foundations state))))))))
-
-(defn move-pile!
-  [from-block from-position from-pile to-block to-position to-pile]
-  (let [cards-count (get-cards-to-drop-count! from-pile to-pile to-block)]
-    (.log js/console "drop cards count: " cards-count)
-    (swap! state (fn [state]
-                   (update-in state [from-block from-position]
-                              (fn [pile]
-                                (vec (drop-last cards-count pile))))))
-    (swap! state (fn [state]
-                   (update-in state [to-block to-position] (fn [pile]
-                                                             (into pile (take-last cards-count from-pile))))))))
-(defn auto-move-to-foundations!
-  []
-  (let [current-state @state
-        foundations (:foundations current-state)
-        tableau (:tableau current-state)
-        foundations-rank (:foundations-rank current-state)]
-    (.log js/console "rank " foundations-rank)
-    (when (some some?
-                (for [from-pile-position (range 0 (count tableau))
-                      :let [pile (nth tableau from-pile-position)
-                            card (last pile)]
-                      :when card]
-                  (do
-                    (when (<= (:rank card) foundations-rank)
-                      (.log js/console "to foundations: " card)
-                      (let [suit-position (count (take-while #(not= (:suit card) (:suit (first %)))
-                                                             foundations))
-                            to-pile-position (if (< suit-position (count foundations))
-                                               suit-position
-                                               (count (take-while seq foundations)))
-                            to-pile (nth foundations to-pile-position)]
-                        (move-pile! :tableau from-pile-position pile :foundations to-pile-position to-pile)
-                        (update-foundations-rank! (last pile))
-                        true)))))
-      (recur))))
-
-(defn drop-pile-to!
-  [block position]
-  (let [from-pile-info (:draggable-pile @state)
-        from-pile (get-in @state [(:block from-pile-info)
-                                  (:position from-pile-info)])
-        to-pile (get-in @state [block position])]
-    (move-pile! (:block from-pile-info)
-                   (:position from-pile-info)
-                   from-pile
-                   block
-                   position
-                   to-pile)
-    (auto-move-to-foundations!)))
+    (swap! ui-state  #(assoc-in % [:draggable-pile :location] location))))
 
 (defn on-drop-pile!
   [event]
-  (swap! state #(assoc % :draggable-pile nil))
-  (swap! state #(assoc % :draggable-card nil))
+  (logic/drop-pile!)
   (events/unlisten js/window EventType.MOUSEMOVE on-drag-pile!)
   (events/unlisten js/window EventType.MOUSEUP on-drop-pile!))
-
-(defn set-draggable-card!
-  [block position event]
-  (let [from-pile-info (:draggable-pile @state)
-        from-pile (get-in @state [(:block from-pile-info)
-                                  (:position from-pile-info)])
-        to-pile (get-in @state [block position])
-        card-to-move (get-card-to-move! from-pile to-pile block)]
-    (swap! state #(assoc % :draggable-card card-to-move))))
 
 (defn on-pile-select!
   [block position event]
@@ -240,10 +104,10 @@
                          (on-pile-select! block position event)))
       :on-mouse-up (fn [event]
                      (when draggable-pile
-                       (drop-pile-to! block position)))
+                       (logic/drop-pile-to! block position)))
       :on-mouse-enter (fn [event]
                         (when draggable-pile
-                          (set-draggable-card! block position event)))}
+                          (logic/set-draggable-card! block position)))}
      (if (not (empty? cards))
        (for [position (range 0 (count cards))
              :let [card (nth cards position)
@@ -262,37 +126,40 @@
 
 (defn draggable-pile-component!
   []
-  (when-let [pile (:draggable-pile @state)]
-    [pile-component-at (:draggable-card @state) (:block pile) (:draggable-pile-location @state)]))
+  (when-let [pile-info (logic/get-selected-pile-info!)]
+    [pile-component-at (logic/get-draggable-card!) (:block pile-info)
+     (get-in @ui-state [:draggable-pile :location])]))
 
 (defn cards-block-component!
   ([piles block]
    (cards-block-component! piles block nil))
   ([piles block placeholder]
    (let [width (* (count piles) card-width)
-         draggable-pile (:draggable-pile @state)
-         draggable-card (:draggable-card @state)]
+         draggable-pile-info (logic/get-selected-pile-info!)
+         draggable-card (logic/get-draggable-card!)]
      [:div.cards-block {:style {:width width}}
       (for [position (range 0 (count piles))
             :let [pile (nth piles position)]]
-        (let [draggable-card-position (if (and (= block (:block draggable-pile))
-                                               (= position (:position draggable-pile)))
+        (let [draggable-card-position (if (and (= block (:block draggable-pile-info))
+                                               (= position (:position draggable-pile-info)))
                                         (if draggable-card
                                           (count (take-while #(not= % draggable-card) pile))))]
-          ^{:key position} [pile-component pile block position placeholder draggable-pile (and draggable-card-position draggable-card) draggable-card-position]))])))
+          ^{:key position} [pile-component pile block position placeholder draggable-pile-info
+                            (and draggable-card-position draggable-card)
+                            draggable-card-position]))])))
 
 (defn freecells-component!
   []
   (.log js/console "freecells-component")
-  (cards-block-component! (:freecells @state) :freecells))
+  (cards-block-component! (logic/get-block! :freecells) :freecells))
 
 (defn foundations-component!
   []
-  (cards-block-component! (:foundations @state) :foundations "A"))
+  (cards-block-component! (logic/get-block! :foundations) :foundations "A"))
 
 (defn tableau-component!
   []
-  (cards-block-component! (:tableau @state) :tableau))
+  (cards-block-component! (logic/get-block! :tableau) :tableau))
 
 (defn board-component!
   []
@@ -307,31 +174,8 @@
   (r/render-component [board-component!]
                       (.getElementById js/document "app")))
 
-(defn shuffle-deck
-  []
-  (let [deck (for [suit (keys suits)
-                   rank (keys ranks)]
-               {:suit suit
-                :rank rank
-                :key (str suit rank)})
-        shuffled (shuffle deck)]
-    {:freecells [[] [] [] []]
-     :foundations [[] [] [] []]
-     :tableau
-     (into (vec (for [index (range 0 4)]
-                  (vec (take 7 (drop (* index 7) shuffled)))))
-           (vec (for [index (range 0 4)]
-                  (vec (take 6 (drop (+ 28 (* index 6)) shuffled))))))
-     :foundations-rank 1
-     :draggable-pile nil
-     :draggable-card nil}))
-
-(defn init-state!
-  []
-  (reset! state (shuffle-deck)))
-
 (defn ^:export run
   []
-  (init-state!)
+  (logic/init-game-state!)
   (mountit!)
-  (auto-move-to-foundations!))
+  (logic/auto-move-to-foundations!))
