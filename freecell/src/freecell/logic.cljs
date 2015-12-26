@@ -109,8 +109,9 @@
   (let [cards-count (get-cards-to-drop-count! from-pile to-pile to-block)]
     (.log js/console "drop cards count: " cards-count)
     (swap! state (fn [state]
-                   (update state :history (fn [history]
-                                            (conj history state)))))
+                   (dissoc state :next-state)))
+    (swap! state (fn [state]
+                   (update state :history conj state))) 
     (swap! state (fn [state]
                    (update-in state [from-block from-position]
                               (fn [pile]
@@ -176,12 +177,14 @@
 (defn undo!
   []
   (drop-pile!)
-  (when-let [prev-state (first (:history @state))]
-    (reset! state prev-state)))
+  (let [current-state @state]
+    (when-let [prev-state (first (:history @state))]
+      (reset! state (assoc prev-state :next-state current-state)))))
 
 (defn redo!
   []
-  )
+  (when-let [next-state (:next-state @state)]
+    (reset! state next-state)))
 
 (defn shuffle-deck
   []
