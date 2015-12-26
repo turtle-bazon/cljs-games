@@ -109,6 +109,9 @@
   (let [cards-count (get-cards-to-drop-count! from-pile to-pile to-block)]
     (.log js/console "drop cards count: " cards-count)
     (swap! state (fn [state]
+                   (update state :history (fn [history]
+                                            (conj history state)))))
+    (swap! state (fn [state]
                    (update-in state [from-block from-position]
                               (fn [pile]
                                 (vec (drop-last cards-count pile))))))
@@ -148,6 +151,7 @@
         from-pile (get-in @state [(:block from-pile-info)
                                   (:position from-pile-info)])
         to-pile (get-in @state [block position])]
+    (drop-pile!)
     (move-pile! (:block from-pile-info)
                 (:position from-pile-info)
                 from-pile
@@ -169,6 +173,16 @@
   []
   (:draggable-card @state))
 
+(defn undo!
+  []
+  (drop-pile!)
+  (when-let [prev-state (first (:history @state))]
+    (reset! state prev-state)))
+
+(defn redo!
+  []
+  )
+
 (defn shuffle-deck
   []
   (let [deck (for [suit '(:hearts
@@ -189,7 +203,8 @@
                   (vec (take 6 (drop (+ 28 (* index 6)) shuffled))))))
      :foundations-rank 1
      :draggable-pile nil
-     :draggable-card nil}))
+     :draggable-card nil
+     :history ()}))
 
 (defn init-game-state!
   []

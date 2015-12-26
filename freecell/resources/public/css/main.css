@@ -62,6 +62,11 @@ body {
   opacity: 0.6;
 }
 
+.controls-panel {
+  position: absolute;
+  top: 400px;
+}
+
 .elapsed-time {
   position: absolute;
   bottom: 20px;

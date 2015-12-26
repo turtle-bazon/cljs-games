@@ -161,12 +161,24 @@
   []
   (cards-block-component! (logic/get-block! :tableau) :tableau))
 
+(defn undo!
+  []
+  (on-drop-pile! nil)
+  (logic/undo!))
+
+(defn controls-component!
+  []
+  [:div.controls-panel
+   ^{:key :undo} [:button {:on-click undo!} "Undo"]
+   ^{:key :redo} [:button {:on-click logic/redo!} "Redo"]])
+
 (defn board-component!
   []
   [:div#board.board
    ^{:key :freecells} [:div.row [freecells-component!] [foundations-component!]]
    ^{:key :tableau} [:div.row [tableau-component!]]
    ^{:key :draggable-pile} [draggable-pile-component!]
+   ^{:key :controls} [controls-component!]
    ^{:key :elapsed} [:div.row [elapsed-component!]]])
 
 (defn mountit!
