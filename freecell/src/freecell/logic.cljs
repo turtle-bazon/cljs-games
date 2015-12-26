@@ -11,14 +11,16 @@
   (block @state))
 
 (defn select-pile!
-  [block position]
-  (swap! state #(assoc % :draggable-pile {:block block
-                                          :position position})))
+  [block pile-position card-position]
+  (let [pile (drop card-position (get-in @state [block pile-position]))]
+    (swap! state #(assoc % :draggable-pile {:block block
+                                            :position pile-position
+                                            :card-position card-position
+                                            :pile pile}))))
 
 (defn drop-pile!
   []
-  (swap! state #(assoc % :draggable-pile nil))
-  (swap! state #(assoc % :draggable-card nil)))
+  (swap! state #(assoc % :draggable-pile nil)))
 
 (defn get-selected-pile-info!
   []
@@ -105,20 +107,20 @@
                                              (:foundations state))))))))
 
 (defn move-pile!
-  [from-block from-position from-pile to-block to-position to-pile]
-  (let [cards-count (get-cards-to-drop-count! from-pile to-pile to-block)]
-    (.log js/console "drop cards count: " cards-count)
-    (swap! state (fn [state]
-                   (dissoc state :next-state)))
-    (swap! state (fn [state]
-                   (update state :history conj state))) 
-    (swap! state (fn [state]
-                   (update-in state [from-block from-position]
-                              (fn [pile]
-                                (vec (drop-last cards-count pile))))))
-    (swap! state #(update-in % [to-block to-position] 
-                             (fn [pile]
-                               (into pile (take-last cards-count from-pile)))))))
+  [from-block from-position from-pile to-block to-position to-pile cards-count]
+  (let [max-cards-count (get-cards-to-drop-count! from-pile to-pile to-block)]
+    (when (= cards-count max-cards-count)
+      (swap! state (fn [state]
+                     (dissoc state :next-state)))
+      (swap! state (fn [state]
+                     (update state :history conj state))) 
+      (swap! state (fn [state]
+                     (update-in state [from-block from-position]
+                                (fn [pile]
+                                  (vec (drop-last cards-count pile))))))
+      (swap! state #(update-in % [to-block to-position] 
+                               (fn [pile]
+                                 (into pile (take-last cards-count from-pile))))))))
 
 (defn auto-move-to-foundations!
   []
@@ -141,7 +143,7 @@
                                              (count (take-while seq foundations)))
                           to-pile (nth foundations to-pile-position)]
                       (move-pile! :tableau from-pile-position pile
-                                  :foundations to-pile-position to-pile)
+                                  :foundations to-pile-position to-pile 1)
                       (update-foundations-rank! (last pile))
                       true))))
       (recur))))
@@ -158,7 +160,8 @@
                 from-pile
                 block
                 position
-                to-pile)
+                to-pile
+                (count (:pile from-pile-info)))
     (auto-move-to-foundations!)))
 
 (defn set-draggable-card!
@@ -170,9 +173,9 @@
         card-to-move (get-card-to-move! from-pile to-pile block)]
     (swap! state #(assoc % :draggable-card card-to-move))))
 
-(defn get-draggable-card!
+(defn get-draggable-pile!
   []
-  (:draggable-card @state))
+  (get-in @state [:draggable-pile :pile]))
 
 (defn undo!
   []
