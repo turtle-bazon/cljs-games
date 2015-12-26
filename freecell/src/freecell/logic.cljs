@@ -10,14 +10,6 @@
   [block]
   (block @state))
 
-(defn select-pile!
-  [block pile-position card-position]
-  (let [pile (drop card-position (get-in @state [block pile-position]))]
-    (swap! state #(assoc % :draggable-pile {:block block
-                                            :position pile-position
-                                            :card-position card-position
-                                            :pile pile}))))
-
 (defn drop-pile!
   []
   (swap! state #(assoc % :draggable-pile nil)))
@@ -43,6 +35,31 @@
   [top-card bottom-card]
   (and (not= (get-card-color top-card) (get-card-color bottom-card))
        (= (- (:rank bottom-card) (:rank top-card)) 1)))
+
+(defn get-cards-chain-size!
+  [pile]
+  (let [max-moves (+ (count (filter empty? (:freecells @state)))
+                     (count (filter empty? (:tableau @state)))
+                     1)
+        reversed-pile (reverse pile)]
+    (count (cons (first reversed-pile)
+                 (take (dec max-moves)
+                       (take-while some?
+                                   (map (fn [top-card bottom-card]
+                                          (if (in-tableau-order? top-card bottom-card)
+                                            bottom-card
+                                            nil))
+                                        reversed-pile
+                                        (rest reversed-pile))))))))
+
+(defn select-pile!
+  [block pile-position card-position]
+  (let [pile (drop card-position (get-in @state [block pile-position]))]
+    (if (= (count pile) (get-cards-chain-size! pile))
+      (swap! state #(assoc % :draggable-pile {:block block
+                                              :position pile-position
+                                              :card-position card-position
+                                              :pile pile})))))
 
 (defn get-card-to-move!
   [from-pile to-pile to-block]
