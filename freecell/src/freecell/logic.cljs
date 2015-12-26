@@ -36,11 +36,21 @@
   (and (not= (get-card-color top-card) (get-card-color bottom-card))
        (= (- (:rank bottom-card) (:rank top-card)) 1)))
 
+(defn get-max-moves-count!
+  ([]
+   (get-max-moves-count! nil nil))
+  ([to-block to-pile]
+   (let [max-moves (+ (count (filter empty? (:freecells @state)))
+                      (count (filter empty? (:tableau @state)))
+                      1)]
+     (if (and (= to-block :tableau)
+              (empty? to-pile))
+       (dec max-moves)
+       max-moves))))
+
 (defn get-cards-chain-size!
   [pile]
-  (let [max-moves (+ (count (filter empty? (:freecells @state)))
-                     (count (filter empty? (:tableau @state)))
-                     1)
+  (let [max-moves (get-max-moves-count!)
         reversed-pile (reverse pile)]
     (count (cons (first reversed-pile)
                  (take (dec max-moves)
@@ -110,7 +120,7 @@
                               (= (- (:rank from-card) (:rank to-card)) 1))
                        1 0)))
     :tableau (if (empty? to-pile)
-               1
+               (min (get-max-moves-count! to-block to-pile) (get-cards-chain-size! from-pile))
                (if-let [from-card (get-card-to-move! from-pile to-pile :tableau)]
                  (inc (count (take-while #(not= % from-card) (reverse from-pile))))
                  0))))
@@ -126,7 +136,7 @@
 (defn move-pile!
   [from-block from-position from-pile to-block to-position to-pile cards-count]
   (let [max-cards-count (get-cards-to-drop-count! from-pile to-pile to-block)]
-    (when (= cards-count max-cards-count)
+    (when (<= cards-count max-cards-count)
       (swap! state (fn [state]
                      (dissoc state :next-state)))
       (swap! state (fn [state]
