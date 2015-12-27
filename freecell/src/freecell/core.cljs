@@ -97,15 +97,14 @@
      (str rank-html suit-html)]))
 
 (defn pile-component
-  [cards block pile-position placeholder draggable-pile draggable-card-position]
+  [cards block pile-position placeholder draggable-card-position]
   (.log js/console "pile-component")
   (let [height (+ card-height (* (count cards) mini-card-height))]
     [:div.cards-pile
      {:style {:left (str (* pile-position card-width) "px")
               :height height}
       :on-mouse-up (fn [event]
-                     (when draggable-pile
-                       (logic/drop-pile-to! block pile-position)))}
+                     (logic/drop-pile-to! block pile-position))}
      (if (not (empty? cards))
        (for [card-position (range 0 (count cards))
              :let [card (nth cards card-position)
@@ -128,43 +127,44 @@
     [pile-component-at (logic/get-draggable-pile!) (:block pile-info)
      (get-in @ui-state [:draggable-pile :location])]))
 
-(defn cards-block-component!
-  ([piles block]
-   (cards-block-component! piles block nil))
-  ([piles block placeholder]
-   (let [width (* (count piles) card-width)
-         draggable-pile-info (logic/get-selected-pile-info!)]
-     [:div.cards-block {:style {:width width}}
-      (for [position (range 0 (count piles))
-            :let [pile (nth piles position)]]
-        (let [draggable-card-position (if (and (= block (:block draggable-pile-info))
-                                               (= position (:position draggable-pile-info)))
-                                        (:card-position draggable-pile-info))]
-          ^{:key position} [pile-component pile block position placeholder draggable-pile-info
-                            draggable-card-position]))])))
+(defn block-component
+  [block piles draggable-pile-info placeholder]
+  (let [width (* (count piles) card-width)
+        draggable-pile-position (:position draggable-pile-info)]
+    [:div.cards-block {:style {:width width}}
+     (for [position (range 0 (count piles))
+           :let [pile (nth piles position)]]
+       (let [draggable-card-position-for-pile
+             (when (= position draggable-pile-position)
+               (:card-position draggable-pile-info))]
+         ^{:key position} [pile-component pile block position placeholder
+                           draggable-card-position-for-pile]))]))
+
+(defn block-component!
+  ([block piles]
+   (block-component! block piles nil))
+  ([block piles placeholder]
+   (let [draggable-pile-info (logic/get-selected-pile-info!)
+         draggable-pile-info-for-block (when (= block (:block draggable-pile-info))
+                                         draggable-pile-info)]
+     (block-component block piles draggable-pile-info-for-block placeholder))))
 
 (defn freecells-component!
   []
-  (.log js/console "freecells-component")
-  (cards-block-component! (logic/get-block! :freecells) :freecells))
+  (block-component! :freecells (logic/get-block! :freecells)))
 
 (defn foundations-component!
   []
-  (cards-block-component! (logic/get-block! :foundations) :foundations "A"))
+  (block-component! :foundations (logic/get-block! :foundations) "A"))
 
 (defn tableau-component!
   []
-  (cards-block-component! (logic/get-block! :tableau) :tableau))
-
-(defn undo!
-  []
-  (on-drop-pile! nil)
-  (logic/undo!))
+  (block-component! :tableau (logic/get-block! :tableau)))
 
 (defn controls-component!
   []
   [:div.controls-panel
-   ^{:key :undo} [:button {:on-click undo!} "Undo"]
+   ^{:key :undo} [:button {:on-click logic/undo!} "Undo"]
    ^{:key :redo} [:button {:on-click logic/redo!} "Redo"]])
 
 (defn board-component!

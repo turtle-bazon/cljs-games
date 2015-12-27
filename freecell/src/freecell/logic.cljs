@@ -48,19 +48,20 @@
        (dec max-moves)
        max-moves))))
 
-(defn get-cards-chain-size!
+(defn- get-cards-chain-size!
   [pile]
   (let [max-moves (get-max-moves-count!)
         reversed-pile (reverse pile)]
-    (count (cons (first reversed-pile)
-                 (take (dec max-moves)
-                       (take-while some?
-                                   (map (fn [top-card bottom-card]
-                                          (if (in-tableau-order? top-card bottom-card)
-                                            bottom-card
-                                            nil))
-                                        reversed-pile
-                                        (rest reversed-pile))))))))
+    (inc (count
+          (take (dec max-moves)
+                (take-while some?
+                            (map (fn [top-card bottom-card]
+                                   (if (in-tableau-order? top-card
+                                                          bottom-card)
+                                     bottom-card
+                                     nil))
+                                 reversed-pile
+                                 (rest reversed-pile))))))))
 
 (defn select-pile!
   [block pile-position card-position]
@@ -177,19 +178,19 @@
 
 (defn drop-pile-to!
   [block position]
-  (let [from-pile-info (:draggable-pile @state)
-        from-pile (get-in @state [(:block from-pile-info)
-                                  (:position from-pile-info)])
-        to-pile (get-in @state [block position])]
-    (drop-pile!)
-    (move-pile! (:block from-pile-info)
-                (:position from-pile-info)
-                from-pile
-                block
-                position
-                to-pile
-                (count (:pile from-pile-info)))
-    (auto-move-to-foundations!)))
+  (when-let [from-pile-info (:draggable-pile @state)]
+    (let [from-pile (get-in @state [(:block from-pile-info)
+                                    (:position from-pile-info)])
+          to-pile (get-in @state [block position])]
+      (drop-pile!)
+      (move-pile! (:block from-pile-info)
+                  (:position from-pile-info)
+                  from-pile
+                  block
+                  position
+                  to-pile
+                  (count (:pile from-pile-info)))
+      (auto-move-to-foundations!))))
 
 (defn set-draggable-card!
   [block position]
