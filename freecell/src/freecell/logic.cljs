@@ -122,28 +122,34 @@
                                (fn [pile]
                                  (into pile draggable-pile)))))))
 
+(defn auto-move-to-foundations-from-block!
+  [foundations foundations-rank block]
+  (let [current-state @state
+        piles (get current-state block)]
+    (some some?
+          (for [from-pile-position (range 0 (count piles))
+                :let [pile (nth piles from-pile-position)
+                      card (last pile)]
+                :when card]
+            (when (<= (:rank card) foundations-rank)
+              (let [suit-position (count (take-while #(not= (:suit card) (:suit (first %)))
+                                                     foundations))
+                    to-pile-position (if (< suit-position (count foundations))
+                                       suit-position
+                                       (count (take-while seq foundations)))
+                    to-pile (nth foundations to-pile-position)]
+                (move-pile! block from-pile-position (list card)
+                            :foundations to-pile-position to-pile)
+                (update-foundations-rank! (last pile))
+                true))))))
+
 (defn auto-move-to-foundations!
   []
   (let [current-state @state
         foundations (:foundations current-state)
-        tableau (:tableau current-state)
         foundations-rank (:foundations-rank current-state)]
-    (when (some some?
-                (for [from-pile-position (range 0 (count tableau))
-                      :let [pile (nth tableau from-pile-position)
-                            card (last pile)]
-                      :when card]
-                  (when (<= (:rank card) foundations-rank)
-                    (let [suit-position (count (take-while #(not= (:suit card) (:suit (first %)))
-                                                           foundations))
-                          to-pile-position (if (< suit-position (count foundations))
-                                             suit-position
-                                             (count (take-while seq foundations)))
-                          to-pile (nth foundations to-pile-position)]
-                      (move-pile! :tableau from-pile-position (list card)
-                                  :foundations to-pile-position to-pile)
-                      (update-foundations-rank! (last pile))
-                      true))))
+    (when (or (auto-move-to-foundations-from-block! foundations foundations-rank :freecells)
+              (auto-move-to-foundations-from-block! foundations foundations-rank :tableau))
       (recur))))
 
 (defn drop-pile-to!
@@ -179,10 +185,10 @@
 
 (defn shuffle-deck
   []
-  (let [deck (for [suit '(:hearts
-                          :diamonds
-                          :clubs
-                          :spades)
+  (let [deck (for [suit (list :hearts
+                              :diamonds
+                              :clubs
+                              :spades)
                    rank (range 1 14)]
                {:suit suit
                 :rank rank
