@@ -8,18 +8,28 @@
 
 (def game (r/atom {}))
 
-(defn card-component [card]
+(def hz (atom 0))
+
+(defn open-card! [card]
+  (js/alert (str card)))
+
+(defn card-component [id card]
   [:div.card {:type (if (= (:state card) :closed)
                       "closed"
-                      (:type-id card))}])
+                      (:type-id card))
+              :card-id id
+              :on-click #(open-card! card)}])
 
 (defn board-component []
-  (let [cur-game @game]
+  (let [cur-game @game
+        w (:w cur-game)
+        h (:h cur-game)]
     [:div.board
-     (for [row (-> cur-game :board)]
+     (for [row (range 0 h)]
        [:div.board-row
-        (for [card row]
-          [card-component card])])]))
+        (for [col (range 0 w)]
+          (let [id (+ (* row w) col)]
+            ^{:key id} [card-component id nil]))])]))
 
 (defn game-component []
   (let [cur-game @game]
@@ -33,12 +43,12 @@
                 :hard [8 9])
         total-cards (* w h)
         ids-to-play (range 0 (/ total-cards 2))
-        board (vec (map vec (partition
-                             w
-                             (for [id (shuffle (concat ids-to-play ids-to-play))]
-                               {:type-id id
-                                :state :closed}))))]
+        board (vec (for [id (shuffle (concat ids-to-play ids-to-play))]
+                     {:type-id id
+                      :state :closed}))]
     (-> game'
+        (assoc-in [:w] w)
+        (assoc-in [:h] h)
         (assoc-in [:board] board))))
 
 (defn start [level]
