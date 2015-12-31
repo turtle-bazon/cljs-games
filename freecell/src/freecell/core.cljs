@@ -68,9 +68,6 @@
   (events/unlisten js/window EventType.MOUSEUP on-drop-pile!))
 
 
-;;;;;;;;;;;;;;;;;;;;
-;; here
-;;;
 (defn- get-location
   [card]
   (let [board-bounds (.getBoundingClientRect (.getElementById js/document "board"))
@@ -94,56 +91,54 @@
 (def velocity 100)
 (def animation-interval 50)
 (defn- next-location!
-  [current-location animation]
-  (let [on-stop (:on-stop animation)
-        stop-location (get-location (:to animation))
-        distance-x (- (:x stop-location) (:x current-location))
-        distance-y (- (:y stop-location) (:y current-location))
-        max-distance (max (abs distance-x) (abs distance-y))
-        turns-count (/ max-distance velocity)
-        dx (/ distance-x turns-count)
-        dy (/ distance-y turns-count)
-        new-location-x (if (< (abs distance-x) (abs dx))
-                         (:x stop-location)
-                         (+ (:x current-location) dx))
-        new-location-y (if (< (abs distance-y) (abs dy))
-                         (:y stop-location)
-                         (+ (:y current-location) dy))]
-    (when (and (= new-location-x (:x stop-location))
-               (= new-location-y (:y stop-location)))
-      (swap! ui-state assoc :animation nil)
-      (on-stop))
-    {:x new-location-x :y new-location-y}))
+  [current-location]
+  (when-let [animation (:animation @ui-state)]
+    (let [on-stop (:on-stop animation)
+          stop-location (get-location (:to animation))
+          distance-x (- (:x stop-location) (:x current-location))
+          distance-y (- (:y stop-location) (:y current-location))
+          max-distance (max (abs distance-x) (abs distance-y))
+          turns-count (/ max-distance velocity)
+          dx (/ distance-x turns-count)
+          dy (/ distance-y turns-count)
+          new-location-x (if (< (abs distance-x) (abs dx))
+                           (:x stop-location)
+                           (+ (:x current-location) dx))
+          new-location-y (if (< (abs distance-y) (abs dy))
+                           (:y stop-location)
+                           (+ (:y current-location) dy))]
+      (when (and (= new-location-x (:x stop-location))
+                 (= new-location-y (:y stop-location)))
+        (swap! ui-state assoc :animation nil)
+        (on-stop true))
+      {:x new-location-x :y new-location-y})))
 
 (defn- card-animation-component!
   []
-  (when-let [animation (:animation @ui-state)]
-    (let [location (r/atom nil)]
-      (fn []
-        (when-let [animation (:animation @ui-state)]
-          (if (not (:started animation))
-            (do
-              (reset! location (get-location (:from animation)))
-              (swap! ui-state assoc-in [:animation :started] true)
-              nil)
-            (let [current-location @location]
-              (js/setTimeout #(swap! location next-location! animation) animation-interval)
-              (.log js/console "Location-x: " (:x current-location)
-                    ", location-y: " (:y current-location))
-              (let [card (logic/get-card! (:from animation))
-                    rank (:rank card)
-                    rank-html (get ranks rank)
-                    suit (:suit card)
-                    suit-html (unescapeEntities (get suits suit))
-                    color (case suit
-                            :hearts "red"
-                            :diamonds "red"
-                            :clubs "black"
-                            :spades "black")]
-                [:p.card-place.card
-                 {:style {:left (str (:x current-location) "px")
-                          :top (str (:y current-location) "px") :color color}}
-                 (str rank-html suit-html)]))))))))
+  (let [location (r/atom nil)]
+    (fn []
+      (when-let [animation (:animation @ui-state)]
+        (if (not (:started animation))
+          (do
+            (reset! location (get-location (:from animation)))
+            (swap! ui-state assoc-in [:animation :started] true)
+            nil)
+          (let [current-location @location]
+            (js/setTimeout #(swap! location next-location!) animation-interval)
+            (let [card (logic/get-card! (:from animation))
+                  rank (:rank card)
+                  rank-html (get ranks rank)
+                  suit (:suit card)
+                  suit-html (unescapeEntities (get suits suit))
+                  color (case suit
+                          :hearts "red"
+                          :diamonds "red"
+                          :clubs "black"
+                          :spades "black")]
+              [:p.card-place.card
+               {:style {:left (str (:x current-location) "px")
+                        :top (str (:y current-location) "px") :color color}}
+               (str rank-html suit-html)])))))))
 
 (defn- set-card-animation!
   [from to on-stop]
@@ -151,8 +146,12 @@
                                     :to to
                                     :on-stop on-stop}))
 
-
-
+(defn- stop-animation!
+  []
+  (when-let [animation (:animation @ui-state)]
+    ((:on-stop animation) false)
+    (logic/auto-move-to-foundations! true))
+  (swap! ui-state assoc :animation nil))
 
 (defn on-pile-select!
   [block pile-position card-position event]
@@ -253,8 +252,14 @@
 (defn controls-component!
   []
   [:div.controls-panel
-   ^{:key :undo} [:button {:on-click logic/undo!} "Undo"]
-   ^{:key :redo} [:button {:on-click logic/redo!} "Redo"]])
+   ^{:key :undo} [:button {:on-click (fn []
+                                       (stop-animation!)
+                                       (logic/undo!))}
+                  "Undo"]
+   ^{:key :redo} [:button {:on-click (fn []
+                                       (stop-animation!)
+                                       (logic/redo!))}
+                  "Redo"]])
 
 (defn board-component!
   []
@@ -269,10 +274,11 @@
 (defn mountit!
   []
   (r/render-component [board-component!]
-                      (.getElementById js/document "app")))
+                      (.getElementById js/document "app"))
+  (events/listen js/window EventType.MOUSEDOWN stop-animation!))
 
 (defn ^:export run
   []
   (logic/init-game-state! set-card-animation!)
   (mountit!)
-  (logic/auto-move-to-foundations!))
+  (logic/auto-move-to-foundations! false))

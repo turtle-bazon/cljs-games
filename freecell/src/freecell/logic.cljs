@@ -128,8 +128,8 @@
                                (fn [pile]
                                  (into pile draggable-pile)))))))
 
-(defn auto-move-to-foundations-from-block!
-  [foundations foundations-rank block next-fn]
+(defn- auto-move-to-foundations-from-block!
+  [foundations foundations-rank block next-fn force]
   (let [current-state @state
         piles (get current-state block)]
     (some some?
@@ -150,21 +150,26 @@
                       to {:block :foundations
                           :pile to-pile-position
                           :card 0}
-                      on-animation-stop (fn []
+                      on-animation-stop (fn [propagate]
                                           (move-pile! block from-pile-position (list card)
                                                       :foundations to-pile-position to-pile)
                                           (update-foundations-rank! (last pile))
-                                          (next-fn))]
-                  ((:animate-fn current-state) from to on-animation-stop)
+                                          (when propagate
+                                            (next-fn)))]
+                  (if force
+                    (on-animation-stop false)
+                    ((:animate-fn current-state) from to on-animation-stop))
                   true)))))))
 
-(defn- auto-move-to-foundations!
-  []
+(defn auto-move-to-foundations!
+  [force]
   (let [current-state @state
         foundations (:foundations current-state)
         foundations-rank (:foundations-rank current-state)]
-    (or (auto-move-to-foundations-from-block! foundations foundations-rank :freecells auto-move-to-foundations!)
-        (auto-move-to-foundations-from-block! foundations foundations-rank :tableau auto-move-to-foundations!))))
+    (when (and (or (auto-move-to-foundations-from-block! foundations foundations-rank :freecells auto-move-to-foundations! force)
+                   (auto-move-to-foundations-from-block! foundations foundations-rank :tableau auto-move-to-foundations! force))
+               force)
+      (recur true))))
 
 (defn drop-pile-to!
   [block position]
@@ -179,7 +184,7 @@
                   block
                   position
                   to-pile)
-      (auto-move-to-foundations!))))
+      (auto-move-to-foundations! false))))
 
 (defn get-draggable-pile!
   []
