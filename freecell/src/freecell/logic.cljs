@@ -10,6 +10,12 @@
   [block]
   (block @state))
 
+(defn get-card!
+  [card-info]
+  (get-in @state [(:block card-info)
+                  (:pile card-info)
+                  (:card card-info)]))
+
 (defn drop-pile!
   []
   (swap! state #(assoc % :draggable-pile nil)))
@@ -123,7 +129,7 @@
                                  (into pile draggable-pile)))))))
 
 (defn auto-move-to-foundations-from-block!
-  [foundations foundations-rank block]
+  [foundations foundations-rank block next-fn]
   (let [current-state @state
         piles (get current-state block)]
     (some some?
@@ -138,19 +144,27 @@
                                        suit-position
                                        (count (take-while seq foundations)))
                     to-pile (nth foundations to-pile-position)]
-                (move-pile! block from-pile-position (list card)
-                            :foundations to-pile-position to-pile)
-                (update-foundations-rank! (last pile))
-                true))))))
+                (let [from {:block block
+                            :pile from-pile-position
+                            :card (dec (count pile))}
+                      to {:block :foundations
+                          :pile to-pile-position
+                          :card 0}
+                      on-animation-stop (fn []
+                                          (move-pile! block from-pile-position (list card)
+                                                      :foundations to-pile-position to-pile)
+                                          (update-foundations-rank! (last pile))
+                                          (next-fn))]
+                  ((:animate-fn current-state) from to on-animation-stop)
+                  true)))))))
 
-(defn auto-move-to-foundations!
+(defn- auto-move-to-foundations!
   []
   (let [current-state @state
         foundations (:foundations current-state)
         foundations-rank (:foundations-rank current-state)]
-    (when (or (auto-move-to-foundations-from-block! foundations foundations-rank :freecells)
-              (auto-move-to-foundations-from-block! foundations foundations-rank :tableau))
-      (recur))))
+    (or (auto-move-to-foundations-from-block! foundations foundations-rank :freecells auto-move-to-foundations!)
+        (auto-move-to-foundations-from-block! foundations foundations-rank :tableau auto-move-to-foundations!))))
 
 (defn drop-pile-to!
   [block position]
@@ -183,7 +197,7 @@
   (when-let [next-state (:next-state @state)]
     (reset! state next-state)))
 
-(defn shuffle-deck
+(defn- shuffle-deck
   []
   (let [deck (for [suit (list :hearts
                               :diamonds
@@ -207,5 +221,5 @@
      :history ()}))
 
 (defn init-game-state!
-  []
-  (reset! state (shuffle-deck)))
+  [animate-fn]
+  (reset! state (assoc (shuffle-deck) :animate-fn animate-fn)))

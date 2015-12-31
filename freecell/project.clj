@@ -12,5 +12,5 @@
      :compiler
      {:optimizations :whitespace,
       :output-to "resources/public/js/main.js",
-      :pretty-print true}}]}
+      :pretty-print false}}]}
   :min-lein-version "2.1.2")

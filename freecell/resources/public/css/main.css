@@ -71,3 +71,8 @@ body {
   position: absolute;
   bottom: 20px;
 }
+
+.info-block {
+  position: absolute;
+  bottom: -15px;
+}

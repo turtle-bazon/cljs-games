@@ -67,6 +67,87 @@
   (events/unlisten js/window EventType.MOUSEMOVE on-drag-pile!)
   (events/unlisten js/window EventType.MOUSEUP on-drop-pile!))
 
+
+;;;;;;;;;;;;;;;;;;;;
+;; here
+;;;
+(defn- get-location
+  [card]
+  (let [board-bounds (.getBoundingClientRect (.getElementById js/document "board"))
+        from-block-bounds (.getBoundingClientRect (.getElementById js/document (str (:block card))))
+        from-block-location-x (.-left from-block-bounds)
+        from-block-location-y (.-top from-block-bounds)
+        pile-relative-location-x (* (:pile card) card-width)
+        location-x (+ (- (.-left board-bounds)) from-block-location-x pile-relative-location-x)
+        card-relative-location-y (if (not= (:block card) :foundations)
+                                   (* (:card card) mini-card-height)
+                                   0)
+        location-y (+ (- (.-top board-bounds)) from-block-location-y card-relative-location-y)]
+    {:x location-x :y location-y}))
+
+(defn- abs
+  [n]
+  (if (< 0 n)
+    n
+    (- n)))
+
+(def velocity 100)
+(def animation-interval 50)
+(defn- card-animation-component!
+  []
+  (when-let [animation (:animation @ui-state)]
+    (let [location (r/atom nil)
+          move (fn [current-location animation]
+                 (let [on-stop (:on-stop animation)
+                       stop-location (get-location (:to animation))
+                       dx (- (:x stop-location) (:x current-location))
+                       dy (- (:y stop-location) (:y current-location))
+                       new-location-x (if (< (abs dx) velocity)
+                                        (:x stop-location)
+                                        ((if (< 0 dx) + -)  (:x current-location) velocity))
+                       new-location-y (if (< (abs dy) velocity)
+                                        (:y stop-location)
+                                        ((if (< 0 dy) + -) (:y current-location) velocity))]
+                   (when (and (= new-location-x (:x stop-location))
+                              (= new-location-y (:y stop-location)))
+                     (swap! ui-state assoc :animation nil)
+                     (on-stop))
+                   {:x new-location-x :y new-location-y}))]
+      (fn []
+        (when-let [animation (:animation @ui-state)]
+          (if (not (:started animation))
+            (do
+              (reset! location (get-location (:from animation)))
+              (swap! ui-state assoc-in [:animation :started] true)
+              nil)
+            (let [current-location @location]
+              (js/setTimeout #(swap! location move animation) animation-interval)
+              (.log js/console "Location-x: " (:x current-location)
+                    ", location-y: " (:y current-location))
+              (let [card (logic/get-card! (:from animation))
+                    rank (:rank card)
+                    rank-html (get ranks rank)
+                    suit (:suit card)
+                    suit-html (unescapeEntities (get suits suit))
+                    color (case suit
+                            :hearts "red"
+                            :diamonds "red"
+                            :clubs "black"
+                            :spades "black")]
+                [:p.card-place.card
+                 {:style {:left (str (:x current-location) "px")
+                          :top (str (:y current-location) "px") :color color}}
+                 (str rank-html suit-html)]))))))))
+
+(defn- set-card-animation!
+  [from to on-stop]
+  (swap! ui-state assoc :animation {:from from
+                                    :to to
+                                    :on-stop on-stop}))
+
+
+
+
 (defn on-pile-select!
   [block pile-position card-position event]
   (logic/select-pile! block pile-position card-position)
@@ -104,7 +185,8 @@
      {:style {:left (str (* pile-position card-width) "px")
               :height height}
       :on-mouse-up (fn [event]
-                     (logic/drop-pile-to! block pile-position))}
+                     (logic/drop-pile-to! block pile-position)
+                     1)} ;; react doesn't like boolean values to return from event handlers
      (if (not (empty? cards))
        (for [card-position (range 0 (count cards))
              :let [card (nth cards card-position)
@@ -131,7 +213,8 @@
   [block piles draggable-pile-info placeholder]
   (let [width (* (count piles) card-width)
         draggable-pile-position (:position draggable-pile-info)]
-    [:div.cards-block {:style {:width width}}
+    [:div.cards-block {:style {:width width}
+                       :id (str block)}
      (for [position (range 0 (count piles))
            :let [pile (nth piles position)]]
        (let [draggable-card-position-for-pile
@@ -174,7 +257,8 @@
    ^{:key :tableau} [:div.row [tableau-component!]]
    ^{:key :draggable-pile} [draggable-pile-component!]
    ^{:key :controls} [controls-component!]
-   ^{:key :elapsed} [:div.row [elapsed-component!]]])
+   ^{:key :elapsed} [:div.row [elapsed-component!]]
+   ^{:key :animation} [:div.row [card-animation-component!]]])
 
 (defn mountit!
   []
@@ -183,6 +267,6 @@
 
 (defn ^:export run
   []
-  (logic/init-game-state!)
+  (logic/init-game-state! set-card-animation!)
   (mountit!)
   (logic/auto-move-to-foundations!))
