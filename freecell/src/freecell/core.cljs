@@ -93,26 +93,32 @@
 
 (def velocity 100)
 (def animation-interval 50)
+(defn- next-location!
+  [current-location animation]
+  (let [on-stop (:on-stop animation)
+        stop-location (get-location (:to animation))
+        distance-x (- (:x stop-location) (:x current-location))
+        distance-y (- (:y stop-location) (:y current-location))
+        max-distance (max (abs distance-x) (abs distance-y))
+        turns-count (/ max-distance velocity)
+        dx (/ distance-x turns-count)
+        dy (/ distance-y turns-count)
+        new-location-x (if (< (abs distance-x) (abs dx))
+                         (:x stop-location)
+                         (+ (:x current-location) dx))
+        new-location-y (if (< (abs distance-y) (abs dy))
+                         (:y stop-location)
+                         (+ (:y current-location) dy))]
+    (when (and (= new-location-x (:x stop-location))
+               (= new-location-y (:y stop-location)))
+      (swap! ui-state assoc :animation nil)
+      (on-stop))
+    {:x new-location-x :y new-location-y}))
+
 (defn- card-animation-component!
   []
   (when-let [animation (:animation @ui-state)]
-    (let [location (r/atom nil)
-          move (fn [current-location animation]
-                 (let [on-stop (:on-stop animation)
-                       stop-location (get-location (:to animation))
-                       dx (- (:x stop-location) (:x current-location))
-                       dy (- (:y stop-location) (:y current-location))
-                       new-location-x (if (< (abs dx) velocity)
-                                        (:x stop-location)
-                                        ((if (< 0 dx) + -)  (:x current-location) velocity))
-                       new-location-y (if (< (abs dy) velocity)
-                                        (:y stop-location)
-                                        ((if (< 0 dy) + -) (:y current-location) velocity))]
-                   (when (and (= new-location-x (:x stop-location))
-                              (= new-location-y (:y stop-location)))
-                     (swap! ui-state assoc :animation nil)
-                     (on-stop))
-                   {:x new-location-x :y new-location-y}))]
+    (let [location (r/atom nil)]
       (fn []
         (when-let [animation (:animation @ui-state)]
           (if (not (:started animation))
@@ -121,7 +127,7 @@
               (swap! ui-state assoc-in [:animation :started] true)
               nil)
             (let [current-location @location]
-              (js/setTimeout #(swap! location move animation) animation-interval)
+              (js/setTimeout #(swap! location next-location! animation) animation-interval)
               (.log js/console "Location-x: " (:x current-location)
                     ", location-y: " (:y current-location))
               (let [card (logic/get-card! (:from animation))
