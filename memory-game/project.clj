@@ -10,5 +10,10 @@
               [{:source-paths ["src"]
                 :compiler {:output-to "resources/public/js/main.js"
                            :optimizations :whitespace
-                           :pretty-print true}}]}
+                           :pretty-print true}}
+               {:id "prod"
+                :source-paths ["src"]
+                :compiler {:output-to "resources/public/js/main.js"
+                           :optimizations :advanced
+                           :pretty-print false}}]}
   :min-lein-version "2.1.2")
