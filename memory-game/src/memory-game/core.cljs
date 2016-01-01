@@ -41,11 +41,17 @@
       (js/setTimeout #(swap! game close-not-matched) 1000))))
 
 (defn card-component [id card]
-  [:div.card {:type (if (= (:state card) :closed)
-                      "closed"
-                      (:type-id card))
+  [:div.card {:class (if (= (:state card) :closed)
+                       "closed"
+                       (str "type" (:type-id card)))
               :card-id id
               :on-click #(open-card! id card)}])
+
+(defn row-component [row]
+  [:div.board-row
+   (for [[id card] row]
+     (do 
+       ^{:key id} [card-component id card]))])
 
 (defn board-component []
   (let [cur-game @game
@@ -59,18 +65,25 @@
                                 col (range 0 w)]
                             (+ (* w row) col))
                           (:board cur-game)))]
+    ;; 1. Здесь deref, а значит вызывается при каждом изменении.
+    ;; Поэтому ВСЕ div.row "рисуются" (как минимум выполняется for по картам), хотя не все из них изменились.
+    ;; Вынес в row-copmonent, чтобы вызывалась когда надо.
+    ;; 2. Ключом к row-component был row - а он каждый раз во-первых новый объект, во вторых row с изменной картой не равен прежнему row
+    ;; даже с "глубоким" сравнением. А значит это новая строка, и карты для нее рисуются новые.
     [:div.board
-     (for [row cards-array]
-       ^{:key (str "r" row)}
-       [:div.board-row
-        (for [[id card] row]
-          ^{:key id}
-          [card-component id card])])]))
+     (for [row-index (range 0 (count cards-array))
+           :let [row (nth cards-array row-index)]]
+       ^{:key (str "r" row-index)}
+       [row-component row])]))
 
 (defn counter-component [game]
+  ;; если сюда передать opened-count вместо game, то будет вызываться только при изменении opened-count
+  ;; сейчас вызывается при каждом изменении game
   [:div (str "Opened: " (:opened-count game))])
 
 (defn game-component []
+  ;; Это вызывается при каждом изменении game, поэтому все возможные вычисления оставлять компонентам,
+  ;; которые могут не вызваться. Тут норм.
   (let [cur-game @game]
     [:div
      [board-component]
@@ -101,4 +114,3 @@
                       (.-body js/document)))
 
 (set! (.-onload js/window) #(start :normal))
-

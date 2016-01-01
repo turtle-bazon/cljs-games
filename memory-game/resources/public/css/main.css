@@ -12,187 +12,187 @@ div.card {
     float: left;
 }
 
-div[type="closed"] {
+div.closed {
     background-image: url("../img/pic.png");
     background-repeat: no-repeat;
 }
 
-div[type="0"] {
+div.type0 {
     background-image: url("../img/00.png");
     background-repeat: no-repeat;
 }
 
-div[type="1"] {
+div.type1 {
     background-image: url("../img/01.png");
     background-repeat: no-repeat;
 }
 
-div[type="2"] {
+div.type2 {
     background-image: url("../img/02.png");
     background-repeat: no-repeat;
 }
 
-div[type="3"] {
+div.type3 {
     background-image: url("../img/03.png");
     background-repeat: no-repeat;
 }
 
-div[type="4"] {
+div.type4 {
     background-image: url("../img/04.png");
     background-repeat: no-repeat;
 }
 
-div[type="5"] {
+div.type5 {
     background-image: url("../img/05.png");
     background-repeat: no-repeat;
 }
 
-div[type="6"] {
+div.type6 {
     background-image: url("../img/06.png");
     background-repeat: no-repeat;
 }
 
-div[type="7"] {
+div.type7 {
     background-image: url("../img/07.png");
     background-repeat: no-repeat;
 }
 
-div[type="8"] {
+div.type8 {
     background-image: url("../img/08.png");
     background-repeat: no-repeat;
 }
 
-div[type="9"] {
+div.type9 {
     background-image: url("../img/09.png");
     background-repeat: no-repeat;
 }
 
-div[type="10"] {
+div.type10 {
     background-image: url("../img/10.png");
     background-repeat: no-repeat;
 }
 
-div[type="11"] {
+div.type11 {
     background-image: url("../img/11.png");
     background-repeat: no-repeat;
 }
 
-div[type="12"] {
+div.type12 {
     background-image: url("../img/12.png");
     background-repeat: no-repeat;
 }
 
-div[type="13"] {
+div.type13 {
     background-image: url("../img/13.png");
     background-repeat: no-repeat;
 }
 
-div[type="14"] {
+div.type14 {
     background-image: url("../img/14.png");
     background-repeat: no-repeat;
 }
 
-div[type="15"] {
+div.type15 {
     background-image: url("../img/15.png");
     background-repeat: no-repeat;
 }
 
-div[type="16"] {
+div.type16 {
     background-image: url("../img/16.png");
     background-repeat: no-repeat;
 }
 
-div[type="17"] {
+div.type17 {
     background-image: url("../img/17.png");
     background-repeat: no-repeat;
 }
 
-div[type="18"] {
+div.type18 {
     background-image: url("../img/18.png");
     background-repeat: no-repeat;
 }
 
-div[type="19"] {
+div.type19 {
     background-image: url("../img/19.png");
     background-repeat: no-repeat;
 }
 
-div[type="20"] {
+div.type20 {
     background-image: url("../img/20.png");
     background-repeat: no-repeat;
 }
 
-div[type="21"] {
+div.type21 {
     background-image: url("../img/21.png");
     background-repeat: no-repeat;
 }
 
-div[type="22"] {
+div.type22 {
     background-image: url("../img/22.png");
     background-repeat: no-repeat;
 }
 
-div[type="23"] {
+div.type23 {
     background-image: url("../img/23.png");
     background-repeat: no-repeat;
 }
 
-div[type="24"] {
+div.type24 {
     background-image: url("../img/24.png");
     background-repeat: no-repeat;
 }
 
-div[type="25"] {
+div.type25 {
     background-image: url("../img/25.png");
     background-repeat: no-repeat;
 }
 
-div[type="26"] {
+div.type26 {
     background-image: url("../img/26.png");
     background-repeat: no-repeat;
 }
 
-div[type="27"] {
+div.type27 {
     background-image: url("../img/27.png");
     background-repeat: no-repeat;
 }
 
-div[type="28"] {
+div.type28 {
     background-image: url("../img/28.png");
     background-repeat: no-repeat;
 }
 
-div[type="29"] {
+div.type29 {
     background-image: url("../img/29.png");
     background-repeat: no-repeat;
 }
 
-div[type="30"] {
+div.type30 {
     background-image: url("../img/30.png");
     background-repeat: no-repeat;
 }
 
-div[type="31"] {
+div.type31 {
     background-image: url("../img/31.png");
     background-repeat: no-repeat;
 }
 
-div[type="32"] {
+div.type32 {
     background-image: url("../img/32.png");
     background-repeat: no-repeat;
 }
 
-div[type="33"] {
+div.type33 {
     background-image: url("../img/33.png");
     background-repeat: no-repeat;
 }
 
-div[type="34"] {
+div.type34 {
     background-image: url("../img/34.png");
     background-repeat: no-repeat;
 }
 
-div[type="35"] {
+div.type35 {
     background-image: url("../img/35.png");
     background-repeat: no-repeat;
 }

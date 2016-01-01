@@ -130,6 +130,12 @@
                               (:pile card-info)]
                            conj card)))
 
+(defn- get-moves
+  [state from to draggable-pile]
+  (let [free-freecells (filter empty? (:freecells state))
+        free-tableau (filter empty? (:tableau state))]
+    ))
+
 (defn move-pile!
   [from-block from-position draggable-pile to-block to-position to-pile]
   (when (can-move-to?! draggable-pile to-block (last to-pile))
