@@ -6,7 +6,17 @@
 ;;; normal - 6x7
 ;;; hard - 8x9
 
+(def *score-inc* 10)
+
+(def *score-dec* 1)
+
 (def game (r/atom {}))
+
+(defn inc-score [score]
+  (+ score *score-inc*))
+
+(defn dec-score [score]
+  (- score *score-dec*))
 
 (defn open-card [game id card]
   (let [type-id (:type-id card)
@@ -24,6 +34,10 @@
           (update-in [:board id] assoc :state :opened)
           (update-in [:opened] (if cards-equal empty (fn [col] (conj col [id type-id]))))
           (update-in [:opened-count] (if cards-equal inc identity))
+          (update-in [:score] (cond
+                                cards-equal inc-score
+                                ao-id dec-score
+                                :else identity))
           (assoc-in [:can-open] will-be-able-to-open)))))
 
 (defn close-not-matched [game]
