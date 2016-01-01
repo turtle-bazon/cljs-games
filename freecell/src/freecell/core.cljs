@@ -125,7 +125,7 @@
             nil)
           (let [current-location @location]
             (js/setTimeout #(swap! location next-location!) animation-interval)
-            (let [card (logic/get-card! (:from animation))
+            (let [card (:card animation)
                   rank (:rank card)
                   rank-html (get ranks rank)
                   suit (:suit card)
@@ -141,9 +141,10 @@
                (str rank-html suit-html)])))))))
 
 (defn- set-card-animation!
-  [from to on-stop]
+  [from to card on-stop]
   (swap! ui-state assoc :animation {:from from
                                     :to to
+                                    :card card
                                     :on-stop on-stop}))
 
 (defn- stop-animation!

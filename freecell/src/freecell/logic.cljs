@@ -112,6 +112,24 @@
                                                (:rank (last pile)))
                                              (:foundations state))))))))
 
+(defn- take-card!
+  [card-info]
+  (swap! state (fn [state]
+                 (dissoc state :next-state)))
+  (swap! state (fn [state]
+                 (update state :history conj state))) 
+  (swap! state (fn [state]
+                 (update-in state [(:block card-info)
+                                   (:pile card-info)]
+                            (fn [pile]
+                              (vec (drop-last 1 pile)))))))
+
+(defn- drop-card!
+  [card-info card]
+  (swap! state #(update-in % [(:block card-info)
+                              (:pile card-info)]
+                           conj card)))
+
 (defn move-pile!
   [from-block from-position draggable-pile to-block to-position to-pile]
   (when (can-move-to?! draggable-pile to-block (last to-pile))
@@ -124,7 +142,7 @@
                      (update-in state [from-block from-position]
                                 (fn [pile]
                                   (vec (drop-last cards-count pile))))))
-      (swap! state #(update-in % [to-block to-position] 
+      (swap! state #(update-in % [to-block to-position]
                                (fn [pile]
                                  (into pile draggable-pile)))))))
 
@@ -151,14 +169,14 @@
                           :pile to-pile-position
                           :card 0}
                       on-animation-stop (fn [propagate]
-                                          (move-pile! block from-pile-position (list card)
-                                                      :foundations to-pile-position to-pile)
+                                          (drop-card! to card)
                                           (update-foundations-rank! (last pile))
                                           (when propagate
                                             (next-fn)))]
+                  (take-card! from)
                   (if force
                     (on-animation-stop false)
-                    ((:animate-fn current-state) from to on-animation-stop))
+                    ((:animate-fn current-state) from to card on-animation-stop))
                   true)))))))
 
 (defn auto-move-to-foundations!
