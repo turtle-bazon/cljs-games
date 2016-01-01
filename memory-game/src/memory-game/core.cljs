@@ -14,7 +14,7 @@
         [[ao-id ao-type-id]] (:opened game)
         already-opened (not= (:state card) :closed)
         cards-equal (= type-id ao-type-id)
-        will-can-open (or (not ao-id) cards-equal)]
+        will-be-able-to-open (or (not ao-id) cards-equal)]
     (if (or (not (:can-open game))
             already-opened)
       (-> game
@@ -24,7 +24,7 @@
           (update-in [:board id] assoc :state :opened)
           (update-in [:opened] (if cards-equal empty (fn [col] (conj col [id type-id]))))
           (update-in [:opened-count] (if cards-equal inc identity))
-          (assoc-in [:can-open] will-can-open)))))
+          (assoc-in [:can-open] will-be-able-to-open)))))
 
 (defn close-not-matched [game]
   (let [[[o-id1 _] [o-id2 _]] (:opened game)]
