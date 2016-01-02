@@ -12,9 +12,12 @@
 
 (defn- get-card
   [state card-info]
-  (get-in state [(:block card-info)
-                 (:pile card-info)
-                 (:card card-info)]))
+  (let [pile (get-in state [(:block card-info)
+                             (:pile card-info)])
+        card-position (:card card-info)]
+    (if card-position
+      (nth pile card-position)
+      (last pile))))
 
 (defn drop-pile!
   []
@@ -130,27 +133,89 @@
                               (:pile card-info)]
                            conj card)))
 
+(defn move-card
+  [state from to]
+  (let [card (get-card state from)]
+    (-> state
+        (dissoc :next-state)
+        ((fn [state]
+           (update state :history conj state)))
+        (update-in [(:block from) (:pile from)]
+                   (fn [pile]
+                     (vec (drop-last 1 pile))))
+        (update-in [(:block to) (:pile to)]
+                   conj card))))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; here ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn- get-moves
   [state from to draggable-pile]
-  (let [free-freecells (filter empty? (:freecells state))
-        free-tableau (filter empty? (:tableau state))]
-    ))
+  (let [buffer-freecells (map (fn [[n _]] {:block :freecells
+                                         :pile n})
+                              (filter (fn [_ pile] (empty? pile))
+                                      (map vector (range) (:freecells state))))
+        buffer-tableau (map (fn [[n _]] {:block :tableau
+                                       :pile n})
+                            (filter (fn [_ pile] (empty? pile))
+                                    (map vector (range) (:tableau state))))]
+    (loop [new-state state]
+      (let [from-card (get-card new-state from)
+            to-card (get-card new-state to)]
+        (cond
+          ;; all cards have been moved
+          (= to-card (last draggable-pile))
+          new-state
+          ;; move to target pile
+          (and (= from-card (first draggable-pile))
+               (or (not to-card)
+                   (in-tableau-order? (get-card new-state from) to-card)))
+          (recur (move-card new-state from to))
+          ;; move to free buffer
+          (and (some #(= % from-card) draggable-pile)
+               (some empty? (:freecells new-state)))
+          (let [[pile-position _] (first (filter (fn [[_ pile]] (empty? pile)) (map vector (range) (:freecells new-state))))
+                to {:block :freecells
+                    :pile pile-position}]
+            (recur (move-card new-state from to)))
+          ;; move from buffer to target pile
+          (some (fn [card]
+                  (and card
+                       (in-tableau-order? card to-card)))
+                (map (partial get-card new-state) buffer-freecells))
+          (let [from (first (filter (fn [card-info]
+                                      (if-let [card (get-card new-state card-info)]
+                                        (in-tableau-order? card to-card)))
+                                    buffer-freecells))]
+            (recur (move-card new-state from to)))
+          ;; move is inposibble
+          :else state)))))
 
 (defn move-pile!
   [from-block from-position draggable-pile to-block to-position to-pile]
-  (when (can-move-to? @state draggable-pile to-block (last to-pile))
-    (let [cards-count (count draggable-pile)]
-      (swap! state (fn [state]
-                     (dissoc state :next-state)))
-      (swap! state (fn [state]
-                     (update state :history conj state))) 
-      (swap! state (fn [state]
-                     (update-in state [from-block from-position]
-                                (fn [pile]
-                                  (vec (drop-last cards-count pile))))))
-      (swap! state #(update-in % [to-block to-position]
-                               (fn [pile]
-                                 (into pile draggable-pile)))))))
+  (let [from {:block from-block
+              :pile from-position}
+        to {:block to-block
+            :pile to-position}]
+    (if (= to-block :tableau)
+      (swap! state get-moves from to draggable-pile)
+      (when (can-move-to? @state draggable-pile to-block (last to-pile))
+        (swap! state move-card from to)))))
+
+;; (defn move-pile!
+;;   [from-block from-position draggable-pile to-block to-position to-pile]
+;;   (when (can-move-to? @state draggable-pile to-block (last to-pile))
+;;     (let [cards-count (count draggable-pile)]
+;;       (swap! state (fn [state]
+;;                      (dissoc state :next-state)))
+;;       (swap! state (fn [state]
+;;                      (update state :history conj state))) 
+;;       (swap! state (fn [state]
+;;                      (update-in state [from-block from-position]
+;;                                 (fn [pile]
+;;                                   (vec (drop-last cards-count pile))))))
+;;       (swap! state #(update-in % [to-block to-position]
+;;                                (fn [pile]
+;;                                  (into pile draggable-pile)))))))
 
 (defn- auto-move-to-foundations-from-block!
   [foundations foundations-rank block next-fn force]

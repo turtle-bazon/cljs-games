@@ -2,6 +2,7 @@
   :description "Freecell Solitaire"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
+  :offline? true
   :dependencies [[org.clojure/clojure "1.7.0"]
                  [org.clojure/clojurescript "1.7.170"]
                  [reagent "0.5.1"]]
