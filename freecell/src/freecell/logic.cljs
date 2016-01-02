@@ -134,29 +134,32 @@
                            conj card)))
 
 (defn move-card
-  [state from to]
-  (let [card (get-card state from)]
-    (-> state
-        (dissoc :next-state)
-        ((fn [state]
-           (update state :history conj state)))
-        (update-in [(:block from) (:pile from)]
-                   (fn [pile]
-                     (vec (drop-last 1 pile))))
-        (update-in [(:block to) (:pile to)]
-                   conj card))))
+  ([state from to]
+   (move-card state from to false))
+  ([state from to intermediate]
+   (let [card (get-card state from)]
+     (-> state
+         (dissoc :next-state)
+         ((fn [state]
+            (update state :history conj state)))
+         (update-in [(:block from) (:pile from)]
+                    (fn [pile]
+                      (vec (drop-last 1 pile))))
+         (update-in [(:block to) (:pile to)]
+                    conj card)
+         (assoc :intermediate intermediate)))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; here ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn- get-moves
   [state from to draggable-pile]
   (let [buffer-freecells (map (fn [[n _]] {:block :freecells
-                                         :pile n})
-                              (filter (fn [_ pile] (empty? pile))
+                                           :pile n})
+                              (filter (fn [[_ pile]] (empty? pile))
                                       (map vector (range) (:freecells state))))
         buffer-tableau (map (fn [[n _]] {:block :tableau
-                                       :pile n})
-                            (filter (fn [_ pile] (empty? pile))
+                                         :pile n})
+                            (filter (fn [[_ pile]] (empty? pile))
                                     (map vector (range) (:tableau state))))]
     (loop [new-state state]
       (let [from-card (get-card new-state from)
