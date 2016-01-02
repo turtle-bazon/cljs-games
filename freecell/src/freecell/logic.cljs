@@ -10,10 +10,15 @@
   [block]
   (block @state))
 
+(defn- get-pile
+  [state pile-info]
+  (get-in state [(:block pile-info)
+                 (:pile pile-info)]))
+
 (defn- get-card
   [state card-info]
   (let [pile (get-in state [(:block card-info)
-                             (:pile card-info)])
+                            (:pile card-info)])
         card-position (:card card-info)]
     (if card-position
       (nth pile card-position)
@@ -134,20 +139,23 @@
                            conj card)))
 
 (defn move-card
-  ([state from to]
-   (move-card state from to false))
-  ([state from to intermediate]
-   (let [card (get-card state from)]
-     (-> state
-         (dissoc :next-state)
-         ((fn [state]
-            (update state :history conj state)))
-         (update-in [(:block from) (:pile from)]
-                    (fn [pile]
-                      (vec (drop-last 1 pile))))
-         (update-in [(:block to) (:pile to)]
-                    conj card)
-         (assoc :intermediate intermediate)))))
+  [state from to]
+  (let [card (get-card state from)]
+    (-> state
+        (dissoc :next-state)
+        ((fn [state]
+           (update state :history conj state)))
+        (update-in [(:block from) (:pile from)]
+                   (fn [pile]
+                     (vec (drop-last 1 pile))))
+        (update-in [(:block to) (:pile to)]
+                   conj card))))
+
+(defn- animation-move-card
+  [state from to]
+  (-> state
+      (move-card from to)
+      (assoc :intermediate true)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; here ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -167,19 +175,19 @@
         (cond
           ;; all cards have been moved
           (= to-card (last draggable-pile))
-          new-state
+          (assoc new-state :intermediate false)
           ;; move to target pile
           (and (= from-card (first draggable-pile))
                (or (not to-card)
                    (in-tableau-order? (get-card new-state from) to-card)))
-          (recur (move-card new-state from to))
+          (recur (animation-move-card new-state from to))
           ;; move to free buffer
           (and (some #(= % from-card) draggable-pile)
                (some empty? (:freecells new-state)))
           (let [[pile-position _] (first (filter (fn [[_ pile]] (empty? pile)) (map vector (range) (:freecells new-state))))
                 to {:block :freecells
                     :pile pile-position}]
-            (recur (move-card new-state from to)))
+            (recur (animation-move-card new-state from to)))
           ;; move from buffer to target pile
           (some (fn [card]
                   (and card
@@ -189,9 +197,48 @@
                                       (if-let [card (get-card new-state card-info)]
                                         (in-tableau-order? card to-card)))
                                     buffer-freecells))]
-            (recur (move-card new-state from to)))
+            (recur (animation-move-card new-state from to)))
           ;; move is inposibble
           :else state)))))
+
+(defn- get-block-changes
+  [from-state to-state block]
+  (map (fn [[[n pile] _]]
+         {:block block
+          :pile n
+          :card (dec (count pile))})
+       (filter (fn [[[_ before] [_ after]]]
+                 (not= (count before) (count after)))
+               (map vector
+                    (map vector (range) (block from-state))
+                    (map vector (range) (block to-state))))))
+
+(defn- get-changes
+  [from-state to-state]
+  (let [get-block-changes (partial get-block-changes from-state to-state)
+        changes (into (into (get-block-changes :freecells)
+                            (get-block-changes :foundations))
+                      (get-block-changes :tableau))]
+    {:from (first (filter #(> (count (get-pile from-state %))
+                              (count (get-pile to-state %)))
+                          changes))
+     :to (first (filter #(< (count (get-pile from-state %))
+                            (count (get-pile to-state %)))
+                        changes))}))
+
+(defn- animate-move-pile!
+  [from-state force]
+  (if-let [next-state (:next-state from-state)]
+    (let [changes (get-changes from-state next-state)
+          from (:from changes)
+          to (:to changes)
+          card (get-card from-state from)
+          on-animation-stop (fn [propagate]
+                              (reset! state next-state)
+                              (animate-move-pile! next-state (not propagate)))]
+      (if force
+        (on-animation-stop false)
+        ((:animate-fn from-state) from to card on-animation-stop)))))
 
 (defn move-pile!
   [from-block from-position draggable-pile to-block to-position to-pile]
@@ -200,7 +247,19 @@
         to {:block to-block
             :pile to-position}]
     (if (= to-block :tableau)
-      (swap! state get-moves from to draggable-pile)
+      (let [current-state @state
+            end-state (get-moves current-state from to draggable-pile)
+            from-state end-state
+            from-state (loop [step-state end-state
+                              next-state nil]
+                         (let [new-state (if next-state
+                                           (assoc step-state :next-state next-state)
+                                           step-state)]
+                           (if (or (not step-state)
+                                   (= step-state current-state))
+                             new-state
+                             (recur (first (:history new-state)) new-state))))]
+        (animate-move-pile! from-state false))
       (when (can-move-to? @state draggable-pile to-block (last to-pile))
         (swap! state move-card from to)))))
 
@@ -246,7 +305,7 @@
                                           (drop-card! to card)
                                           (update-foundations-rank! (last pile))
                                           (when propagate
-                                            (next-fn)))]
+                                            (next-fn false)))]
                   (take-card! from)
                   (if force
                     (on-animation-stop false)
