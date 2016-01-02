@@ -10,11 +10,11 @@
   [block]
   (block @state))
 
-(defn get-card!
-  [card-info]
-  (get-in @state [(:block card-info)
-                  (:pile card-info)
-                  (:card card-info)]))
+(defn- get-card
+  [state card-info]
+  (get-in state [(:block card-info)
+                 (:pile card-info)
+                 (:card card-info)]))
 
 (defn drop-pile!
   []
@@ -29,7 +29,7 @@
   (let [info (get-selected-pile-info!)]
     (get-in @state [(:block info) (:position info)])))
 
-(defn get-card-color
+(defn- get-card-color
   [card]
   (case (:suit card)
     :hearts :red
@@ -42,21 +42,21 @@
   (and (not= (get-card-color top-card) (get-card-color bottom-card))
        (= (- (:rank bottom-card) (:rank top-card)) 1)))
 
-(defn get-max-moves-count!
-  ([]
-   (get-max-moves-count! nil nil))
-  ([to-block to-card]
-   (let [max-moves (+ (count (filter empty? (:freecells @state)))
-                      (count (filter empty? (:tableau @state)))
+(defn- get-max-moves-count
+  ([state]
+   (get-max-moves-count state nil nil))
+  ([state to-block to-card]
+   (let [max-moves (+ (count (filter empty? (:freecells state)))
+                      (count (filter empty? (:tableau state)))
                       1)]
      (if (and (= to-block :tableau)
               (nil? to-card))
        (dec max-moves)
        max-moves))))
 
-(defn- get-cards-chain-size!
-  [pile]
-  (let [max-moves (get-max-moves-count!)
+(defn- get-cards-chain-size
+  [state pile]
+  (let [max-moves (get-max-moves-count state)
         reversed-pile (reverse pile)]
     (inc (count
           (take (dec max-moves)
@@ -72,7 +72,7 @@
 (defn select-pile!
   [block pile-position card-position]
   (let [pile (drop card-position (get-in @state [block pile-position]))]
-    (if (= (count pile) (get-cards-chain-size! pile))
+    (if (= (count pile) (get-cards-chain-size @state pile))
       (swap! state #(assoc % :draggable-pile {:block block
                                               :position pile-position
                                               :card-position card-position
@@ -87,22 +87,22 @@
            (and (= (:suit from-card) (:suit to-card))
                 (= (- (:rank from-card) (:rank to-card)) 1))))))
 
-(defn can-move-to-tableau-pile?!
-  [draggable-pile to-card]
-  (let [max-moves-count (get-max-moves-count! :tableau to-card)
+(defn can-move-to-tableau-pile?
+  [state draggable-pile to-card]
+  (let [max-moves-count (get-max-moves-count state :tableau to-card)
         moves-count (count draggable-pile)]
     (when (<= moves-count max-moves-count)
       (if to-card
         (in-tableau-order? (first draggable-pile) to-card)
         true))))
 
-(defn can-move-to?!
-  [draggable-pile to-block to-card]
+(defn- can-move-to?
+  [state draggable-pile to-block to-card]
   (case to-block
     :freecells (and (= (count draggable-pile) 1)
                     (nil? to-card))
     :foundations (can-move-to-foundations-pile? draggable-pile to-card)
-    :tableau (can-move-to-tableau-pile?! draggable-pile to-card)))
+    :tableau (can-move-to-tableau-pile? state draggable-pile to-card)))
 
 (defn update-foundations-rank!
   [card]
@@ -138,7 +138,7 @@
 
 (defn move-pile!
   [from-block from-position draggable-pile to-block to-position to-pile]
-  (when (can-move-to?! draggable-pile to-block (last to-pile))
+  (when (can-move-to? @state draggable-pile to-block (last to-pile))
     (let [cards-count (count draggable-pile)]
       (swap! state (fn [state]
                      (dissoc state :next-state)))
