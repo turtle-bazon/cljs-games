@@ -157,8 +157,6 @@
       (move-card from to)
       (assoc :intermediate true)))
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; here ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn- get-moves
   [state from to draggable-pile]
   (let [buffer-freecells (map (fn [[n _]] {:block :freecells
@@ -227,7 +225,7 @@
                         changes))}))
 
 (defn- animate-move-pile!
-  [from-state force]
+  [from-state on-complete force]
   (if-let [next-state (:next-state from-state)]
     (let [changes (get-changes from-state next-state)
           from (:from changes)
@@ -235,19 +233,20 @@
           card (get-card from-state from)
           on-animation-stop (fn [propagate]
                               (reset! state next-state)
-                              (animate-move-pile! next-state (not propagate)))]
+                              (animate-move-pile! next-state on-complete (not propagate)))]
       (if force
         (on-animation-stop false)
-        ((:animate-fn from-state) from to card on-animation-stop)))))
+        ((:animate-fn from-state) from to card on-animation-stop)))
+    (on-complete)))
 
 (defn move-pile!
-  [from-block from-position draggable-pile to-block to-position to-pile]
+  [from-block from-position draggable-pile to-block to-position to-pile on-complete]
   (let [from {:block from-block
               :pile from-position}
         to {:block to-block
             :pile to-position}]
     (if (= to-block :tableau)
-      (let [current-state @state
+      (let [current-state (dissoc @state :next-state)
             end-state (get-moves current-state from to draggable-pile)
             from-state end-state
             from-state (loop [step-state end-state
@@ -259,9 +258,10 @@
                                    (= step-state current-state))
                              new-state
                              (recur (first (:history new-state)) new-state))))]
-        (animate-move-pile! from-state false))
+        (animate-move-pile! from-state on-complete false))
       (when (can-move-to? @state draggable-pile to-block (last to-pile))
-        (swap! state move-card from to)))))
+        (swap! state move-card from to)
+        (on-complete)))))
 
 ;; (defn move-pile!
 ;;   [from-block from-position draggable-pile to-block to-position to-pile]
@@ -304,8 +304,7 @@
                       on-animation-stop (fn [propagate]
                                           (drop-card! to card)
                                           (update-foundations-rank! (last pile))
-                                          (when propagate
-                                            (next-fn false)))]
+                                          (next-fn (not propagate)))]
                   (take-card! from)
                   (if force
                     (on-animation-stop false)
@@ -334,8 +333,8 @@
                   (:pile from-pile-info)
                   block
                   position
-                  to-pile)
-      (auto-move-to-foundations! false))))
+                  to-pile
+                  #(auto-move-to-foundations! false)))))
 
 (defn get-draggable-pile!
   []

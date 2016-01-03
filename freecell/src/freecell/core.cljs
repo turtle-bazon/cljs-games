@@ -150,8 +150,7 @@
 (defn- stop-animation!
   []
   (when-let [animation (:animation @ui-state)]
-    ((:on-stop animation) false)
-    (logic/auto-move-to-foundations! true))
+    ((:on-stop animation) false))
   (swap! ui-state assoc :animation nil))
 
 (defn on-pile-select!
