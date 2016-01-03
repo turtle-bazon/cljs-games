@@ -112,31 +112,29 @@
     :foundations (can-move-to-foundations-pile? draggable-pile to-card)
     :tableau (can-move-to-tableau-pile? state draggable-pile to-card)))
 
-(defn update-foundations-rank!
-  [card]
-  (swap! state (fn [state]
-                 (assoc state :foundations-rank
-                        (inc (apply min (map (fn [pile]
-                                               (:rank (last pile)))
-                                             (:foundations state))))))))
+(defn update-foundations-rank
+  [state card]
+  (assoc state :foundations-rank
+         (inc (apply min (map (fn [pile]
+                                (:rank (last pile)))
+                              (:foundations state))))))
 
-(defn- take-card!
-  [card-info]
-  (swap! state (fn [state]
-                 (dissoc state :next-state)))
-  (swap! state (fn [state]
-                 (update state :history conj state))) 
-  (swap! state (fn [state]
-                 (update-in state [(:block card-info)
-                                   (:pile card-info)]
-                            (fn [pile]
-                              (vec (drop-last 1 pile)))))))
+(defn- take-card
+  [state card-info]
+  (-> state
+      (dissoc :next-state)
+      ((fn [state]
+         (update state :history conj state))) 
+      (update-in [(:block card-info)
+                  (:pile card-info)]
+                 (fn [pile]
+                   (vec (drop-last 1 pile))))))
 
-(defn- drop-card!
-  [card-info card]
-  (swap! state #(update-in % [(:block card-info)
-                              (:pile card-info)]
-                           conj card)))
+(defn- drop-card
+  [state card-info card]
+  (update-in state [(:block card-info)
+                    (:pile card-info)]
+             conj card))
 
 (defn move-card
   [state from to]
@@ -302,10 +300,12 @@
                           :pile to-pile-position
                           :card 0}
                       on-animation-stop (fn [propagate]
-                                          (drop-card! to card)
-                                          (update-foundations-rank! (last pile))
+                                          (swap! state
+                                                 #(-> %
+                                                      (drop-card to card)
+                                                      (update-foundations-rank (last pile))))
                                           (next-fn (not propagate)))]
-                  (take-card! from)
+                  (swap! state take-card from)
                   (if force
                     (on-animation-stop false)
                     ((:animate-fn current-state) from to card on-animation-stop))
