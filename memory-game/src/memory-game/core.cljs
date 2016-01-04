@@ -88,19 +88,16 @@
                                 col (range 0 w)]
                             (+ (* w row) col))
                           (:board cur-game)))]
-    [:div.board
+    [:div.board.col-md-5
      (for [[row row-index] (map vector cards-array (range 0 h))]
        ^{:key (str "r" row-index)}
        [row-component row])]))
-
-(defn counter-component [opened-count]
-  [:div (str "Opened: " opened-count)])
 
 (defn score-component [score]
   [:div (str "Score: " score)])
 
 (defn final-score-component [score]
-  [:div (str "Finished! Gratz! Final score: " score)])
+  [:div [:strong (str "Finished! Gratz! Final score: " score)]])
 
 (defn playing-state-component [state]
   [:div "Playing"])
@@ -110,13 +107,33 @@
           [final-score-component score]
           [playing-state-component state])])
 
+(declare start)
+
 (defn game-component []
   (let [cur-game @game]
-    [:div
-     [board-component]
-     [counter-component (:opened-count cur-game)]
-     [score-component (:score cur-game)]
-     [game-state-component (:state cur-game) (:score cur-game)]]))
+    [:div.container.container-table
+     [:div.row
+      [:div.col-md-3.col-md-offset-2
+       [:div "Restart with level:"]
+       [:button.btn.btn-xs.btn-default
+        {:type "button"
+         :on-click #(start :easy)}
+        "Easy"]
+       [:button.btn.btn-xs.btn-default
+        {:type "button"
+         :on-click #(start :normal)}
+        "Normal"]
+       [:button.btn.btn-xs.btn-default
+        {:type "button"
+         :on-click #(start :hard)}
+        "Hard"]
+       [score-component (:score cur-game)]
+       [game-state-component (:state cur-game) (:score cur-game)]
+       [:p "Rules: " "Open two matched cards and they will stay opened. "
+        "Otherwise it will be closed, but you memorize it's locations."]
+       [:p "Author:" [:a {:href "https://bitbucket.org/turtle_bazon/"} "Azamat S. Kalimoulline"]]
+       [:p [:a {:href "https://bitbucket.org/turtle_bazon/cljs-games/src/"} "sources"]]]
+      [board-component]]]))
 
 (defn new-game [game' level]
   (let [[w h] (case level
@@ -142,7 +159,6 @@
 
 (defn start [level]
   (swap! game new-game level)
-  (r/render-component [game-component]
-                      (.-body js/document)))
+  (r/render-component [game-component] (.getElementById js/document "app")))
 
 (set! (.-onload js/window) #(start :normal))
