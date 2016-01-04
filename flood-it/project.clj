@@ -8,8 +8,12 @@
   :plugins [[lein-cljsbuild "1.1.2"]]
   :cljsbuild
   {:builds
-   [{:source-paths ["src"],
-     :compiler
-     {:optimizations :whitespace,
-      :output-to "resources/public/js/main.js",
-      :pretty-print true}}]})
+   [{:source-paths ["src"]
+     :compiler {:output-to "resources/public/js/main.js"
+                :optimizations :whitespace
+                :pretty-print true}}
+    {:id "prod"
+     :source-paths ["src"]
+     :compiler {:output-to "resources/public/js/main.js"
+                :optimizations :advanced
+                :pretty-print false}}]})
