@@ -105,7 +105,7 @@
                x (range 0 width)]
            [[x y] (rand-int 6)]))))
 
-(defn start []
+(defn ^:export start []
   (reset! field (generate-field 14 14 25))
   (draw-field @field))
 
