@@ -34,11 +34,16 @@
           (update-in [:board id] assoc :state :opened)
           (update-in [:opened] (if cards-equal empty (fn [col] (conj col [id type-id]))))
           (update-in [:opened-count] (if cards-equal inc identity))
+          (assoc-in [:can-open] will-be-able-to-open)
           (update-in [:score] (cond
                                 cards-equal inc-score
                                 ao-id dec-score
-                                :else identity))
-          (assoc-in [:can-open] will-be-able-to-open)))))
+                                :else identity))))))
+
+(defn check-game-finished [{:keys [w h opened-count] :as game}]
+  (if (= opened-count (/ (* w h) 2))
+    (assoc game :state :finished)
+    game))
 
 (defn close-not-matched [game]
   (let [[[o-id1 _] [o-id2 _]] (:opened game)]
@@ -49,8 +54,13 @@
         (update-in [:opened] empty)
         (assoc-in [:can-open] true))))
 
-(defn open-card! [id card]
-  (let [new-game (swap! game open-card id card)]
+(defn card-click [game id card]
+  (-> game
+      (open-card id card)
+      check-game-finished))
+
+(defn card-click! [id card]
+  (let [new-game (swap! game card-click id card)]
     (when (and (:state-changed new-game) (not (:can-open new-game)))
       (js/setTimeout #(swap! game close-not-matched) 1000))))
 
@@ -59,7 +69,7 @@
                        "closed"
                        (str "type" (:type-id card)))
               :card-id id
-              :on-click #(open-card! id card)}])
+              :on-click #(card-click! id card)}])
 
 (defn row-component [row]
   [:div.board-row
@@ -89,12 +99,24 @@
 (defn score-component [score]
   [:div (str "Score: " score)])
 
+(defn final-score-component [score]
+  [:div (str "Finished! Gratz! Final score: " score)])
+
+(defn playing-state-component [state]
+  [:div "Playing"])
+
+(defn game-state-component [state score]
+  [:div (if (= :finished state)
+          [final-score-component score]
+          [playing-state-component state])])
+
 (defn game-component []
   (let [cur-game @game]
     [:div
      [board-component]
      [counter-component (:opened-count cur-game)]
-     [score-component (:score cur-game)]]))
+     [score-component (:score cur-game)]
+     [game-state-component (:state cur-game) (:score cur-game)]]))
 
 (defn new-game [game' level]
   (let [[w h] (case level
@@ -107,6 +129,7 @@
                      {:type-id id
                       :state :closed}))]
     (-> game'
+        (assoc-in [:level] level)
         (assoc-in [:state-changed] true)
         (assoc-in [:w] w)
         (assoc-in [:h] h)
@@ -114,7 +137,8 @@
         (assoc-in [:board] board)
         (assoc-in [:opened] [])
         (assoc-in [:opened-count] 0)
-        (assoc-in [:score] 0))))
+        (assoc-in [:score] 0)
+        (assoc-in [:state] :playing))))
 
 (defn start [level]
   (swap! game new-game level)
