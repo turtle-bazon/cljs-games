@@ -131,7 +131,7 @@
        [game-state-component (:state cur-game) (:score cur-game)]
        [:p "Rules: " "Open two matched cards and they will stay opened. "
         "Otherwise it will be closed, but you memorize it's locations."]
-       [:p "Author:" [:a {:href "https://bitbucket.org/turtle_bazon/"} "Azamat S. Kalimoulline"]]
+       [:p "Author: " [:a {:href "https://bitbucket.org/turtle_bazon/"} "Azamat S. Kalimoulline"]]
        [:p [:a {:href "https://bitbucket.org/turtle_bazon/cljs-games/src/"} "sources"]]]
       [board-component]]]))
 
