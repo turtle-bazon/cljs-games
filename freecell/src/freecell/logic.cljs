@@ -6,6 +6,10 @@
 
 (def state (r/atom nil))
 
+(defn log
+  [& msgs]
+  (.log js/console (apply str msgs)))
+
 (defn get-block!
   [block]
   (block @state))
@@ -171,7 +175,7 @@
         (cond
           ;; all cards have been moved
           (= to-card (last draggable-pile))
-          (assoc new-state :intermediate false)
+          (dissoc new-state :intermediate)
           ;; move to target pile
           (and (= from-card (first draggable-pile))
                (or (not to-card)
@@ -223,59 +227,46 @@
                         changes))}))
 
 (defn- animate-move-pile!
-  [from-state on-complete force]
-  (if-let [next-state (:next-state from-state)]
+  [from-state next-state-fn on-complete force]
+  (if-let [next-state (next-state-fn from-state)]
     (let [changes (get-changes from-state next-state)
           from (:from changes)
           to (:to changes)
           card (get-card from-state from)
           on-animation-stop (fn [propagate]
                               (reset! state next-state)
-                              (animate-move-pile! next-state on-complete (not propagate)))]
+                              (animate-move-pile! next-state next-state-fn on-complete (not propagate)))]
       (if force
         (on-animation-stop false)
         ((:animate-fn from-state) from to card on-animation-stop)))
-    (on-complete)))
+    (when on-complete
+      (on-complete))))
 
 (defn move-pile!
   [from-block from-position draggable-pile to-block to-position to-pile on-complete]
   (let [from {:block from-block
               :pile from-position}
         to {:block to-block
-            :pile to-position}]
+            :pile to-position}
+        current-state (dissoc @state :next-state)]
     (if (= to-block :tableau)
-      (let [current-state (dissoc @state :next-state)
-            end-state (get-moves current-state from to draggable-pile)
-            from-state end-state
+      (let [end-state (get-moves current-state from to draggable-pile)
             from-state (loop [step-state end-state
                               next-state nil]
                          (let [new-state (if next-state
                                            (assoc step-state :next-state next-state)
                                            step-state)]
-                           (if (or (not step-state)
-                                   (= step-state current-state))
-                             new-state
-                             (recur (first (:history new-state)) new-state))))]
-        (animate-move-pile! from-state on-complete false))
+                           (cond
+                             (nil? step-state) (log "Error: empty state")
+                             (= step-state current-state) new-state
+                             :else (recur (first (:history new-state)) new-state))))]
+        (animate-move-pile! from-state :next-state on-complete false))
       (when (can-move-to? @state draggable-pile to-block (last to-pile))
-        (swap! state move-card from to)
-        (on-complete)))))
-
-;; (defn move-pile!
-;;   [from-block from-position draggable-pile to-block to-position to-pile]
-;;   (when (can-move-to? @state draggable-pile to-block (last to-pile))
-;;     (let [cards-count (count draggable-pile)]
-;;       (swap! state (fn [state]
-;;                      (dissoc state :next-state)))
-;;       (swap! state (fn [state]
-;;                      (update state :history conj state))) 
-;;       (swap! state (fn [state]
-;;                      (update-in state [from-block from-position]
-;;                                 (fn [pile]
-;;                                   (vec (drop-last cards-count pile))))))
-;;       (swap! state #(update-in % [to-block to-position]
-;;                                (fn [pile]
-;;                                  (into pile draggable-pile)))))))
+        (let [next-state (move-card current-state from to)]
+          (animate-move-pile! current-state
+                              (fn [s]
+                                (when (= s current-state) next-state))
+                              on-complete false))))))
 
 (defn- auto-move-to-foundations-from-block!
   [foundations foundations-rank block next-fn force]
@@ -340,17 +331,40 @@
   []
   (get-in @state [:draggable-pile :pile]))
 
+(defn undo-to
+  [destination-state]
+  (fn [current-state]
+    (let [origin-state (first (:history (:next-state current-state)))]
+      (when (not= origin-state destination-state)
+        (let [prev-state (first (:history current-state))]
+          (assoc prev-state :next-state current-state))))))
+
 (defn undo!
   []
   (drop-pile!)
   (let [current-state @state]
-    (when-let [prev-state (first (:history @state))]
-      (reset! state (assoc prev-state :next-state current-state)))))
+    (when-let [prev-state (first (filter #(not (:intermediate %)) (:history current-state)))]
+      (animate-move-pile! current-state (undo-to prev-state) nil false))))
+
+(defn get-next-state
+  [current-state]
+  (when-let [next-state (:next-state current-state)]
+    (if (:intermediate next-state)
+      (recur next-state)
+      next-state)))
+
+(defn redo-to
+  [destination-state]
+  (fn [current-state]
+    (when-let [next-state (:next-state current-state)]
+      (when (not= current-state destination-state)
+        next-state))))
 
 (defn redo!
   []
-  (when-let [next-state (:next-state @state)]
-    (reset! state next-state)))
+  (let [current-state @state]
+    (when-let [destination-state (get-next-state current-state)]
+      (animate-move-pile! current-state (redo-to destination-state) nil false))))
 
 (defn- shuffle-deck
   []
