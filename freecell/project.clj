@@ -8,10 +8,15 @@
                  [reagent "0.5.1"]]
   :plugins [[lein-cljsbuild "1.1.2"]]
   :cljsbuild
-  {:builds
-   [{:source-paths ["src"],
-     :compiler
-     {:optimizations :whitespace,
-      :output-to "resources/public/js/main.js",
-      :pretty-print false}}]}
+  ~(let [sources ["src"]
+         compiled-js-path "resources/public/js/main.js"]
+     {:builds
+      {:dev {:source-paths sources
+             :compiler {:output-to compiled-js-path
+                        :optimizations :whitespace
+                        :pretty-print true}}
+       :prod {:source-paths sources
+              :compiler {:output-to compiled-js-path
+                         :optimizations :advanced
+                         :pretty-print false}}}})
   :min-lein-version "2.1.2")
