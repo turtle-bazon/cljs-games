@@ -6,6 +6,10 @@
 
 (def state (r/atom nil))
 
+(defn log
+  [& msgs]
+  (.log js/console (str msgs)))
+
 (defn get-block!
   [block]
   (block @state))
@@ -223,19 +227,20 @@
                         changes))}))
 
 (defn- animate-move-pile!
-  [from-state on-complete force]
-  (if-let [next-state (:next-state from-state)]
+  [from-state next-state-fn on-complete force]
+  (if-let [next-state (next-state-fn from-state)]
     (let [changes (get-changes from-state next-state)
           from (:from changes)
           to (:to changes)
           card (get-card from-state from)
           on-animation-stop (fn [propagate]
                               (reset! state next-state)
-                              (animate-move-pile! next-state on-complete (not propagate)))]
+                              (animate-move-pile! next-state next-state-fn on-complete (not propagate)))]
       (if force
         (on-animation-stop false)
         ((:animate-fn from-state) from to card on-animation-stop)))
-    (on-complete)))
+    (when on-complete
+      (on-complete))))
 
 (defn move-pile!
   [from-block from-position draggable-pile to-block to-position to-pile on-complete]
@@ -256,7 +261,7 @@
                                    (= step-state current-state))
                              new-state
                              (recur (first (:history new-state)) new-state))))]
-        (animate-move-pile! from-state on-complete false))
+        (animate-move-pile! from-state :next-state on-complete false))
       (when (can-move-to? @state draggable-pile to-block (last to-pile))
         (swap! state move-card from to)
         (on-complete)))))
@@ -340,17 +345,40 @@
   []
   (get-in @state [:draggable-pile :pile]))
 
+(defn undo-to
+  [destination-state]
+  (fn [current-state]
+    (let [origin-state (first (:history (:next-state current-state)))]
+      (when (not= origin-state destination-state)
+        (let [prev-state (first (:history current-state))]
+          (assoc prev-state :next-state current-state))))))
+
 (defn undo!
   []
   (drop-pile!)
   (let [current-state @state]
-    (when-let [prev-state (first (:history @state))]
-      (reset! state (assoc prev-state :next-state current-state)))))
+    (when-let [prev-state (first (filter #(not (:intermediate %)) (:history current-state)))]
+      (animate-move-pile! current-state (undo-to prev-state) nil false))))
+
+(defn get-next-state
+  [current-state]
+  (when-let [next-state (:next-state current-state)]
+    (if (:intermediate next-state)
+      (recur next-state)
+      next-state)))
+
+(defn redo-to
+  [destination-state]
+  (fn [current-state]
+    (when-let [next-state (:next-state current-state)]
+      (when (not= current-state destination-state)
+        next-state))))
 
 (defn redo!
   []
-  (when-let [next-state (:next-state @state)]
-    (reset! state next-state)))
+  (let [current-state @state]
+    (when-let [destination-state (get-next-state current-state)]
+      (animate-move-pile! current-state (redo-to destination-state) nil false))))
 
 (defn- shuffle-deck
   []
