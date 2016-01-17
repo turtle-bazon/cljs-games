@@ -28,29 +28,34 @@ body {
 }
 
 .cards-block {
-  height: 100px;
+  height: 110px;
   float: left;
   position: relative;
 }
 
 .cards-pile {
-  width: 70px;
-  height: 90px;
+  width: 85px;
+  height: 100px;
   float: left;
   position: absolute;
 }
 
 .card-place {
-  width: 60px;
-  height: 90px;
-  padding: 1px 5px;
+  width: 75px;
+  height: 100px;
   float: left;
-  border: solid 1px black;
   position: absolute;
 }
 
 .card {
-  background-color: white;
+/*  background-color: white;*/
+}
+
+.no-card {
+  width: 65px;
+  height: 98px;
+  padding: 1px 5px;
+  border: solid 1px black;
 }
 
 .selected-card {

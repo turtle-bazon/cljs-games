@@ -26,7 +26,23 @@
             12 "Q"
             13 "K"})
 
+;; TODO fix for server
+(def image-url "url('./images/playingCards.png')")
+(def card-original-tile-width 149.75)
+(def card-original-tile-height 199)
+(def image-original-width 2086)
+(def image-original-height 786)
+(def card-tile-width 75)
+(def card-tile-height 100)
+(def image-width (* (/ image-original-width card-original-tile-width) card-tile-width))
+(def image-height (* (/ image-original-height card-original-tile-height) card-tile-height))
+
 (def ui-state (r/atom {}))
+
+(defn log
+  [& msgs]
+  (.log js/console (apply str msgs)))
+
 
 (defn elapsed-component!
   []
@@ -161,6 +177,17 @@
   (events/listen js/window EventType.MOUSEMOVE on-drag-pile!)
   (events/listen js/window EventType.MOUSEUP on-drop-pile!))
 
+(defn get-card-tile-position
+  [card]
+  (let [x (- (* (dec (:rank card)) card-tile-width))
+        suit-index (case (:suit card)
+                     :spades 0
+                     :clubs 1
+                     :diamonds 2
+                     :hearts 3)
+        y (- (* suit-index card-tile-height))]
+    (str x "px " y "px")))
+
 (defn card-component
   [card block pile-position card-position selected]
   (let [rank (:rank card)
@@ -177,10 +204,13 @@
                 :spades "black")]
     [:div.unselectable.card-place.card
      {:class (when selected "selected-card")
-      :style {:top (str location-y "px") :color color}
+      :style {:top (str location-y "px") :color color
+              :background-image image-url
+              :background-size (str image-width "px " image-height "px")
+              :background-repeat "no-repeat"
+              :background-position (get-card-tile-position card)}
       :on-mouse-down (fn [event]
-                       (on-pile-select! block pile-position card-position event))}
-     (str rank-html suit-html)]))
+                       (on-pile-select! block pile-position card-position event))}]))
 
 (defn pile-component
   [cards block pile-position placeholder draggable-card-position]
@@ -198,7 +228,7 @@
                    selected (and draggable-card-position
                                  (<= draggable-card-position card-position))]]
          ^{:key (:key card)} [card-component card block pile-position card-position selected])
-       [:div.unselectable.card-place placeholder])]))
+       [:div.unselectable.card-place.no-card placeholder])]))
 
 (defn pile-component-at
   [cards block location]
