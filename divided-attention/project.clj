@@ -18,7 +18,7 @@
   :figwheel {:server-ip "0.0.0.0"}
   :cljsbuild {:builds
               [{:id "dev"
-                :figwheel true
+                :figwheel {:websocket-host :js-client-host}
                 :source-paths ["src"]
                 :compiler {:main divided-attention.core
                            :asset-path "js/out"
@@ -30,4 +30,4 @@
                            :main divided-attention.core
                            :optimizations :advanced
                            :pretty-print false}}]}
-  :min-lein-version "2.1.2")
+  :min-lein-version "2.5.3")
