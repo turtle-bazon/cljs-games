@@ -6,6 +6,8 @@
 
 (defonce state (r/atom nil))
 
+(def max-rank 13)
+
 (defn log
   [& msgs]
   (.log js/console (apply str msgs)))
@@ -122,6 +124,14 @@
          (inc (apply min (map (fn [pile]
                                 (:rank (last pile)))
                               (:foundations state))))))
+
+(defn win?!
+  []
+  (let [foundations-rank
+        (inc (apply min (map (fn [pile]
+                               (:rank (last pile)))
+                             (:foundations @state))))]
+    (< max-rank foundations-rank)))
 
 (defn- take-card
   [state card-info]
@@ -369,7 +379,7 @@
                               :diamonds
                               :clubs
                               :spades)
-                   rank (range 1 14)]
+                   rank (range 1 (inc max-rank))]
                {:suit suit
                 :rank rank
                 :key (str suit rank)})

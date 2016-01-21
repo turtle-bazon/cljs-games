@@ -52,6 +52,12 @@ body {
   pointer-events: none;
   opacity: 0.6;
 }
+.win-block {
+  position: absolute;
+  left: 200px;
+  top: 200px;
+  z-index: 9999;
+}
 .controls-panel {
   position: absolute;
   top: 400px;

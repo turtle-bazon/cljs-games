@@ -9,7 +9,6 @@
 (def mini-card-height 20)
 (def animation-speed 100)
 (def animation-interval 50)
-;; TODO fix for server
 (def image-url "url('./images/playingCards.png')")
 (def card-original-tile-width 149.75)
 (def card-original-tile-height 199)
@@ -246,6 +245,11 @@
   []
   (block-component! :tableau (logic/get-block! :tableau)))
 
+(defn win-component!
+  []
+  (when (logic/win?!)
+    [:div.win-block "Congratulations! You've won!"]))
+
 (defn controls-component!
   []
   [:div.controls-panel
@@ -264,6 +268,7 @@
    ^{:key :freecells} [:div.row [freecells-component!] [foundations-component!]]
    ^{:key :tableau} [:div.row [tableau-component!]]
    ^{:key :draggable-pile} [draggable-pile-component!]
+   ^{:key :win} [win-component!]
    ^{:key :controls} [controls-component!]
    ^{:key :elapsed} [:div.row [elapsed-component!]]
    ^{:key :animation} [:div.row [animated-card-component!]]])
