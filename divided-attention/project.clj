@@ -14,8 +14,10 @@
                    :plugins [[lein-figwheel "0.5.0-3"]
                              [cider/cider-nrepl "0.10.0"]
                              [refactor-nrepl "1.2.0"]]
-                   :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}}}
-  :figwheel {:server-ip "0.0.0.0"}
+                   :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]
+                                  :timeout 120000}}}
+  :figwheel {:server-ip "0.0.0.0"
+             :css-dirs ["resources/public/css"]}
   :cljsbuild {:builds
               [{:id "dev"
                 :figwheel {:websocket-host :js-client-host}
