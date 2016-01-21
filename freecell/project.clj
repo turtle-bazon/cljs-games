@@ -10,15 +10,14 @@
                                   [org.clojure/tools.reader "0.10.0"]
                                   [com.cemerick/piggieback "0.2.1"]
                                   [figwheel-sidecar "0.5.0-3"]]
-                   :plugins [[lein-figwheel "0.5.0-3"]
-                             [cider/cider-nrepl "0.10.1"]
+                   :plugins [[cider/cider-nrepl "0.10.1"]
                              [refactor-nrepl "1.2.0"]]}}
   :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
   :clean-targets ^{:protect false} ["resources/public/js" :target]
   :cljsbuild {:builds 
               [{:id "dev"
                 :source-paths ["src"]
-                :figwheel true
+                :figwheel {:websocket-host :js-client-host}
                 :compiler {:main freecell.core
                            :asset-path "js/out"
                            :output-to "resources/public/js/main.js"

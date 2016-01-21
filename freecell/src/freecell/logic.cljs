@@ -4,7 +4,7 @@
             [goog.events :as events])
   (:import [goog.events EventType]))
 
-(def state (r/atom nil))
+(defonce state (r/atom nil))
 
 (defn log
   [& msgs]

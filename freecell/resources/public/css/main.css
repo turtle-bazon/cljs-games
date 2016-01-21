@@ -6,15 +6,12 @@
   -ms-user-select: none;
   user-select: none;
 }
-
 .unselectable:hover {
   cursor: default;
 }
-
 body {
   background-color: green;
 }
-
 .board {
   margin: auto;
   position: relative;
@@ -22,61 +19,47 @@ body {
   height: 400px;
   position: relative;
 }
-
 .row {
   clear: both;
 }
-
 .cards-block {
   height: 110px;
   float: left;
   position: relative;
 }
-
 .cards-pile {
-  width: 85px;
+  width: 75px;
   height: 100px;
   float: left;
   position: absolute;
 }
-
 .card-place {
   width: 75px;
   height: 100px;
   float: left;
   position: absolute;
 }
-
-.card {
-/*  background-color: white;*/
-}
-
 .no-card {
   width: 65px;
   height: 98px;
   padding: 1px 5px;
   border: solid 1px black;
 }
-
 .selected-card {
   background-color: #CCFF99;
 }
-
 .draggable-pile {
   pointer-events: none;
   opacity: 0.6;
 }
-
 .controls-panel {
   position: absolute;
   top: 400px;
 }
-
 .elapsed-time {
   position: absolute;
   bottom: 20px;
 }
-
 .info-block {
   position: absolute;
   bottom: -15px;

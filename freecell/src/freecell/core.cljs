@@ -1,6 +1,5 @@
 (ns freecell.core
   (:require [reagent.core :as r]
-            [goog.string :refer [unescapeEntities]]
             [goog.events :as events]
             [freecell.logic :as logic])
   (:import [goog.events EventType]))
@@ -8,24 +7,8 @@
 (def card-width 80)
 (def card-height 100)
 (def mini-card-height 20)
-(def suits {:hearts "&hearts;"
-            :diamonds "&diams;"
-            :clubs "&clubs;"
-            :spades "&spades;"})
-(def ranks {1 "A"
-            2 "2"
-            3 "3"
-            4 "4"
-            5 "5"
-            6 "6"
-            7 "7"
-            8 "8"
-            9 "9"
-            10 "10"
-            11 "J"
-            12 "Q"
-            13 "K"})
-
+(def animation-speed 100)
+(def animation-interval 50)
 ;; TODO fix for server
 (def image-url "url('./images/playingCards.png')")
 (def card-original-tile-width 149.75)
@@ -37,12 +20,11 @@
 (def image-width (* (/ image-original-width card-original-tile-width) card-tile-width))
 (def image-height (* (/ image-original-height card-original-tile-height) card-tile-height))
 
-(def ui-state (r/atom {}))
+(defonce ui-state (r/atom {}))
 
 (defn log
   [& msgs]
   (.log js/console (apply str msgs)))
-
 
 (defn elapsed-component!
   []
@@ -83,11 +65,11 @@
   (events/unlisten js/window EventType.MOUSEMOVE on-drag-pile!)
   (events/unlisten js/window EventType.MOUSEUP on-drop-pile!))
 
-
 (defn- get-location
   [card]
   (let [board-bounds (.getBoundingClientRect (.getElementById js/document "board"))
-        from-block-bounds (.getBoundingClientRect (.getElementById js/document (str (:block card))))
+        from-block-bounds (.getBoundingClientRect (.getElementById js/document
+                                                                   (str (:block card))))
         from-block-location-x (.-left from-block-bounds)
         from-block-location-y (.-top from-block-bounds)
         pile-relative-location-x (* (:pile card) card-width)
@@ -104,8 +86,6 @@
     n
     (- n)))
 
-(def velocity 100)
-(def animation-interval 50)
 (defn- next-location!
   [current-location]
   (when-let [animation (:animation @ui-state)]
@@ -114,7 +94,7 @@
           distance-x (- (:x stop-location) (:x current-location))
           distance-y (- (:y stop-location) (:y current-location))
           max-distance (max (abs distance-x) (abs distance-y))
-          turns-count (/ max-distance velocity)
+          turns-count (/ max-distance animation-speed)
           dx (/ distance-x turns-count)
           dy (/ distance-y turns-count)
           new-location-x (if (< (abs distance-x) (abs dx))
@@ -129,7 +109,29 @@
         (on-stop true))
       {:x new-location-x :y new-location-y})))
 
-(defn- card-animation-component!
+(defn get-card-tile-position
+  [card]
+  (let [x (- (* (dec (:rank card)) card-tile-width))
+        suit-index (case (:suit card)
+                     :spades 0
+                     :clubs 1
+                     :diamonds 2
+                     :hearts 3)
+        y (- (* suit-index card-tile-height))]
+    (str x "px " y "px")))
+
+(defn card-component
+  [card x y options]
+  [:div.unselectable.card-place
+   (merge {:style {:left (str x "px")
+                   :top (str y "px")
+                   :background-image image-url
+                   :background-size (str image-width "px " image-height "px")
+                   :background-repeat "no-repeat"
+                   :background-position (get-card-tile-position card)}}
+          options)])
+
+(defn- animated-card-component!
   []
   (let [location (r/atom nil)]
     (fn []
@@ -141,20 +143,8 @@
             nil)
           (let [current-location @location]
             (js/setTimeout #(swap! location next-location!) animation-interval)
-            (let [card (:card animation)
-                  rank (:rank card)
-                  rank-html (get ranks rank)
-                  suit (:suit card)
-                  suit-html (unescapeEntities (get suits suit))
-                  color (case suit
-                          :hearts "red"
-                          :diamonds "red"
-                          :clubs "black"
-                          :spades "black")]
-              [:p.card-place.card
-               {:style {:left (str (:x current-location) "px")
-                        :top (str (:y current-location) "px") :color color}}
-               (str rank-html suit-html)])))))))
+            (let [card (:card animation)]
+              (card-component card (:x current-location) (:y current-location) nil))))))))
 
 (defn- set-card-animation!
   [from to card on-stop]
@@ -177,45 +167,21 @@
   (events/listen js/window EventType.MOUSEMOVE on-drag-pile!)
   (events/listen js/window EventType.MOUSEUP on-drop-pile!))
 
-(defn get-card-tile-position
-  [card]
-  (let [x (- (* (dec (:rank card)) card-tile-width))
-        suit-index (case (:suit card)
-                     :spades 0
-                     :clubs 1
-                     :diamonds 2
-                     :hearts 3)
-        y (- (* suit-index card-tile-height))]
-    (str x "px " y "px")))
-
-(defn card-component
+(defn fixed-card-component
   [card block pile-position card-position selected]
-  (let [rank (:rank card)
-        rank-html (get ranks rank)
-        suit (:suit card)
-        suit-html (unescapeEntities (get suits suit))
-        location-y (if (not= block :foundations)
+  (let [location-y (if (not= block :foundations)
                      (* card-position mini-card-height)
-                     0)
-        color (case suit
-                :hearts "red"
-                :diamonds "red"
-                :clubs "black"
-                :spades "black")]
-    [:div.unselectable.card-place.card
-     {:class (when selected "selected-card")
-      :style {:top (str location-y "px") :color color
-              :background-image image-url
-              :background-size (str image-width "px " image-height "px")
-              :background-repeat "no-repeat"
-              :background-position (get-card-tile-position card)}
-      :on-mouse-down (fn [event]
-                       (on-pile-select! block pile-position card-position event))}]))
+                     0)]
+    (card-component card 0 location-y
+                    {:class (when selected "selected-card")
+                     :on-mouse-down (fn [event]
+                                      (on-pile-select! block pile-position
+                                                       card-position event))})))
 
 (defn pile-component
   [cards block pile-position placeholder draggable-card-position]
   (.log js/console "pile-component")
-  (let [height (+ card-height (* (count cards) mini-card-height))]
+  (let [height (+ card-height (* (dec (count cards)) mini-card-height))]
     [:div.cards-pile
      {:style {:left (str (* pile-position card-width) "px")
               :height height}
@@ -227,7 +193,8 @@
              :let [card (nth cards card-position)
                    selected (and draggable-card-position
                                  (<= draggable-card-position card-position))]]
-         ^{:key (:key card)} [card-component card block pile-position card-position selected])
+         ^{:key (:key card)} [fixed-card-component card block pile-position
+                              card-position selected])
        [:div.unselectable.card-place.no-card placeholder])]))
 
 (defn pile-component-at
@@ -236,7 +203,7 @@
                                            :top (str (:y location) "px")}}
    (for [card-position (range 0 (count cards))
          :let [card (nth cards card-position)]]
-     ^{:key (:key card)} [card-component card block nil card-position false])])
+     ^{:key (:key card)} [fixed-card-component card block nil card-position false])])
 
 (defn draggable-pile-component!
   []
@@ -299,7 +266,7 @@
    ^{:key :draggable-pile} [draggable-pile-component!]
    ^{:key :controls} [controls-component!]
    ^{:key :elapsed} [:div.row [elapsed-component!]]
-   ^{:key :animation} [:div.row [card-animation-component!]]])
+   ^{:key :animation} [:div.row [animated-card-component!]]])
 
 (defn mountit!
   []
