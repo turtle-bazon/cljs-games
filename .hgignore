@@ -1,8 +1,10 @@
 target
 classes
 checkouts
+figwheel_server.log
 pom.xml
 pom.xml.asc
+resources/public/js/out/*
 \.jar
 \.class
 \.lein-*
