@@ -307,8 +307,10 @@
                       (.getElementById js/document "app"))
   (events/listen js/window EventType.MOUSEDOWN stop-animation!))
 
-(defn ^:export run
+(defn run
   []
   (logic/init-game-state! set-card-animation!)
   (mountit!)
   (logic/auto-move-to-foundations! false))
+
+(set! (.-onload js/window) run)

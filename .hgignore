@@ -9,3 +9,6 @@ pom.xml.asc
 \.nrepl-port
 [\\/]main.js$
 ^\.git
+
+figwheel_server.log
+out
