@@ -23,7 +23,7 @@
                            :output-to "resources/public/js/main.js"
                            :output-dir "resources/public/js/out"}}
                {:id "prod"
-                :source-paths sources
+                :source-paths ["src"]
                 :compiler {:output-to "resources/public/js/main.js"
                            :optimizations :advanced
                            :pretty-print false}}]}
