@@ -30,7 +30,7 @@
   (let [seconds (r/atom 0)]
     (fn []
       (js/setTimeout #(swap! seconds inc) 1000)
-      [:p.elapsed-time "Elapsed: " @seconds])))
+      [:div.elapsed-time "Elapsed: " @seconds])))
 
 (defn get-client-location
   [node]
@@ -160,11 +160,12 @@
 
 (defn on-pile-select!
   [block pile-position card-position event]
-  (logic/select-pile! block pile-position card-position)
-  (set-pile-selection-location! event)
-  ;; TODO use reagent events
-  (events/listen js/window EventType.MOUSEMOVE on-drag-pile!)
-  (events/listen js/window EventType.MOUSEUP on-drop-pile!))
+  (when (not (logic/win?!))
+    (logic/select-pile! block pile-position card-position)
+    (set-pile-selection-location! event)
+    ;; TODO use reagent events
+    (events/listen js/window EventType.MOUSEMOVE on-drag-pile!)
+    (events/listen js/window EventType.MOUSEUP on-drop-pile!)))
 
 (defn fixed-card-component
   [card block pile-position card-position selected]
@@ -250,27 +251,41 @@
   (when (logic/win?!)
     [:div.win-block "Congratulations! You've won!"]))
 
+(defn start-new-game!
+  []
+  (logic/init-game-state! set-card-animation!)
+  (logic/auto-move-to-foundations! false))
+
 (defn controls-component!
   []
   [:div.controls-panel
+   ^{:key :new-game} [:button {:on-click (fn []
+                                           (stop-animation!)
+                                           (start-new-game!))}
+                      "New game"]
+   ^{:key :restart} [:button {:on-click (fn []
+                                          (stop-animation!)
+                                          (logic/restart!))}
+                     "<<"]
    ^{:key :undo} [:button {:on-click (fn []
                                        (stop-animation!)
-                                       (logic/undo!))}
-                  "Undo"]
+                                       (when (not (logic/win?!))
+                                         (logic/undo!)))}
+                  "<"]
    ^{:key :redo} [:button {:on-click (fn []
                                        (stop-animation!)
-                                       (logic/redo!))}
-                  "Redo"]])
+                                       (when (not (logic/win?!))
+                                         (logic/redo!)))}
+                  ">"]])
 
 (defn board-component!
   []
   [:div#board.board
+   ^{:key :controls} [:div.row [controls-component!] [elapsed-component!]]
    ^{:key :freecells} [:div.row [freecells-component!] [foundations-component!]]
    ^{:key :tableau} [:div.row [tableau-component!]]
    ^{:key :draggable-pile} [draggable-pile-component!]
    ^{:key :win} [win-component!]
-   ^{:key :controls} [controls-component!]
-   ^{:key :elapsed} [:div.row [elapsed-component!]]
    ^{:key :animation} [:div.row [animated-card-component!]]])
 
 (defn mountit!
@@ -281,8 +296,7 @@
 
 (defn run
   []
-  (logic/init-game-state! set-card-animation!)
   (mountit!)
-  (logic/auto-move-to-foundations! false))
+  (start-new-game!))
 
 (set! (.-onload js/window) run)

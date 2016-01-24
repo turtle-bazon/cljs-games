@@ -373,6 +373,15 @@
     (when-let [destination-state (get-next-state current-state)]
       (animate-move-pile! current-state (redo-to destination-state) nil false))))
 
+(defn restart!
+  []
+  (let [cur-state @state
+        new-state (-> cur-state
+                      :history
+                      last
+                      (dissoc :next-state))]
+    (reset! state new-state)))
+
 (defn- shuffle-deck
   []
   (let [deck (for [suit (list :hearts

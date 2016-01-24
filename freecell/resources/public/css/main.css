@@ -52,19 +52,37 @@ body {
   pointer-events: none;
   opacity: 0.6;
 }
+@keyframes win-animation {
+  0% {
+    color: red;
+  }
+  50% {
+    color: yellow;
+  }
+  100% {
+    color: red;
+  }
+}
 .win-block {
   position: absolute;
-  left: 200px;
-  top: 200px;
+  left: 120px;
+  top: 290px;
   z-index: 9999;
+  font: 32px Arial;
+  color: red;
+  animation-name: win-animation;
+  animation-duration: 500ms;
+  animation-iteration-count: infinite;
 }
 .controls-panel {
-  position: absolute;
-  top: 400px;
+  float: left;
+  margin-bottom: 10px;
 }
 .elapsed-time {
   position: absolute;
-  bottom: 20px;
+  right: 0px;
+  margin-right: 20px;
+  margin-bottom: 10px;
 }
 .info-block {
   position: absolute;
