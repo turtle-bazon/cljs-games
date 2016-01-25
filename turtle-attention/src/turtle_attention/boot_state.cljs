@@ -1,4 +1,4 @@
-(ns divided-attention.boot-state
+(ns turtle-attention.boot-state
   (:require
    [phzr.state-manager :as sm]))
 

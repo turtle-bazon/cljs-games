@@ -1,4 +1,4 @@
-(ns divided-attention.play-state)
+(ns turtle-attention.play-state)
 
 (defn state-create [state]
   (.log js/console "play state created"))

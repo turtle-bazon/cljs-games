@@ -1,5 +1,5 @@
-(defproject divided-attention "0.1.0-SNAPSHOT"
-  :description "Divided Attention Game"
+(defproject turtle-attention "0.1.0-SNAPSHOT"
+  :description "Turtle Attention Game"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.7.0"]
@@ -22,14 +22,14 @@
               [{:id "dev"
                 :figwheel {:websocket-host :js-client-host}
                 :source-paths ["src"]
-                :compiler {:main divided-attention.core
+                :compiler {:main turtle-attention.core
                            :asset-path "js/out"
                            :output-to "resources/public/js/main.js"
                            :source-map-timestamp true}}
                {:id "prod"
                 :source-paths ["src"]
                 :compiler {:output-to "resources/public/js/main.js"
-                           :main divided-attention.core
+                           :main turtle-attention.core
                            :optimizations :advanced
                            :pretty-print false}}]}
   :min-lein-version "2.5.3")

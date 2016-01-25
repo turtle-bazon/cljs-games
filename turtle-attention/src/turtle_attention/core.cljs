@@ -1,7 +1,7 @@
-(ns divided-attention.core
+(ns turtle-attention.core
   (:require
-   [divided-attention.boot-state :as boot-state]
-   [divided-attention.play-state :as play-state]
+   [turtle-attention.boot-state :as boot-state]
+   [turtle-attention.play-state :as play-state]
    [phzr.core :as p :refer [pset!]]
    [phzr.game :as game]
    [phzr.state-manager :as sm]))
