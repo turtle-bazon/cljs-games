@@ -1,10 +1,18 @@
 (ns turtle-attention.boot-state
   (:require
+   [phzr.loader :as loader]
+   [phzr.physics :as physics]
    [phzr.state-manager :as sm]))
 
-(defn state-create [state]
-  (.log js/console "boot state created")
-  (sm/start (:state state) "play" nil))
+(defn state-preload [game]
+  (doto (:load game)
+    (loader/image "box" "assets/world/box.png")
+    (loader/spritesheet "turtle" "assets/characters/turtle.png" 100 64)))
+
+(defn state-create [game]
+  (physics/start-system (:physics game) (physics/const :arcade))
+  (sm/start (:state game) "play" nil))
 
 (def state-obj
-  {:create state-create})
+  {:preload state-preload
+   :create state-create})
