@@ -7,7 +7,7 @@
    [phzr.group :as group]
    [phzr.physics.arcade :as arcade-physics]))
 
-(defonce play-state! (atom {}))
+(defonce world-state! (atom {}))
 
 (defn turtle-left [turtle]
   (set! (.-direction turtle) :left)
@@ -49,14 +49,14 @@
     (utils/set-attr! box2 [:body :immovable] true)
     (set! (.-direction turtle) :right)
     (turtle-right turtle)
-    (swap! play-state!
-           (fn [play-state]
-             (-> play-state
+    (swap! world-state!
+           (fn [world-state]
+             (-> world-state
                  (assoc-in [:turtles-group] turtles-group)
                  (assoc-in [:boxes-group] boxes-group))))))
 
 (defn state-update [game]
-  (let [{:keys [turtles-group boxes-group]} @play-state!]
+  (let [{:keys [turtles-group boxes-group]} @world-state!]
     (arcade-physics/collide (:arcade (:physics game))
                             turtles-group boxes-group turtle-box-collide)))
 
