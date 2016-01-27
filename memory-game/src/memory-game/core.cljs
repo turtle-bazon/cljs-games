@@ -6,17 +6,17 @@
 ;;; normal - 6x7
 ;;; hard - 8x9
 
-(def *score-inc* 10)
+(def $score-inc$ 10)
 
-(def *score-dec* 1)
+(def $score-dec$ 1)
 
 (def game (r/atom {}))
 
 (defn inc-score [score]
-  (+ score *score-inc*))
+  (+ score $score-inc$))
 
 (defn dec-score [score]
-  (- score *score-dec*))
+  (- score $score-dec$))
 
 (defn open-card [game id card]
   (let [type-id (:type-id card)
