@@ -11,6 +11,15 @@
 
 (defonce score-atom (atom 0))
 
+(defn add-score [game]
+  (object-factory/text (:add game) 64 64 (str "Score: " @score-atom)
+                       {:font "65px Arial",
+                        :fill "#ff0044",
+                        :align "center"}))
+
+(defn show-score [score-text]
+  (.setText score-text (str "Score: " @score-atom)))
+
 (defn bubble-right [bubble]
   (set! (.-direction bubble) :up)
   (utils/set-attr! bubble [:body :velocity :y] 5))
@@ -24,16 +33,19 @@
 
 (defn state-create [game]
   (let [bubbles-group (object-factory/physics-group (:add game))
-        bubble (characters/add-bubble game bubbles-group 64 0
-                                      (fn [bubble] (bubble-tapped bubble)))]
+        bubble (characters/add-bubble game bubbles-group 64 400
+                                      (fn [bubble] (bubble-tapped bubble)))
+        score-text (add-score game)]
     (set! (.-direction bubble) :up)
     (swap! state-atom
            (fn [state]
              (-> state
-                 (assoc-in [:bubbles-group] bubbles-group))))))
+                 (assoc-in [:bubbles-group] bubbles-group)
+                 (assoc-in [:score-text] score-text))))))
 
 (defn state-update [game]
-  (let [{:keys [bubbles-group]} @state-atom]
+  (let [{:keys [bubbles-group score-text]} @state-atom]
+    (show-score score-text)
     ;; (arcade-physics/collide (:arcade (:physics game))
     ;;                         turtles-group boxes-group turtle-box-collide)
     ))
