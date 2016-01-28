@@ -23,8 +23,8 @@
   (utils/set-attr! turtle [:body :velocity :x] 0)
   (animation-manager/stop (:animations turtle))
   (utils/set-attr! turtle [:frame] (case (.-direction turtle)
-                                     :right 0
-                                     :left 4)))
+                                     :right 3
+                                     :left 10)))
 
 (defn turtle-box-collide [turtle box]
   (let [touch-state (:touching (:body turtle))]
