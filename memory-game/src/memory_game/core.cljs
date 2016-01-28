@@ -1,4 +1,4 @@
-(ns memroy-game.core
+(ns memory-game.core
   (:require
    [reagent.core :as r]))
 
