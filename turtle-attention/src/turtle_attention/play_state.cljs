@@ -9,35 +9,18 @@
 
 (defonce world-state! (atom {}))
 
-(defn turtle-left [turtle]
-  (set! (.-direction turtle) :left)
-  (utils/set-attr! turtle [:body :velocity :x] -25)
-  (animation-manager/play (:animations turtle) "left"))
-
-(defn turtle-right [turtle]
-  (set! (.-direction turtle) :right)
-  (utils/set-attr! turtle [:body :velocity :x] 25)
-  (animation-manager/play (:animations turtle) "right"))
-
-(defn turtle-stop [turtle]
-  (utils/set-attr! turtle [:body :velocity :x] 0)
-  (animation-manager/stop (:animations turtle))
-  (utils/set-attr! turtle [:frame] (case (.-direction turtle)
-                                     :right 3
-                                     :left 10)))
-
 (defn turtle-box-collide [turtle box]
   (let [touch-state (:touching (:body turtle))]
     (cond
-      (.-left touch-state) (turtle-right turtle)
-      (.-right touch-state) (turtle-left turtle))))
+      (.-left touch-state) (characters/turtle-right turtle)
+      (.-right touch-state) (characters/turtle-left turtle))))
 
 (defn turtle-tapped [turtle]
   (if (= (get-in turtle [:body :velocity :x]) 0)
     (case (.-direction turtle)
-      :right (turtle-right turtle)
-      :left (turtle-left turtle))
-    (turtle-stop turtle)))
+      :right (characters/turtle-right turtle)
+      :left (characters/turtle-left turtle))
+    (characters/turtle-stop turtle)))
 
 (defn state-create [game]
   (let [turtles-group (object-factory/physics-group (:add game))
@@ -48,7 +31,7 @@
     (utils/set-attr! box1 [:body :immovable] true)
     (utils/set-attr! box2 [:body :immovable] true)
     (set! (.-direction turtle) :right)
-    (turtle-right turtle)
+    (characters/turtle-right turtle)
     (swap! world-state!
            (fn [world-state]
              (-> world-state
