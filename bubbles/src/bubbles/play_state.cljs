@@ -11,7 +11,7 @@
 
 (defonce score-atom (atom 0))
 (defonce lives-atom (atom 10))
-(defonce bubble-create-interval (atom 1000))
+(defonce bubble-create-interval (atom 2000))
 
 (defn add-score [game]
   (object-factory/text (:add game) 64 64 (str "Score: " @score-atom)
@@ -40,24 +40,26 @@
       (.add (.. game -time -events)
             @bubble-create-interval
             (fn [] (add-bubble game group)) nil)
-      (swap! bubble-create-interval (fn [t] (* t 0.95))))))
+      (swap! bubble-create-interval (fn [t] (* t 0.97))))))
 
 (defn state-create [game]
   (let [bubbles-group (object-factory/physics-group (:add game))
         score-text (add-score game)
         lives-text (add-lives game)]
-    (add-bubble game bubbles-group)
-    (swap! state-atom
-           (fn [state]
-             (-> state
-                 (assoc-in [:bubbles-group] bubbles-group)
-                 (assoc-in [:score-text] score-text)
-                 (assoc-in [:lives-text] lives-text))))))
+    (reset! score-atom 0)
+    (reset! lives-atom 10)
+    (reset! bubble-create-interval 2000)
+    (reset! state-atom
+            (-> {}
+                (assoc-in [:bubbles-group] bubbles-group)
+                (assoc-in [:score-text] score-text)
+                (assoc-in [:lives-text] lives-text)))
+    (add-bubble game bubbles-group)))
 
 (defn state-update [game]
   (let [{:keys [bubbles-group score-text lives-text]} @state-atom]
     (doall (map (fn [bubble]
-                  (bubble/bubble-update bubble
+                  (bubble/bubble-update game bubble
                                         (fn []
                                           (swap! lives-atom dec))))
                 (.-children bubbles-group)))
