@@ -34,7 +34,8 @@
                     (square (/ bubble-size 2)))]
     (when (<= squared-distance
               (square radius))
-      (destroy bubble))))
+      (destroy bubble)
+      true)))
 
 (defn vanish [bubble on-vanish]
   (destroy bubble)
@@ -62,8 +63,8 @@
     (utils/set-attr! bubble [:input-enabled] true)
     (signal/add (get-in bubble [:events :on-input-down])
                 (fn [bubble event]
-                  (bubble-tapped bubble event)
-                  (tap-listener bubble))
+                  (let [hit (bubble-tapped bubble event)]
+                    (tap-listener bubble hit)))
                 bubble)
     (set! (.-leftTime bubble) bubble-life-time)
     bubble))
@@ -74,3 +75,10 @@
               (+ (rand-int (- (:height game) bubble-size bubble-create-offset-y))
                  bubble-create-offset-y)
               tap-listener))
+
+(defn add-background [game tap-listener]
+  (let [background (object-factory/tile-sprite (:add game)
+                                               0 0 (:width game) (:height game)
+                                               "background")]
+    (utils/set-attr! background [:input-enabled] true)
+    (signal/add (get-in background [:events :on-input-down]) tap-listener)))

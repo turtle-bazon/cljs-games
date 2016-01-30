@@ -6,7 +6,7 @@
    [phzr.physics.arcade :as arcade-physics]
    [phzr.timer :as timer]
    [bubbles.bubble :as bubble]
-   [bubbles.utils :as utils]))
+   [bubbles.utils :as utils :refer [log]]))
 
 (defonce state-atom (atom {}))
 
@@ -35,8 +35,10 @@
 (defn add-bubble [game group]
   (when (< 0 @lives-atom)
     (let [bubble (bubble/add-random-bubble game group
-                                           (fn [bubble]
-                                             (swap! score-atom inc)))]
+                                           (fn [bubble hit]
+                                             (if hit
+                                               (swap! score-atom inc)
+                                               (swap! lives-atom dec))))]
       (bubble/bubble-up bubble)
       (timer/add (get-in game [:time :events])
                  @bubble-create-interval
@@ -44,7 +46,9 @@
       (swap! bubble-create-interval (fn [t] (* t 0.97))))))
 
 (defn state-create [game]
-  (let [bubbles-group (object-factory/physics-group (:add game))
+  (let [background (bubble/add-background game (fn [background event]
+                                                 (swap! lives-atom dec)))
+        bubbles-group (object-factory/physics-group (:add game))
         score-text (add-score game)
         lives-text (add-lives game)]
     (reset! score-atom 0)
