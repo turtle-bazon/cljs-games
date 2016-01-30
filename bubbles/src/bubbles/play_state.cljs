@@ -4,6 +4,7 @@
    [phzr.game-object-factory :as object-factory]
    [phzr.group :as group]
    [phzr.physics.arcade :as arcade-physics]
+   [phzr.timer :as timer]
    [bubbles.bubble :as bubble]
    [bubbles.utils :as utils]))
 
@@ -20,7 +21,7 @@
                         :align "center"}))
 
 (defn show-score [score-text]
-  (.setText score-text (str "Score: " @score-atom)))
+  (utils/set-attr! score-text [:text] (str "Score: " @score-atom)))
 
 (defn add-lives [game]
   (object-factory/text (:add game) 256 64 (str "Lives: " @lives-atom)
@@ -29,7 +30,7 @@
                         :align "center"}))
 
 (defn show-lives [lives-text]
-  (.setText lives-text (str "Lives: " @lives-atom)))
+  (utils/set-attr! lives-text [:text] (str "Lives: " @lives-atom)))
 
 (defn add-bubble [game group]
   (when (< 0 @lives-atom)
@@ -37,9 +38,9 @@
                                            (fn [bubble]
                                              (swap! score-atom inc)))]
       (bubble/bubble-up bubble)
-      (.add (.. game -time -events)
-            @bubble-create-interval
-            (fn [] (add-bubble game group)) nil)
+      (timer/add (get-in game [:time :events])
+                 @bubble-create-interval
+                 (fn [] (add-bubble game group)) nil nil)
       (swap! bubble-create-interval (fn [t] (* t 0.97))))))
 
 (defn state-create [game]
@@ -62,7 +63,7 @@
                   (bubble/bubble-update game bubble
                                         (fn []
                                           (swap! lives-atom dec))))
-                (.-children bubbles-group)))
+                (:children bubbles-group)))
     (show-score score-text)
     (show-lives lives-text)))
 
