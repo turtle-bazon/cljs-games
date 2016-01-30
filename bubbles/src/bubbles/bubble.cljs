@@ -5,6 +5,7 @@
    [phzr.game-object-factory :as object-factory]
    [phzr.group :as group]
    [phzr.signal :as signal]
+   [phzr.sound :as sound]
    [phzr.sprite :as sprite]
    [bubbles.utils :as utils :refer [log]]))
 
@@ -34,6 +35,7 @@
                     (square (/ bubble-size 2)))]
     (when (<= squared-distance
               (square radius))
+      (sound/play (.-vanishSound bubble))
       (destroy bubble)
       true)))
 
@@ -58,7 +60,7 @@
           (utils/set-attr! bubble [:x] (+ (:x bubble) offset))
           (utils/set-attr! bubble [:y] (+ (:y bubble) offset)))))))
 
-(defn add-bubble [game bubbles-group x y tap-listener]
+(defn add-bubble [game bubbles-group x y bubble-vanish-sound tap-listener]
   (let [bubble (group/create bubbles-group x y "bubble")]
     (utils/set-attr! bubble [:input-enabled] true)
     (signal/add (get-in bubble [:events :on-input-down])
@@ -67,13 +69,15 @@
                     (tap-listener bubble hit)))
                 bubble)
     (set! (.-leftTime bubble) bubble-life-time)
+    (set! (.-vanishSound bubble) bubble-vanish-sound)
     bubble))
 
-(defn add-random-bubble [game bubble-group tap-listener]
+(defn add-random-bubble [game bubble-group bubble-vanish-sound tap-listener]
   (add-bubble game bubble-group
               (rand-int (- (:width game) bubble-size))
               (+ (rand-int (- (:height game) bubble-size bubble-create-offset-y))
                  bubble-create-offset-y)
+              bubble-vanish-sound
               tap-listener))
 
 (defn add-background [game tap-listener]
