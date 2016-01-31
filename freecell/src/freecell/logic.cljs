@@ -177,7 +177,9 @@
                                       (map vector (range) (:freecells state))))
         buffer-tableau (map (fn [[n _]] {:block :tableau
                                          :pile n})
-                            (filter (fn [[_ pile]] (empty? pile))
+                            (filter (fn [[n pile]]
+                                      (and (empty? pile)
+                                           (not= n (:pile to))))
                                     (map vector (range) (:tableau state))))]
     (loop [new-state state]
       (let [from-card (get-card new-state from)
@@ -193,12 +195,29 @@
           (recur (animation-move-card new-state from to))
           ;; move to free buffer
           (and (some #(= % from-card) draggable-pile)
-               (some empty? (:freecells new-state)))
-          (let [[pile-position _] (first (filter (fn [[_ pile]] (empty? pile)) (map vector (range) (:freecells new-state))))
+               (some empty? (map (fn [buffer]
+                                   (nth (:freecells new-state) (:pile buffer)))
+                                 buffer-freecells)))
+          (let [[pile-position _] (first
+                                   (filter (fn [[_ pile]]
+                                             (empty? pile))
+                                           (map vector (range) (:freecells new-state))))
                 to {:block :freecells
                     :pile pile-position}]
             (recur (animation-move-card new-state from to)))
-          ;; move from buffer to target pile
+          ;; move to free tableau
+          (and (some #(= % from-card) draggable-pile)
+               (some empty? (map (fn [buffer]
+                                   (nth (:tableau new-state) (:pile buffer)))
+                                 buffer-tableau)))
+          (let [[pile-position _] (first
+                                   (filter (fn [[_ pile]]
+                                             (empty? pile))
+                                           (map vector (range) (:tableau new-state))))
+                to {:block :tableau
+                    :pile pile-position}]
+            (recur (animation-move-card new-state from to)))
+          ;; move from buffer freecells to target pile
           (some (fn [card]
                   (and card
                        (in-tableau-order? card to-card)))
@@ -207,6 +226,16 @@
                                       (if-let [card (get-card new-state card-info)]
                                         (in-tableau-order? card to-card)))
                                     buffer-freecells))]
+            (recur (animation-move-card new-state from to)))
+          ;; move from buffer tableau to target pile
+          (some (fn [card]
+                  (and card
+                       (in-tableau-order? card to-card)))
+                (map (partial get-card new-state) buffer-tableau))
+          (let [from (first (filter (fn [card-info]
+                                      (if-let [card (get-card new-state card-info)]
+                                        (in-tableau-order? card to-card)))
+                                    buffer-tableau))]
             (recur (animation-move-card new-state from to)))
           ;; move is inposibble
           :else state)))))
