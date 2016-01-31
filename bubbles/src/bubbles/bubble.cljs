@@ -4,12 +4,14 @@
    [phzr.core :as pcore]
    [phzr.game-object-factory :as object-factory]
    [phzr.group :as group]
+   [phzr.rectangle :as rect]
    [phzr.signal :as signal]
    [phzr.sound :as sound]
    [phzr.sprite :as sprite]
    [phzr.timer :as timer]
    [bubbles.utils :as utils :refer [log]]))
 
+(def playfield-rect (rect/->Rectangle 0 55 800 425))
 (def bubble-size 64)
 (def bubble-create-offset-y 100)
 (def bubble-velocity 30)
@@ -44,7 +46,7 @@
   ((:on-vanish bubbles)))
 
 (defn update-bubble [game bubble bubbles]
-  (if (< (:y bubble) 0)
+  (if (< (:y bubble) (:y playfield-rect))
     (vanish bubble bubbles)
     (let [elapsed (get-in game [:time :physics-elapsed-ms])
           left-time (- (.-leftTime bubble) elapsed)]
@@ -103,19 +105,23 @@
 
 (defn init-bubbles [game on-hit on-miss on-vanish is-game-over-fn]
   (let [vanish-sound (object-factory/audio (:add game) "bubble-vanish-sound")
-        bubbles-group (object-factory/physics-group (:add game))
-        bubbles {:group bubbles-group
-                 :vanish-sound vanish-sound
-                 :on-hit on-hit
-                 :on-miss on-miss
-                 :on-vanish on-vanish
-                 :is-game-over-fn is-game-over-fn}]
-    (generate-bubble game bubbles initial-create-interval)
-    bubbles))
+        bubbles-group (object-factory/physics-group (:add game))]
+    {:group bubbles-group
+     :vanish-sound vanish-sound
+     :on-hit on-hit
+     :on-miss on-miss
+     :on-vanish on-vanish
+     :is-game-over-fn is-game-over-fn}))
+
+(defn start-bubbles [game bubbles]
+  (generate-bubble game bubbles initial-create-interval))
 
 (defn add-background [game tap-listener]
   (let [background (object-factory/tile-sprite (:add game)
                                                0 0 (:width game) (:height game)
                                                "background")]
     (utils/set-attr! background [:input-enabled] true)
-    (signal/add (get-in background [:events :on-input-down]) tap-listener)))
+    (signal/add (get-in background [:events :on-input-down])
+                (fn [background event]
+                  (when (rect/contains-point- playfield-rect (:position event))
+                    (tap-listener))))))

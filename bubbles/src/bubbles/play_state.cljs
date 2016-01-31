@@ -9,66 +9,71 @@
    [bubbles.bubble :as bubble]
    [bubbles.utils :as utils :refer [log]]))
 
-(defonce state-atom (atom {}))
+(def state-atom (atom))
 
-(defonce score-atom (atom))
-(defonce lives-atom (atom))
-(defonce bubble-create-interval (atom))
+(def initial-state {:score 0
+                    :lives 10
+                    :bubble-create-interval 800})
 (def info-position-y 20)
 
 (defn add-score [game]
-  (object-factory/text (:add game) 64 info-position-y (str "Score: " @score-atom)
-                       {:font "32px Arial",
-                        :fill "#ff0044",
+  (object-factory/text (:add game) 32 info-position-y
+                       (str "Score: " (:score initial-state))
+                       {:font "24px Arial",
+                        :fill "#FFFFFF",
                         :align "center"}))
-
-(defn show-score [score-text]
-  (utils/set-attr! score-text [:text] (str "Score: " @score-atom)))
 
 (defn add-lives [game]
-  (object-factory/text (:add game) 256 info-position-y (str "Lives: " @lives-atom)
-                       {:font "32px Arial",
-                        :fill "#ff0044",
+  (object-factory/text (:add game) 170 info-position-y
+                       (str "Lives: " (:lives initial-state))
+                       {:font "24px Arial",
+                        :fill "#FFFFFF",
                         :align "center"}))
 
-(defn show-lives [lives-text]
-  (utils/set-attr! lives-text [:text] (str "Lives: " @lives-atom)))
+(defn update-score! [update-fn]
+  (let [state (swap! state-atom update :score update-fn)
+        score-text (:score-text state)
+        score (:score state)]
+    (utils/set-attr! score-text [:text] (str "Score: " score))))
+
+(defn update-lives! [update-fn]
+  (let [state (swap! state-atom update :lives update-fn)
+        lives-text (:lives-text state)
+        lives (:lives state)]
+    (utils/set-attr! lives-text [:text] (str "Lives: " lives))))
 
 (defn is-game-over? []
-  (<= @lives-atom 0))
+  (<= (:lives @state-atom) 0))
 
 (defn on-bubble-hit []
-  (swap! score-atom inc))
+  (update-score! inc))
 
 (defn on-bubble-miss []
-  (swap! lives-atom dec))
+  (update-lives! dec))
 
 (defn on-bubble-vanish []
-  (swap! lives-atom dec))
+  (update-lives! dec))
 
 (defn state-create [game]
   (let [background (bubble/add-background game (fn [background event]
-                                                 (swap! lives-atom dec)))
+                                                 (when (not (is-game-over?))
+                                                   (update-lives! dec))))
         music (object-factory/audio (:add game) "music")
         score-text (add-score game)
         lives-text (add-lives game)
         bubbles (bubble/init-bubbles game on-bubble-hit on-bubble-miss
                                      on-bubble-vanish is-game-over?)]
     (sound/loop-full music)
-    (reset! score-atom 0)
-    (reset! lives-atom 10)
-    (reset! bubble-create-interval 800)
     (reset! state-atom
-            (-> {}
-                (assoc-in [:bubbles] bubbles)
-                (assoc-in [:score-text] score-text)
-                (assoc-in [:lives-text] lives-text)))))
+            (merge initial-state
+                   {:bubbles bubbles
+                    :score-text score-text
+                    :lives-text lives-text}))
+    (bubble/start-bubbles game bubbles)))
 
 (defn state-update [game]
-  (let [{:keys [bubbles score-text lives-text]} @state-atom]
-    (bubble/update-bubbles game bubbles)
-    (show-score score-text)
-    (show-lives lives-text)))
+  (let [{:keys [bubbles]} @state-atom]
+    (bubble/update-bubbles game bubbles)))
 
 (def state-obj
   {:create state-create
