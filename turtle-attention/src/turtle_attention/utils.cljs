@@ -8,3 +8,5 @@
 (defn set-attr! [object attr-chain value]
   (pcore/pset! (get-in object (butlast attr-chain)) (last attr-chain) value))
 
+(defn elapsed [game]
+  (get-in game [:time :physics-elapsed-ms]))
