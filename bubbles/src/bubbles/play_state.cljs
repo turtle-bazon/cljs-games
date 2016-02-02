@@ -3,7 +3,9 @@
    [phzr.animation-manager :as animation-manager]
    [phzr.game-object-factory :as object-factory]
    [phzr.group :as group]
+   [phzr.impl.accessors.scale-manager :refer [scale-manager-constants]]
    [phzr.physics.arcade :as arcade-physics]
+   [phzr.scale-manager :as scale-manager]
    [phzr.sound :as sound]
    [phzr.timer :as timer]
    [bubbles.bubble :as bubble]
@@ -82,6 +84,18 @@
 (defn on-bubble-vanish []
   (update-lives! dec))
 
+(defn switch-fullscreen [game]
+  (let [scale (:scale game)]
+    (if (:is-full-screen scale)
+      (scale-manager/stop-full-screen scale)
+      (scale-manager/start-full-screen scale false))))
+
+(defn create-fullscreen-button [game]
+  (object-factory/button (:add game)
+                         726 10
+                         "fullscreen-button"
+                         #(switch-fullscreen game)))
+
 (defn state-create [game]
   (let [background (bubble/add-background game (fn [background event]
                                                  (when (not (is-game-over?))
@@ -91,7 +105,10 @@
         highscore-text (add-highscore game)
         lives-text (add-lives game)
         bubbles (bubble/init-bubbles game on-bubble-hit on-bubble-miss
-                                     on-bubble-vanish is-game-over?)]
+                                     on-bubble-vanish is-game-over?)
+        scale-mode 2]
+    (utils/set-attr! game [:scale :full-screen-scale-mode] scale-mode)
+    (create-fullscreen-button game)
     (sound/loop-full music)
     (reset! state-atom
             (merge initial-state

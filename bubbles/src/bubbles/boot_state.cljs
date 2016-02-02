@@ -9,6 +9,7 @@
   (doto (:load game)
     (loader/image "background" "assets/background.png")
     (loader/spritesheet "bubble" "assets/bubble.png" 64 64)
+    (loader/spritesheet "fullscreen-button" "assets/fullscreen-button.png" 64 64)
     (loader/audio "music" "assets/audio/music.ogg")
     (loader/audio "bubble-vanish-sound" "assets/audio/bubble-vanish.ogg")))
 
