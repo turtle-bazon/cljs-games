@@ -12,19 +12,27 @@
 (def state-atom (atom))
 
 (def initial-state {:score 0
+                    :highscore 0
                     :lives 10
                     :bubble-create-interval 800})
-(def info-position-y 20)
+(def info-position-y 16)
 
 (defn add-score [game]
-  (object-factory/text (:add game) 32 info-position-y
+  (object-factory/text (:add game) 220 info-position-y
                        (str "Score: " (:score initial-state))
                        {:font "24px Arial",
                         :fill "#FFFFFF",
                         :align "center"}))
 
+(defn add-highscore [game]
+  (object-factory/text (:add game) 32 info-position-y
+                       (str "Highscore: " (:highscore initial-state))
+                       {:font "24px Arial",
+                        :fill "#FFFFFF",
+                        :align "center"}))
+
 (defn add-lives [game]
-  (object-factory/text (:add game) 170 info-position-y
+  (object-factory/text (:add game) 340 info-position-y
                        (str "Lives: " (:lives initial-state))
                        {:font "24px Arial",
                         :fill "#FFFFFF",
@@ -36,11 +44,31 @@
         score (:score state)]
     (utils/set-attr! score-text [:text] (str "Score: " score))))
 
+(defn set-highscore! [highscore]
+  (let [state (swap! state-atom assoc :highscore highscore)
+        highscore-text (:highscore-text state)]
+    (utils/set-attr! highscore-text [:text] (str "Highscore: " highscore))))
+
+(defn get-highscore []
+  (or (.getItem js/localStorage "highscore") 0))
+
+(defn save-highscore! []
+  (let [score (:score @state-atom)
+        highscore (get-highscore)]
+    (when (< highscore score)
+      (.setItem js/localStorage "highscore" score)
+      (set-highscore! score))))
+
+(defn game-over! []
+  (save-highscore!))
+
 (defn update-lives! [update-fn]
   (let [state (swap! state-atom update :lives update-fn)
         lives-text (:lives-text state)
         lives (:lives state)]
-    (utils/set-attr! lives-text [:text] (str "Lives: " lives))))
+    (utils/set-attr! lives-text [:text] (str "Lives: " lives))
+    (when (<= lives 0)
+      (game-over!))))
 
 (defn is-game-over? []
   (<= (:lives @state-atom) 0))
@@ -60,6 +88,7 @@
                                                    (update-lives! dec))))
         music (object-factory/audio (:add game) "music")
         score-text (add-score game)
+        highscore-text (add-highscore game)
         lives-text (add-lives game)
         bubbles (bubble/init-bubbles game on-bubble-hit on-bubble-miss
                                      on-bubble-vanish is-game-over?)]
@@ -68,7 +97,9 @@
             (merge initial-state
                    {:bubbles bubbles
                     :score-text score-text
+                    :highscore-text highscore-text
                     :lives-text lives-text}))
+    (set-highscore! (get-highscore))
     (bubble/start-bubbles game bubbles)))
 
 (defn state-update [game]
