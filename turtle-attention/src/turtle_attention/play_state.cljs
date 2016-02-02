@@ -16,8 +16,13 @@
 
 (defonce world-state! (atom {}))
 
-(defn turtle-box-collide [turtle box]
-  (let [touch-state (:touching (:body turtle))]
+(defn turtle-meet-berrybox [turtle box]
+  (let [touch-state (:touching (:body turtle))
+        current-berries (.-berryCount box)
+        eaten-berries (dec current-berries)]
+    (set! (.-berryCount box) (dec current-berries))
+    (when (>= eaten-berries 0)
+      (utils/set-attr! box [:frame] eaten-berries))
     (cond
       (.-left touch-state) (characters/turtle-right turtle)
       (.-right touch-state) (characters/turtle-left turtle))))
@@ -32,10 +37,14 @@
 
 (defn create-turtle-path [game turtles-group boxes-group number]
   (let [path-y (+ (* number (+ vertical-size vertical-margin)) vertical-offset)
-        box1 (group/create boxes-group 0 path-y "box")
-        box2 (group/create boxes-group 736 path-y "box")
+        box1 (group/create boxes-group 0 path-y "berrybox")
+        box2 (group/create boxes-group 736 path-y "berrybox")
         turtle (characters/add-turtle game turtles-group 64 path-y :right turtle-tapped)]
     (set! (.-pathNumber turtle) number)
+    (set! (.-berryCount box1) 3)
+    (set! (.-berryCount box2) 3)
+    (utils/set-attr! box1 [:frame] 3)
+    (utils/set-attr! box2 [:frame] 3)
     (utils/set-attr! box1 [:body :immovable] true)
     (utils/set-attr! box2 [:body :immovable] true)
     {:number number
@@ -75,7 +84,7 @@
 (defn state-update [game]
   (let [{:keys [turtles-group boxes-group carnivorous-group]} @world-state!]
     (arcade-physics/collide (:arcade (:physics game))
-                            turtles-group boxes-group turtle-box-collide)
+                            turtles-group boxes-group turtle-meet-berrybox)
     (arcade-physics/collide (:arcade (:physics game))
                             turtles-group carnivorous-group turtle-meet-carnivorous)
     (carnivorous-update game carnivorous-group)))
