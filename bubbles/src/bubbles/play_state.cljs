@@ -3,7 +3,6 @@
    [phzr.animation-manager :as animation-manager]
    [phzr.game-object-factory :as object-factory]
    [phzr.group :as group]
-   [phzr.impl.accessors.scale-manager :refer [scale-manager-constants]]
    [phzr.physics.arcade :as arcade-physics]
    [phzr.scale-manager :as scale-manager]
    [phzr.sound :as sound]
@@ -107,7 +106,8 @@
         bubbles (bubble/init-bubbles game on-bubble-hit on-bubble-miss
                                      on-bubble-vanish is-game-over?)
         scale-mode 2]
-    (utils/set-attr! game [:scale :full-screen-scale-mode] scale-mode)
+    (utils/set-attr! game [:scale :full-screen-scale-mode]
+                     (scale-manager/const :show-all))
     (create-fullscreen-button game)
     (sound/loop-full music)
     (reset! state-atom
