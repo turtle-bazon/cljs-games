@@ -1,12 +1,14 @@
 (ns turtle-attention.play-state
   (:require
    [turtle-attention.characters :as characters]
+   [turtle-attention.characters :as world]
    [turtle-attention.utils :as utils]
    [phzr.animation-manager :as animation-manager]
    [phzr.game-object-factory :as object-factory]
    [phzr.group :as group]
    [phzr.physics.arcade :as arcade-physics]
-   [phzr.sprite :as sprite]))
+   [phzr.sprite :as sprite]
+   [phzr.tween :as tween]))
 
 (def vertical-offset 10)
 
@@ -16,8 +18,13 @@
 
 (defonce world-state! (atom {}))
 
-(defn turtle-box-collide [turtle box]
-  (let [touch-state (:touching (:body turtle))]
+(defn turtle-meet-berrybox [turtle box]
+  (let [touch-state (:touching (:body turtle))
+        current-berries (.-berryCount box)
+        eaten-berries (dec current-berries)]
+    (set! (.-berryCount box) (dec current-berries))
+    (when (>= eaten-berries 0)
+      (utils/set-attr! box [:frame] eaten-berries))
     (cond
       (.-left touch-state) (characters/turtle-right turtle)
       (.-right touch-state) (characters/turtle-left turtle))))
@@ -32,12 +39,10 @@
 
 (defn create-turtle-path [game turtles-group boxes-group number]
   (let [path-y (+ (* number (+ vertical-size vertical-margin)) vertical-offset)
-        box1 (group/create boxes-group 0 path-y "box")
-        box2 (group/create boxes-group 736 path-y "box")
+        box1 (world/add-berrybox game boxes-group 0 path-y)
+        box2 (world/add-berrybox game boxes-group 736 path-y)
         turtle (characters/add-turtle game turtles-group 64 path-y :right turtle-tapped)]
     (set! (.-pathNumber turtle) number)
-    (utils/set-attr! box1 [:body :immovable] true)
-    (utils/set-attr! box2 [:body :immovable] true)
     {:number number
      :box1 box1
      :box2 box2}))
@@ -75,7 +80,7 @@
 (defn state-update [game]
   (let [{:keys [turtles-group boxes-group carnivorous-group]} @world-state!]
     (arcade-physics/collide (:arcade (:physics game))
-                            turtles-group boxes-group turtle-box-collide)
+                            turtles-group boxes-group turtle-meet-berrybox)
     (arcade-physics/collide (:arcade (:physics game))
                             turtles-group carnivorous-group turtle-meet-carnivorous)
     (carnivorous-update game carnivorous-group)))
