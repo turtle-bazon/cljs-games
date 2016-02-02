@@ -1,12 +1,14 @@
 (ns turtle-attention.play-state
   (:require
    [turtle-attention.characters :as characters]
+   [turtle-attention.characters :as world]
    [turtle-attention.utils :as utils]
    [phzr.animation-manager :as animation-manager]
    [phzr.game-object-factory :as object-factory]
    [phzr.group :as group]
    [phzr.physics.arcade :as arcade-physics]
-   [phzr.sprite :as sprite]))
+   [phzr.sprite :as sprite]
+   [phzr.tween :as tween]))
 
 (def vertical-offset 10)
 
@@ -37,16 +39,10 @@
 
 (defn create-turtle-path [game turtles-group boxes-group number]
   (let [path-y (+ (* number (+ vertical-size vertical-margin)) vertical-offset)
-        box1 (group/create boxes-group 0 path-y "berrybox")
-        box2 (group/create boxes-group 736 path-y "berrybox")
+        box1 (world/add-berrybox game boxes-group 0 path-y)
+        box2 (world/add-berrybox game boxes-group 736 path-y)
         turtle (characters/add-turtle game turtles-group 64 path-y :right turtle-tapped)]
     (set! (.-pathNumber turtle) number)
-    (set! (.-berryCount box1) 3)
-    (set! (.-berryCount box2) 3)
-    (utils/set-attr! box1 [:frame] 3)
-    (utils/set-attr! box2 [:frame] 3)
-    (utils/set-attr! box1 [:body :immovable] true)
-    (utils/set-attr! box2 [:body :immovable] true)
     {:number number
      :box1 box1
      :box2 box2}))
