@@ -104,8 +104,7 @@
         highscore-text (add-highscore game)
         lives-text (add-lives game)
         bubbles (bubble/init-bubbles game on-bubble-hit on-bubble-miss
-                                     on-bubble-vanish is-game-over?)
-        scale-mode 2]
+                                     on-bubble-vanish is-game-over?)]
     (utils/set-attr! game [:scale :full-screen-scale-mode]
                      (scale-manager/const :show-all))
     (create-fullscreen-button game)
