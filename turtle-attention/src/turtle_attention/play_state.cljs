@@ -19,12 +19,8 @@
 (defonce world-state! (atom {}))
 
 (defn turtle-meet-berrybox [turtle box]
-  (let [touch-state (:touching (:body turtle))
-        current-berries (.-berryCount box)
-        eaten-berries (dec current-berries)]
-    (set! (.-berryCount box) (dec current-berries))
-    (when (>= eaten-berries 0)
-      (utils/set-attr! box [:frame] eaten-berries))
+  (let [touch-state (:touching (:body turtle))]
+    (world/berrybox-dec box)
     (cond
       (.-left touch-state) (characters/turtle-right turtle)
       (.-right touch-state) (characters/turtle-left turtle))))
