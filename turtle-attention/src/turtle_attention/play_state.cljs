@@ -1,7 +1,7 @@
 (ns turtle-attention.play-state
   (:require
    [turtle-attention.characters :as characters]
-   [turtle-attention.characters :as world]
+   [turtle-attention.world :as world]
    [turtle-attention.utils :as utils]
    [phzr.animation-manager :as animation-manager]
    [phzr.game-object-factory :as object-factory]
