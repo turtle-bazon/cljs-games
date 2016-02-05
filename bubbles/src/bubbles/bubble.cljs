@@ -124,4 +124,5 @@
     (signal/add (get-in background [:events :on-input-down])
                 (fn [background event]
                   (when (rect/contains-point- playfield-rect (:position event))
-                    (tap-listener))))))
+                    (tap-listener))))
+    background))

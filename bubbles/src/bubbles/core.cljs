@@ -3,7 +3,9 @@
             [phzr.game :as game]
             [phzr.state-manager :as sm]
             [bubbles.boot-state :as boot-state]
-            [bubbles.play-state :as play-state]))
+            [bubbles.menu-state :as menu-state]
+            [bubbles.play-state :as play-state]
+            [bubbles.game-over-state :as game-over-state]))
 
 (defonce game-atom (atom nil))
 
@@ -14,7 +16,9 @@
         state-manager (:state game)]
     (reset! game-atom game)
     (sm/add state-manager "boot" boot-state/state-obj)
+    (sm/add state-manager "menu" menu-state/state-obj)
     (sm/add state-manager "play" play-state/state-obj)
+    (sm/add state-manager "game-over" game-over-state/state-obj)
     (sm/start state-manager "boot" nil)))
 
 (set! (.-onload js/window) start)
