@@ -25,9 +25,11 @@
 
 (defn create-fullscreen-button [game]
   (object-factory/button (:add game)
-                         726 10
+                         750 0
                          "fullscreen-button"
-                         #(switch-fullscreen game)))
+                         #(switch-fullscreen game)
+                         nil
+                         0 1 1))
 
 (defn start-game [game]
   (sm/start (:state game) "play" nil))
