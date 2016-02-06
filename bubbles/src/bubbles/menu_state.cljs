@@ -36,7 +36,7 @@
 
 (defn create-start-button [game]
   (object-factory/button (:add game)
-                         368 258
+                         368 233
                          "start-button"
                          #(start-game game)
                          nil

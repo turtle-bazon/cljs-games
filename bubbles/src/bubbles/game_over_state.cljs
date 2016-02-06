@@ -22,7 +22,7 @@
 
 (defn create-restart-button [game]
   (object-factory/button (:add game)
-                         368 258
+                         368 233
                          "restart-button"
                          #(restart-game game)
                          nil
