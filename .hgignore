@@ -14,3 +14,7 @@ resources/public/js/out/*
 
 figwheel_server.log
 out
+
+# cordova
+/platforms/
+/plugins/
