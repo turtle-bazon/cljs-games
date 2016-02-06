@@ -15,7 +15,7 @@
    version="1.1"
    inkscape:version="0.48.5 r10040"
    sodipodi:docname="restart-button.svg"
-   inkscape:export-filename="/home/turtle/scm-controlled/cljs-games/bubbles/resources/public/assets/start-button.png"
+   inkscape:export-filename="/home/turtle/scm-controlled/cljs-games/bubbles/resources/public/assets/restart-button.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
   <sodipodi:namedview
@@ -23,10 +23,10 @@
      pagecolor="#a4a4a4"
      bordercolor="#666666"
      borderopacity="1.0"
-     inkscape:pageopacity="0.51764706"
+     inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:zoom="4.1571914"
-     inkscape:cx="-46.29307"
+     inkscape:cx="26.833864"
      inkscape:cy="-10.719799"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
@@ -212,7 +212,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
