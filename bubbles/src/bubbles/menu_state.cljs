@@ -56,13 +56,5 @@
                         :fullscreen-button fullscreen-button
                         :start-button start-button})))
 
-;; (defn state-shutdown [game]
-;;   (let [{:keys [start-button background]} @state-atom]
-;;     (sprite/destroy start-button)
-;;     ;; (sprite/destroy background)
-;;     ))
-
 (def state-obj
-  {:create state-create
-   ;; :shutdown state-shutdown
-   })
+  {:create state-create})
