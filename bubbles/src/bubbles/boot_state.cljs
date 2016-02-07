@@ -17,7 +17,7 @@
 
 (defn state-create [game]
   (physics/start-system (:physics game) (physics/const :arcade))
-  (sm/start (:state game) "menu" nil))
+  (sm/start (:state game) "menu" true))
 
 (def state-obj
   {:preload state-preload

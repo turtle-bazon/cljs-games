@@ -32,7 +32,7 @@
                          0 1 1))
 
 (defn start-game [game]
-  (sm/start (:state game) "play" nil))
+  (sm/start (:state game) "play" true))
 
 (defn create-start-button [game]
   (object-factory/button (:add game)
@@ -56,12 +56,13 @@
                         :fullscreen-button fullscreen-button
                         :start-button start-button})))
 
-(defn state-shutdown [game]
-  (let [{:keys [start-button background]} @state-atom]
-    (sprite/destroy start-button)
-    ;; (sprite/destroy background)
-    ))
+;; (defn state-shutdown [game]
+;;   (let [{:keys [start-button background]} @state-atom]
+;;     (sprite/destroy start-button)
+;;     ;; (sprite/destroy background)
+;;     ))
 
 (def state-obj
   {:create state-create
-   :shutdown state-shutdown})
+   ;; :shutdown state-shutdown
+   })

@@ -18,7 +18,7 @@
   (or (.getItem js/localStorage "highscore") 0))
 
 (defn restart-game [game]
-  (sm/start (:state game) "play" nil))
+  (sm/start (:state game) "play" true))
 
 (defn create-restart-button [game]
   (object-factory/button (:add game)
@@ -32,10 +32,11 @@
   (let [restart-button (create-restart-button game)]
     (reset! state-atom {:restart-button restart-button})))
 
-(defn state-shutdown [game]
-  (let [{:keys [restart-button]} @state-atom]
-    (sprite/destroy restart-button)))
+;; (defn state-shutdown [game]
+;;   (let [{:keys [restart-button]} @state-atom]
+;;     (sprite/destroy restart-button)))
 
 (def state-obj
   {:create state-create
-   :shutdown state-shutdown})
+   ;; :shutdown state-shutdown
+   })

@@ -64,7 +64,7 @@
 
 (defn game-over! [game]
   (save-highscore!)
-  (sm/start (:state game) "game-over" nil))
+  (sm/start (:state game) "game-over" true))
 
 (defn update-lives! [update-fn]
   (let [state (swap! state-atom update :lives update-fn)
@@ -109,18 +109,19 @@
     (when (<= lives 0)
       (game-over! game))))
 
-(defn state-shutdown [game]
-  (let [{:keys [background
-                score-text
-                highscore-text
-                lives-text]} @state-atom]
-    (sprite/destroy background)
-    (sprite/destroy highscore-text)
-    (sprite/destroy score-text)
-    (sprite/destroy lives-text)
-    (sprite/destroy background)))
+;; (defn state-shutdown [game]
+;;   (let [{:keys [background
+;;                 score-text
+;;                 highscore-text
+;;                 lives-text]} @state-atom]
+;;     (sprite/destroy background)
+;;     (sprite/destroy highscore-text)
+;;     (sprite/destroy score-text)
+;;     (sprite/destroy lives-text)
+;;     (sprite/destroy background)))
 
 (def state-obj
   {:create state-create
    :update state-update
-   :shutdown state-shutdown})
+   ;; :shutdown state-shutdown
+   })
