@@ -42,6 +42,15 @@
                          nil
                          0 1 1))
 
+(defn handle-mobile [game]
+  (let [scale (:scale game)]
+    (utils/set-attr! game [:scale :scale-mode]
+                     (scale-manager/const :show-all))
+    (set! (.-pageAlignHorizontally scale) true)
+    (set! (.-pageAlignVertically scale) true)
+    (set! (.-setScreenSize scale) true)
+    (scale-manager/refresh scale)))
+
 (defn state-create [game]
   (let [background (bubble/add-background game (fn [background event]
                                                  ))
@@ -50,6 +59,9 @@
         start-button (create-start-button game)]
     (utils/set-attr! game [:scale :full-screen-scale-mode]
                      (scale-manager/const :show-all))
+    (set! (.-pageAlignHorizontally (:scale game)) true)
+    (when (not (.-desktop (get-in game [:device])))
+      (handle-mobile game))
     (sound/loop-full music)
     (reset! state-atom {:background background
                         :music music

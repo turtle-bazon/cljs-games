@@ -15,7 +15,7 @@
 
 (def initial-state {:score 0
                     :highscore 0
-                    :lives 1
+                    :lives 10
                     :bubble-create-interval 800})
 (def info-position-y 16)
 

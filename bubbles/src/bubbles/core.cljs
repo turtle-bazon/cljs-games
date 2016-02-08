@@ -12,7 +12,7 @@
 (defn start []
   (when-let [old-game @game-atom]
     (game/destroy old-game))
-  (let [game (game/->Game 800 480 (p/phaser-constants :auto) "game")
+  (let [game (game/->Game 800 480 (p/phaser-constants :canvas) "game")
         state-manager (:state game)]
     (reset! game-atom game)
     (sm/add state-manager "boot" boot-state/state-obj)
