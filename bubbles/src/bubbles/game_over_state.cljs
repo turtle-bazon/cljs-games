@@ -3,6 +3,7 @@
    [phzr.animation-manager :as animation-manager]
    [phzr.game-object-factory :as object-factory]
    [phzr.group :as group]
+   [phzr.impl.utils.core :refer [phaser->clj]]
    [phzr.physics.arcade :as arcade-physics]
    [phzr.scale-manager :as scale-manager]
    [phzr.sound :as sound]
@@ -12,6 +13,8 @@
    [bubbles.bubble :as bubble]
    [bubbles.info-panel :as info-panel]
    [bubbles.utils :as utils :refer [log]]))
+
+(def state-atom (atom))
 
 (defn set-highscore! [highscore]
   (info-panel/set-highscore-text! highscore))
@@ -47,9 +50,13 @@
 (defn state-create [game]
   (bubble/add-background game (fn [background event]))
   (create-fullscreen-button game)
-  (info-panel/init! game)
-  (set-highscore! (get-highscore))
+  (info-panel/init! game @state-atom)
+  ;; (set-highscore! (get-highscore))
   (create-restart-button game))
 
+(defn state-init [game-state]
+  (reset! state-atom (phaser->clj game-state)))
+
 (def state-obj
-  {:create state-create})
+  {:init state-init
+   :create state-create})

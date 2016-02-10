@@ -12,30 +12,25 @@
    [bubbles.utils :as utils :refer [log]]))
 
 (def state-atom (atom))
-
-(def initial-state {:score 0
-                    :highscore 0
-                    :lives 10
-                    :bubble-create-interval 800})
 (def info-position-y 16)
 
-(defn add-score [game]
+(defn add-score [game score]
   (object-factory/text (:add game) 220 info-position-y
-                       (str "Score: " (:score initial-state))
+                       (str "Score: " score)
                        {:font "24px Arial",
                         :fill "#FFFFFF",
                         :align "center"}))
 
-(defn add-highscore [game]
+(defn add-highscore [game highscore]
   (object-factory/text (:add game) 32 info-position-y
-                       (str "Highscore: " (:highscore initial-state))
+                       (str "Highscore: " highscore)
                        {:font "24px Arial",
                         :fill "#FFFFFF",
                         :align "center"}))
 
-(defn add-lives [game]
+(defn add-lives [game lives]
   (object-factory/text (:add game) 340 info-position-y
-                       (str "Lives: " (:lives initial-state))
+                       (str "Lives: " lives)
                        {:font "24px Arial",
                         :fill "#FFFFFF",
                         :align "center"}))
@@ -52,8 +47,9 @@
   (let [lives-text (:lives-text @state-atom)]
     (utils/set-attr! lives-text [:text] (str "Lives: " lives))))
 
-(defn init! [game]
-  (reset! state-atom
-          {:score-text (add-score game)
-           :highscore-text (add-highscore game)
-           :lives-text (add-lives game)}))
+(defn init! [game initial-state]
+  (let [{:keys [score highscore lives]} initial-state]
+    (reset! state-atom
+            {:score-text (add-score game score)
+             :highscore-text (add-highscore game highscore)
+             :lives-text (add-lives game lives)})))

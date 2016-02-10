@@ -45,7 +45,9 @@
 
 (defn game-over! [game]
   (save-highscore!)
-  (sm/start (:state game) "game-over" true))
+  (let [state @state-atom]
+    (sm/start (:state game) "game-over" true false
+              (select-keys state [:score :highscore :lives]))))
 
 (defn update-lives! [update-fn]
   (let [state (swap! state-atom update :lives update-fn)
@@ -74,7 +76,7 @@
             (merge initial-state
                    {:background background
                     :bubbles bubbles}))
-    (info-panel/init! game)
+    (info-panel/init! game initial-state)
     (set-highscore! (get-highscore))
     (bubble/start-bubbles game bubbles)))
 

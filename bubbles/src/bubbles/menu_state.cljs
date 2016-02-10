@@ -46,9 +46,9 @@
   (let [scale (:scale game)]
     (utils/set-attr! game [:scale :scale-mode]
                      (scale-manager/const :show-all))
-    (set! (.-pageAlignHorizontally scale) true)
-    (set! (.-pageAlignVertically scale) true)
-    (set! (.-setScreenSize scale) true)
+    (aset scale "pageAlignHorizontally" true)
+    (aset scale "pageAlignVertically" true)
+    (aset scale "setScreenSize" true)
     (scale-manager/refresh scale)))
 
 (defn state-create [game]
@@ -59,8 +59,8 @@
         start-button (create-start-button game)]
     (utils/set-attr! game [:scale :full-screen-scale-mode]
                      (scale-manager/const :show-all))
-    (set! (.-pageAlignHorizontally (:scale game)) true)
-    (when (not (.-desktop (get-in game [:device])))
+    (aset (:scale game) "pageAlignHorizontally" true)
+    (when (not (aget (get-in game [:device]) "desktop"))
       (handle-mobile game))
     (sound/loop-full music)
     (reset! state-atom {:background background
