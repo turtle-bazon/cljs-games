@@ -33,7 +33,7 @@
         <obj_info name="bone_015" type="bone" w="71.5542" h="10"/>
         <obj_info name="bone_016" type="bone" w="70.342" h="10"/>
         <obj_info name="bone_017" type="bone" w="72.6911" h="10"/>
-        <animation id="0" name="go" length="400" interval="100" l="-373" t="-515" r="626" b="124">
+        <animation id="0" name="go" length="400" interval="100" l="-384" t="-515" r="615" b="124">
             <mainline>
                 <key id="0">
                     <bone_ref id="0" timeline="16" key="0"/>
@@ -478,7 +478,7 @@
                 </key>
             </timeline>
         </animation>
-        <animation id="1" name="hidden" length="200" interval="100" l="-373" t="-515" r="626" b="124">
+        <animation id="1" name="hidden" length="200" interval="100" l="-384" t="-515" r="615" b="124">
             <mainline>
                 <key id="0">
                     <bone_ref id="0" timeline="0" key="0"/>
