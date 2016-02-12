@@ -29,9 +29,10 @@
   (sprite/destroy turtle))
 
 (defn turtle-tapped [turtle]
-  (if (= (get-in turtle [:body :velocity :x]) 0)
-    (characters/turtle-continue-move turtle)
-    (characters/turtle-stop turtle)))
+  (when (.-clickable turtle)
+    (if (= (get-in turtle [:body :velocity :x]) 0)
+      (characters/turtle-continue-move turtle)
+      (characters/turtle-hide turtle))))
 
 (defn create-turtle-path [game turtles-group boxes-group number]
   (let [path-y (+ (* number (+ vertical-size vertical-margin)) vertical-offset)
