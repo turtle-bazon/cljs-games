@@ -33,7 +33,7 @@
         <obj_info name="bone_015" type="bone" w="71.5542" h="10"/>
         <obj_info name="bone_016" type="bone" w="70.342" h="10"/>
         <obj_info name="bone_017" type="bone" w="72.6911" h="10"/>
-        <animation id="0" name="go" length="400" interval="100">
+        <animation id="0" name="go" length="400" interval="100" l="-373" t="-515" r="626" b="124">
             <mainline>
                 <key id="0">
                     <bone_ref id="0" timeline="16" key="0"/>
@@ -256,13 +256,13 @@
                     <bone x="71.845932" angle="0.976864"/>
                 </key>
                 <key id="1" time="100" spin="0">
-                    <bone x="71.845932" y="0" angle="0.976864"/>
+                    <bone x="71.845932" angle="0.976864"/>
                 </key>
                 <key id="2" time="200" spin="-1">
-                    <bone x="71.845932" y="-0" angle="0.976864"/>
+                    <bone x="71.845932" angle="0.976864"/>
                 </key>
                 <key id="3" time="300">
-                    <bone x="71.845932" y="0" angle="348.522464"/>
+                    <bone x="71.845932" angle="348.522464"/>
                 </key>
             </timeline>
             <timeline id="7" obj="2" name="bone_002" object_type="bone">
@@ -468,17 +468,17 @@
                     <bone x="70.342022" angle="22.733643"/>
                 </key>
                 <key id="1" time="100" spin="0">
-                    <bone x="70.342022" y="-0" angle="22.733643"/>
+                    <bone x="70.342022" angle="22.733643"/>
                 </key>
                 <key id="2" time="200" spin="0">
-                    <bone x="70.342022" y="-0" angle="22.733643"/>
+                    <bone x="70.342022" angle="22.733643"/>
                 </key>
                 <key id="3" time="300" spin="0">
-                    <bone x="70.342022" y="-0" angle="22.733643"/>
+                    <bone x="70.342022" angle="22.733643"/>
                 </key>
             </timeline>
         </animation>
-        <animation id="1" name="hidden" length="200" interval="100">
+        <animation id="1" name="hidden" length="200" interval="100" l="-373" t="-515" r="626" b="124">
             <mainline>
                 <key id="0">
                     <bone_ref id="0" timeline="0" key="0"/>
@@ -768,13 +768,13 @@
             </timeline>
             <timeline id="4" obj="1" name="bone_001" object_type="bone">
                 <key id="0" spin="0">
-                    <bone x="71.845932" y="0" angle="0.976864"/>
+                    <bone x="71.845932" angle="0.976864"/>
                 </key>
                 <key id="1" time="150" spin="0">
-                    <bone x="71.845932" y="0" angle="0.976864"/>
+                    <bone x="71.845932" angle="0.976864"/>
                 </key>
                 <key id="2" time="200" spin="0">
-                    <bone x="71.845932" y="-0" angle="0.976864"/>
+                    <bone x="71.845932" angle="0.976864"/>
                 </key>
             </timeline>
             <timeline id="5" obj="2" name="bone_002" object_type="bone">
@@ -928,13 +928,13 @@
             </timeline>
             <timeline id="15" obj="17" name="bone_017" object_type="bone">
                 <key id="0" spin="0">
-                    <bone x="70.342022" y="0" angle="22.733643"/>
+                    <bone x="70.342022" angle="22.733643"/>
                 </key>
                 <key id="1" time="150" spin="0">
-                    <bone x="70.342022" y="-0" angle="22.733643"/>
+                    <bone x="70.342022" angle="22.733643"/>
                 </key>
                 <key id="2" time="200" spin="0">
-                    <bone x="70.342022" y="0" angle="22.733643"/>
+                    <bone x="70.342022" angle="22.733643"/>
                 </key>
             </timeline>
             <timeline id="16" name="z-noga2_000">
