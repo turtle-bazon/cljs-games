@@ -9,7 +9,7 @@
 
 (defonce game-atom (atom nil))
 
-(defn start []
+(defn ^:export start []
   (when-let [old-game @game-atom]
     (game/destroy old-game))
   (let [game (game/->Game 800 480 (p/phaser-constants :canvas) "game")
@@ -20,5 +20,3 @@
     (sm/add state-manager "play" play-state/state-obj)
     (sm/add state-manager "game-over" game-over-state/state-obj)
     (sm/start state-manager "boot" nil)))
-
-(set! (.-onload js/window) start)
