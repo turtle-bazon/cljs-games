@@ -64,14 +64,14 @@
 (defn on-bubble-vanish []
   (update-lives! dec))
 
-(defn exit-game [game]
-  (sm/start (:state game) "menu" true))
+(defn exit-app []
+  (.exitApp (aget js/navigator "app")))
 
-(defn create-back-button [game]
+(defn create-exit-button [game]
   (object-factory/button (:add game)
                          0 0
                          "exit-button"
-                         #(exit-game game)
+                         #(exit-app)
                          nil
                          0 1 1))
 
@@ -89,13 +89,19 @@
                          nil
                          0 1 1))
 
+(defn handle-desktop [game]
+  (create-fullscreen-button game))
+
+(defn handle-mobile [game]
+  (create-exit-button game))
+
 (defn state-create [game]
   (bubble/add-background game (fn [background event]
                                 (when (not (is-game-over?))
                                   (update-lives! dec))))
-  (create-back-button game)
-  (when (aget (get-in game [:device]) "desktop")
-    (create-fullscreen-button game))
+  (if (aget (get-in game [:device]) "desktop")
+    (handle-desktop game)
+    (handle-mobile game))
   (let [bubbles (bubble/init-bubbles game on-bubble-hit on-bubble-miss
                                      on-bubble-vanish is-game-over?)]
     (reset! state-atom

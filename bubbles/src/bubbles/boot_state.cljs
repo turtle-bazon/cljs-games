@@ -8,6 +8,7 @@
 (defn state-preload [game]
   (doto (:load game)
     (loader/image "background" "assets/images/background.png")
+    (loader/image "separator" "assets/images/separator.png")
     (loader/spritesheet "start-button" "assets/images/start-button.png" 64 64)
     (loader/spritesheet "restart-button" "assets/images/restart-button.png" 64 64)
     (loader/spritesheet "exit-button" "assets/images/exit-button.png" 64 64)

@@ -41,24 +41,31 @@
                          nil
                          0 1 1))
 
-(defn exit-game [game]
-  (sm/start (:state game) "menu" true))
+(defn exit-app []
+  (.exitApp (aget js/navigator "app")))
 
-(defn create-back-button [game]
+(defn create-exit-button [game]
   (object-factory/button (:add game)
                          0 0
                          "exit-button"
-                         #(exit-game game)
+                         #(exit-app)
                          nil
                          0 1 1))
 
+(defn handle-desktop [game]
+  (create-fullscreen-button game))
+
+(defn handle-mobile [game]
+  (create-exit-button game))
+
 (defn state-create [game]
   (bubble/add-background game (fn [background event]))
-  (create-back-button game)
+  (create-exit-button game)
   (info-panel/init! game @state-atom)
   (create-restart-button game)
-  (when (aget (get-in game [:device]) "desktop")
-    (create-fullscreen-button game)))
+  (if (aget (get-in game [:device]) "desktop")
+    (handle-desktop game)
+    (handle-mobile game)))
 
 (defn state-init [game-state]
   (reset! state-atom (phaser->clj game-state)))

@@ -123,6 +123,9 @@
   (let [background (object-factory/tile-sprite (:add game)
                                                0 0 (:width game) (:height game)
                                                "background")]
+    (object-factory/tile-sprite (:add game)
+                                0 50 (:width game) 5
+                                "separator")
     (utils/set-attr! background [:input-enabled] true)
     (signal/add (get-in background [:events :on-input-down])
                 (fn [background event]
