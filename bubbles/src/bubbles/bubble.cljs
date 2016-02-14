@@ -12,8 +12,8 @@
    [bubbles.utils :as utils :refer [log]]))
 
 (def playfield-rect (rect/->Rectangle 0 55 800 425))
-(def bubble-size 64)
-(def bubble-create-offset-y 100)
+(def bubble-size 96)
+(def bubble-create-offset-y 150)
 (def bubble-velocity 30)
 (def bubble-life-time 10000)
 (def initial-create-interval 800)

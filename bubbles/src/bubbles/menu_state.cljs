@@ -12,10 +12,19 @@
    [bubbles.bubble :as bubble]
    [bubbles.utils :as utils :refer [log]]))
 
-(def state-atom (atom {}))
-
 (defn get-highscore []
   (or (.getItem js/localStorage "highscore") 0))
+
+(defn exit-app []
+  (.exitApp (aget js/navigator "app")))
+
+(defn create-exit-button [game]
+  (object-factory/button (:add game)
+                         0 0
+                         "exit-button"
+                         #(exit-app)
+                         nil
+                         0 1 1))
 
 (defn switch-fullscreen [game]
   (let [scale (:scale game)]
@@ -25,7 +34,7 @@
 
 (defn create-fullscreen-button [game]
   (object-factory/button (:add game)
-                         750 0
+                         (- (:width game) 50) 0
                          "fullscreen-button"
                          #(switch-fullscreen game)
                          nil
@@ -42,7 +51,14 @@
                          nil
                          0 1 1))
 
+(defn handle-desktop [game]
+  (create-fullscreen-button game)
+  (utils/set-attr! game [:scale :full-screen-scale-mode]
+                   (scale-manager/const :show-all))
+  (aset (:scale game) "pageAlignHorizontally" true))
+
 (defn handle-mobile [game]
+  (create-exit-button game)
   (let [scale (:scale game)]
     (utils/set-attr! game [:scale :scale-mode]
                      (scale-manager/const :show-all))
@@ -52,21 +68,13 @@
     (scale-manager/refresh scale)))
 
 (defn state-create [game]
-  (let [background (bubble/add-background game (fn [background event]
-                                                 ))
-        music (object-factory/audio (:add game) "music")
-        fullscreen-button (create-fullscreen-button game)
-        start-button (create-start-button game)]
-    (utils/set-attr! game [:scale :full-screen-scale-mode]
-                     (scale-manager/const :show-all))
-    (aset (:scale game) "pageAlignHorizontally" true)
-    (when (not (aget (get-in game [:device]) "desktop"))
-      (handle-mobile game))
-    (sound/loop-full music)
-    (reset! state-atom {:background background
-                        :music music
-                        :fullscreen-button fullscreen-button
-                        :start-button start-button})))
+  (bubble/add-background game (fn [background event]))
+  (create-start-button game)
+  (if (aget (get-in game [:device]) "desktop")
+    (handle-desktop game)
+    (handle-mobile game))
+  (let [music (object-factory/audio (:add game) "music")]
+    (sound/loop-full music)))
 
 (def state-obj
   {:create state-create})

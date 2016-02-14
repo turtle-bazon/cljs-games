@@ -16,12 +16,6 @@
 
 (def state-atom (atom))
 
-(defn set-highscore! [highscore]
-  (info-panel/set-highscore-text! highscore))
-
-(defn get-highscore []
-  (or (.getItem js/localStorage "highscore") 0))
-
 (defn restart-game [game]
   (sm/start (:state game) "play" true))
 
@@ -41,18 +35,30 @@
 
 (defn create-fullscreen-button [game]
   (object-factory/button (:add game)
-                         750 0
+                         (- (:width game) 50) 0
                          "fullscreen-button"
                          #(switch-fullscreen game)
                          nil
                          0 1 1))
 
+(defn exit-game [game]
+  (sm/start (:state game) "menu" true))
+
+(defn create-back-button [game]
+  (object-factory/button (:add game)
+                         0 0
+                         "exit-button"
+                         #(exit-game game)
+                         nil
+                         0 1 1))
+
 (defn state-create [game]
   (bubble/add-background game (fn [background event]))
-  (create-fullscreen-button game)
+  (create-back-button game)
   (info-panel/init! game @state-atom)
-  ;; (set-highscore! (get-highscore))
-  (create-restart-button game))
+  (create-restart-button game)
+  (when (aget (get-in game [:device]) "desktop")
+    (create-fullscreen-button game)))
 
 (defn state-init [game-state]
   (reset! state-atom (phaser->clj game-state)))

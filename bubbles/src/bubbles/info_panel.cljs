@@ -15,21 +15,21 @@
 (def info-position-y 16)
 
 (defn add-score [game score]
-  (object-factory/text (:add game) 220 info-position-y
+  (object-factory/text (:add game) 270 info-position-y
                        (str "Score: " score)
                        {:font "24px Arial",
                         :fill "#FFFFFF",
                         :align "center"}))
 
 (defn add-highscore [game highscore]
-  (object-factory/text (:add game) 32 info-position-y
+  (object-factory/text (:add game) 72 info-position-y
                        (str "Highscore: " highscore)
                        {:font "24px Arial",
                         :fill "#FFFFFF",
                         :align "center"}))
 
 (defn add-lives [game lives]
-  (object-factory/text (:add game) 340 info-position-y
+  (object-factory/text (:add game) 400 info-position-y
                        (str "Lives: " lives)
                        {:font "24px Arial",
                         :fill "#FFFFFF",

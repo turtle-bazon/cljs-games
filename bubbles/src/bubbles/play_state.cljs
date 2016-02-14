@@ -64,16 +64,42 @@
 (defn on-bubble-vanish []
   (update-lives! dec))
 
+(defn exit-game [game]
+  (sm/start (:state game) "menu" true))
+
+(defn create-back-button [game]
+  (object-factory/button (:add game)
+                         0 0
+                         "exit-button"
+                         #(exit-game game)
+                         nil
+                         0 1 1))
+
+(defn switch-fullscreen [game]
+  (let [scale (:scale game)]
+    (if (:is-full-screen scale)
+      (scale-manager/stop-full-screen scale)
+      (scale-manager/start-full-screen scale false))))
+
+(defn create-fullscreen-button [game]
+  (object-factory/button (:add game)
+                         (- (:width game) 50) 0
+                         "fullscreen-button"
+                         #(switch-fullscreen game)
+                         nil
+                         0 1 1))
+
 (defn state-create [game]
-  (let [background (bubble/add-background game (fn [background event]
-                                                 (when (not (is-game-over?))
-                                                   (update-lives! dec))))
-        bubbles (bubble/init-bubbles game on-bubble-hit on-bubble-miss
+  (bubble/add-background game (fn [background event]
+                                (when (not (is-game-over?))
+                                  (update-lives! dec))))
+  (create-back-button game)
+  (when (aget (get-in game [:device]) "desktop")
+    (create-fullscreen-button game))
+  (let [bubbles (bubble/init-bubbles game on-bubble-hit on-bubble-miss
                                      on-bubble-vanish is-game-over?)]
     (reset! state-atom
-            (merge initial-state
-                   {:background background
-                    :bubbles bubbles}))
+            (assoc initial-state :bubbles bubbles))
     (info-panel/init! game initial-state)
     (set-highscore! (get-highscore))
     (bubble/start-bubbles game bubbles)))
