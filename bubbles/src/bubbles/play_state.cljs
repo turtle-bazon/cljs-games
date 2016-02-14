@@ -17,9 +17,7 @@
 
 (def initial-state {:score 0
                     :highscore 0
-                    :lives 10
-                    :bubble-create-interval 800})
-(def info-position-y 16)
+                    :lives 10})
 
 (defn set-score! [score]
   (let [state (swap! state-atom assoc :score score)]

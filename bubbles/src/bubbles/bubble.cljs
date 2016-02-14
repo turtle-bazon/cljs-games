@@ -17,6 +17,7 @@
 (def bubble-velocity 30)
 (def bubble-life-time 10000)
 (def initial-create-interval 800)
+(def bubble-create-interval-min 350)
 (def bubble-create-interval-factor 0.98)
 
 (defn bubble-stop [bubble]
@@ -91,7 +92,9 @@
                  bubble-create-offset-y)))
 
 (defn next-interval [interval]
-  (* interval bubble-create-interval-factor))
+  (+ (* (- interval bubble-create-interval-min)
+        bubble-create-interval-factor)
+     bubble-create-interval-min))
 
 (defn generate-bubble [game bubbles create-interval]
   (when (not ((:is-game-over-fn bubbles)))
