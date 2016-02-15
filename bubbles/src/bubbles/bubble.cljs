@@ -9,6 +9,7 @@
    [phzr.sound :as sound]
    [phzr.sprite :as sprite]
    [phzr.timer :as timer]
+   [bubbles.sound-wrapper :as sw]
    [bubbles.utils :as utils :refer [log]]))
 
 (def playfield-rect (rect/->Rectangle 0 55 800 425))
@@ -38,7 +39,7 @@
                     (square (/ bubble-size 2)))]
     (when (<= squared-distance
               (square radius))
-      (sound/play (:vanish-sound bubbles))
+      (sw/play (:vanish-sound bubbles))
       (destroy bubble)
       true)))
 
@@ -107,7 +108,7 @@
                  nil nil))))
 
 (defn init-bubbles [game on-hit on-miss on-vanish is-game-over-fn]
-  (let [vanish-sound (object-factory/audio (:add game) "bubble-vanish-sound")
+  (let [vanish-sound (sw/get-sound game "bubble-vanish-sound")
         bubbles-group (object-factory/physics-group (:add game))]
     {:group bubbles-group
      :vanish-sound vanish-sound

@@ -11,7 +11,7 @@
    [phzr.timer :as timer]
    [bubbles.bubble :as bubble]
    [bubbles.info-panel :as info-panel]
-   [bubbles.utils :as utils :refer [log]]))
+   [bubbles.utils :as utils :refer [log cordova?]]))
 
 (def state-atom (atom))
 
@@ -99,9 +99,9 @@
   (bubble/add-background game (fn [background event]
                                 (when (not (is-game-over?))
                                   (update-lives! dec))))
-  (if (aget (get-in game [:device]) "desktop")
-    (handle-desktop game)
-    (handle-mobile game))
+  (if (cordova?)
+    (handle-mobile game)
+    (handle-desktop game))
   (let [bubbles (bubble/init-bubbles game on-bubble-hit on-bubble-miss
                                      on-bubble-vanish is-game-over?)]
     (reset! state-atom

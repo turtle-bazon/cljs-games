@@ -3,6 +3,7 @@
    [phzr.loader :as loader]
    [phzr.physics :as physics]
    [phzr.state-manager :as sm]
+   [bubbles.sound-wrapper :as sw]
    [bubbles.utils :as utils :refer [log]]))
 
 (defn state-preload [game]
@@ -14,8 +15,8 @@
     (loader/spritesheet "exit-button" "assets/images/exit-button.png" 64 64)
     (loader/spritesheet "bubble" "assets/images/bubble.png" 96 96)
     (loader/spritesheet "fullscreen-button" "assets/images/fullscreen-button.png" 50 50)
-    (loader/audio "music" "assets/audio/music.ogg")
-    (loader/audio "bubble-vanish-sound" "assets/audio/bubble-vanish.ogg")))
+    (sw/load-sound "music" "assets/audio/music.ogg")
+    (sw/load-sound "bubble-vanish-sound" "assets/audio/bubble-vanish.ogg")))
 
 (defn state-create [game]
   (physics/start-system (:physics game) (physics/const :arcade))

@@ -7,3 +7,6 @@
 
 (defn log [obj]
   (.log js/console obj))
+
+(defn cordova? []
+  (if (aget js/window "cordova") true false))

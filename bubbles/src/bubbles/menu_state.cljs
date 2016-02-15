@@ -10,7 +10,8 @@
    [phzr.state-manager :as sm]
    [phzr.timer :as timer]
    [bubbles.bubble :as bubble]
-   [bubbles.utils :as utils :refer [log]]))
+   [bubbles.sound-wrapper :as sw]
+   [bubbles.utils :as utils :refer [log cordova?]]))
 
 (defn get-highscore []
   (or (.getItem js/localStorage "highscore") 0))
@@ -70,11 +71,10 @@
 (defn state-create [game]
   (bubble/add-background game (fn [background event]))
   (create-start-button game)
-  (if (aget (get-in game [:device]) "desktop")
-    (handle-desktop game)
-    (handle-mobile game))
-  (let [music (object-factory/audio (:add game) "music")]
-    (sound/loop-full music)))
+  (if (cordova?)
+    (handle-mobile game)
+    (handle-desktop game))
+  (sw/loop-sound (sw/get-sound game "music") 37000))
 
 (def state-obj
   {:create state-create})

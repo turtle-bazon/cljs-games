@@ -12,7 +12,7 @@
    [phzr.timer :as timer]
    [bubbles.bubble :as bubble]
    [bubbles.info-panel :as info-panel]
-   [bubbles.utils :as utils :refer [log]]))
+   [bubbles.utils :as utils :refer [log cordova?]]))
 
 (def state-atom (atom))
 
@@ -63,9 +63,9 @@
   (create-exit-button game)
   (info-panel/init! game @state-atom)
   (create-restart-button game)
-  (if (aget (get-in game [:device]) "desktop")
-    (handle-desktop game)
-    (handle-mobile game)))
+  (if (cordova?)
+    (handle-mobile game)
+    (handle-desktop game)))
 
 (defn state-init [game-state]
   (reset! state-atom (phaser->clj game-state)))
