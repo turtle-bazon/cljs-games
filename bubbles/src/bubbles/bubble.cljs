@@ -30,7 +30,7 @@
 (defn square [x]
   (* x x))
 
-(defn bubble-tapped [bubble bubbles event]
+(defn bubble-tapped [game bubble bubbles event]
   (let [radius (/ (:width bubble) 2)
         dx (- (:x event) (+ (:x bubble) radius))
         dy (- (:y event) (+ (:y bubble) radius))
@@ -39,7 +39,7 @@
                     (square (/ bubble-size 2)))]
     (when (<= squared-distance
               (square radius))
-      (sw/play (:vanish-sound bubbles))
+      (sw/play (sw/get-sound game "bubble-vanish-sound"))
       (destroy bubble)
       true)))
 
@@ -78,7 +78,7 @@
     (utils/set-attr! bubble [:input-enabled] true)
     (signal/add (get-in bubble [:events :on-input-down])
                 (fn [bubble event]
-                  (((if (bubble-tapped bubble bubbles event)
+                  (((if (bubble-tapped game bubble bubbles event)
                       :on-hit
                       :on-miss) bubbles)))
                 bubble)
@@ -108,10 +108,8 @@
                  nil nil))))
 
 (defn init-bubbles [game on-hit on-miss on-vanish is-game-over-fn]
-  (let [vanish-sound (sw/get-sound game "bubble-vanish-sound")
-        bubbles-group (object-factory/physics-group (:add game))]
+  (let [bubbles-group (object-factory/physics-group (:add game))]
     {:group bubbles-group
-     :vanish-sound vanish-sound
      :on-hit on-hit
      :on-miss on-miss
      :on-vanish on-vanish
