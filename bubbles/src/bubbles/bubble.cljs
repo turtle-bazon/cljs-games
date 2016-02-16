@@ -74,8 +74,10 @@
                 (get-in bubbles [:group :children])))))
 
 (defn add-bubble [game bubbles x y]
-  (let [bubble (group/create (:group bubbles) x y "bubble")]
+  (let [bubble (group/create (:group bubbles) x y "bubble")
+        bubble-index (int (+ 0.5 (rand 8)))]
     (utils/set-attr! bubble [:body :velocity :y] (- bubble-velocity))
+    (utils/set-attr! bubble [:frame] bubble-index)
     (set! (.-leftTime bubble) bubble-life-time)
     bubble))
 
