@@ -75,13 +75,6 @@
 
 (defn add-bubble [game bubbles x y]
   (let [bubble (group/create (:group bubbles) x y "bubble")]
-    (utils/set-attr! bubble [:input-enabled] true)
-    (signal/add (get-in bubble [:events :on-input-down])
-                (fn [bubble event]
-                  (((if (bubble-tapped game bubble bubbles event)
-                      :on-hit
-                      :on-miss) bubbles)))
-                bubble)
     (utils/set-attr! bubble [:body :velocity :y] (- bubble-velocity))
     (set! (.-leftTime bubble) bubble-life-time)
     bubble))
@@ -107,27 +100,32 @@
                    (generate-bubble game bubbles new-create-interval))
                  nil nil))))
 
+(defn handle-click [game event bubbles on-hit on-miss]
+  (when (not (some some?
+                   (for [bubble (reverse (:children bubbles))]
+                     (when (bubble-tapped game bubble bubbles event)
+                       (on-hit)))))
+    (when (rect/contains-point- playfield-rect (:position event))
+      (on-miss))))
+
 (defn init-bubbles [game on-hit on-miss on-vanish is-game-over-fn]
-  (let [bubbles-group (object-factory/physics-group (:add game))]
+  (let [bubbles-group (object-factory/physics-group (:add game))
+        bubbles bubbles-group]
+    (signal/add (get-in game [:input :on-down])
+                (fn [event]
+                  (handle-click game event bubbles on-hit on-miss)))
     {:group bubbles-group
-     :on-hit on-hit
-     :on-miss on-miss
      :on-vanish on-vanish
      :is-game-over-fn is-game-over-fn}))
 
 (defn start-bubbles [game bubbles]
   (generate-bubble game bubbles initial-create-interval))
 
-(defn add-background [game tap-listener]
+(defn add-background [game]
   (let [background (object-factory/tile-sprite (:add game)
                                                0 0 (:width game) (:height game)
                                                "background")]
     (object-factory/tile-sprite (:add game)
                                 0 50 (:width game) 5
                                 "separator")
-    (utils/set-attr! background [:input-enabled] true)
-    (signal/add (get-in background [:events :on-input-down])
-                (fn [background event]
-                  (when (rect/contains-point- playfield-rect (:position event))
-                    (tap-listener))))
     background))

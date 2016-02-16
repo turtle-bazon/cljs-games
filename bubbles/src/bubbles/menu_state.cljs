@@ -69,7 +69,7 @@
     (scale-manager/refresh scale)))
 
 (defn state-create [game]
-  (bubble/add-background game (fn [background event]))
+  (bubble/add-background game)
   (create-start-button game)
   (if (cordova?)
     (handle-mobile game)

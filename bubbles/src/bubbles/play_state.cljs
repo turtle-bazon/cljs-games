@@ -96,9 +96,7 @@
   (create-exit-button game))
 
 (defn state-create [game]
-  (bubble/add-background game (fn [background event]
-                                (when (not (is-game-over?))
-                                  (update-lives! dec))))
+  (bubble/add-background game)
   (if (cordova?)
     (handle-mobile game)
     (handle-desktop game))

@@ -59,7 +59,7 @@
   (create-exit-button game))
 
 (defn state-create [game]
-  (bubble/add-background game (fn [background event]))
+  (bubble/add-background game)
   (info-panel/init! game @state-atom)
   (create-restart-button game)
   (if (cordova?)
