@@ -20,9 +20,12 @@
 (defn animations-range [[total-frames calculated-frames] key direction]
   (let [end-frame (dec (* total-frames 2))
         [length start end] (get calculated-frames key)]
-    (case direction
-      :right (range start (inc end))
-      :left (range (- end-frame start) (dec (- end-frame end)) -1))))
+    (map
+     (fn [index]
+       (str "sprite" (inc index)))
+     (case direction
+       :right (range start (inc end))
+       :left (range (- end-frame start) (dec (- end-frame end)) -1)))))
 
 (defn after-animation [sprite animation-key callback]
   (let [animation (animation-manager/get-animation (:animations sprite) animation-key)]
@@ -77,13 +80,13 @@
         calculated-frames (calculate-frames animations)]
     (doto (:animations turtle)
       (animation-manager/add
-       "walk-left" (animations-range calculated-frames :walk :left) 16 true)
+       "walk-right" (animations-range calculated-frames :walk :right) 25 true)
       (animation-manager/add
-       "walk-right" (animations-range calculated-frames :walk :right) 16 true)
+       "walk-left" (animations-range calculated-frames :walk :left) 25 true)
       (animation-manager/add
-       "hide-right" (animations-range calculated-frames :hide :right) 25 false)
+       "hide-right" (animations-range calculated-frames :hide :right) 32 false)
       (animation-manager/add
-       "hide-left" (animations-range calculated-frames :hide :left) 25 false)
+       "hide-left" (animations-range calculated-frames :hide :left) 32 false)
       (animation-manager/add
        "unhide-right" (reverse (animations-range calculated-frames :hide :right)) 25 false)
       (animation-manager/add
