@@ -17,9 +17,13 @@
 (def bubble-create-offset-y 150)
 (def bubble-velocity 30)
 (def bubble-life-time 10000)
-(def initial-create-interval 800)
-(def bubble-create-interval-min 350)
-(def bubble-create-interval-factor 0.98)
+(def initial-state {:small-interval 100
+                    :big-interval 3000
+                    :big-interval-factor 1.05
+                    :wave-size 5
+                    :wave-step 1
+                    :wave-number 1
+                    :wave-bubble-number 1})
 
 (defn bubble-stop [bubble]
   (utils/set-attr! bubble [:body :velocity :y] 0))
@@ -87,19 +91,32 @@
               (+ (rand-int (- (:height game) bubble-size bubble-create-offset-y))
                  bubble-create-offset-y)))
 
-(defn next-interval [interval]
-  (+ (* (- interval bubble-create-interval-min)
-        bubble-create-interval-factor)
-     bubble-create-interval-min))
+(defn next-state [state]
+  (cond
+    (= (:wave-bubble-number state) 1)
+    (-> state
+        (update :wave-bubble-number inc)
+        (assoc :next-interval (:small-interval state)))
+    (< (:wave-bubble-number state) (:wave-size state))
+    (update state :wave-bubble-number inc)
+    (= (:wave-bubble-number state) (:wave-size state))
+    (-> state
+        (update :wave-number inc)
+        (update :wave-size #(+ % (:wave-step state)))
+        (assoc :wave-bubble-number 1)
+        (assoc :next-interval (:big-interval state))
+        (update :big-interval #(* % (:big-interval-factor state))))
+    (= (:wave-bubble-number state) (:wave-size state))
+    (assoc state :next-interval (:big-interval state))))
 
-(defn generate-bubble [game bubbles create-interval]
+(defn generate-bubble [game bubbles state]
   (when (not ((:is-game-over-fn bubbles)))
     (let [bubble (add-random-bubble game bubbles)
-          new-create-interval (next-interval create-interval)]
+          new-state (next-state state)]
       (timer/add (get-in game [:time :events])
-                 create-interval
+                 (:next-interval state)
                  (fn []
-                   (generate-bubble game bubbles new-create-interval))
+                   (generate-bubble game bubbles new-state))
                  nil nil))))
 
 (defn handle-click [game event bubbles on-hit on-miss]
@@ -121,7 +138,7 @@
      :is-game-over-fn is-game-over-fn}))
 
 (defn start-bubbles [game bubbles]
-  (generate-bubble game bubbles initial-create-interval))
+  (generate-bubble game bubbles initial-state))
 
 (defn add-background [game]
   (let [background (object-factory/tile-sprite (:add game)
