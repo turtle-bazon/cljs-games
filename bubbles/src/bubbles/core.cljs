@@ -10,15 +10,24 @@
 
 (defonce game-atom (atom nil))
 
-(def game-size-mobile {:width 480 :height 854})
-(def game-size-desktop {:width 854 :height 480})
+(def mobile-height 854)
+(def game-size-desktop {:width 854 :height 569})
+
+(defn get-game-size-mobile []
+  (let [device-ratio (/ (aget js/screen "width")
+                        (aget js/screen "height"))
+        ;; dev
+        device-ratio (/ 480 800)
+        height mobile-height
+        width (* device-ratio height)]
+    {:width width :height height}))
 
 (defn get-game-size []
   (if (cordova?)
-    game-size-mobile
+    (get-game-size-mobile)
     game-size-desktop)
   ;; dev
-  game-size-mobile)
+  (get-game-size-mobile))
 
 (defn ^:export start []
   (when-let [old-game @game-atom]

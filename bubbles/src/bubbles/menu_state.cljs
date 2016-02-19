@@ -1,7 +1,6 @@
 (ns bubbles.menu-state
   (:require
    [phzr.animation-manager :as animation-manager]
-   [phzr.cache :as cache]
    [phzr.game-object-factory :as object-factory]
    [phzr.group :as group]
    [phzr.physics.arcade :as arcade-physics]
