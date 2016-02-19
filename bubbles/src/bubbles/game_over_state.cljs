@@ -16,12 +16,17 @@
 
 (def state-atom (atom))
 
+(def restart-button-center-offset {:x -32 :y -32 })
+
 (defn restart-game [game]
   (sm/start (:state game) "play" true))
 
 (defn create-restart-button [game]
   (object-factory/button (:add game)
-                         368 233
+                         (+ (/ (:width game) 2)
+                            (:x restart-button-center-offset))
+                         (+ (/ (:height game) 2)
+                            (:y restart-button-center-offset))
                          "restart-button"
                          #(restart-game game)
                          nil

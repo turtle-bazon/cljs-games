@@ -1,6 +1,7 @@
 (ns bubbles.menu-state
   (:require
    [phzr.animation-manager :as animation-manager]
+   [phzr.cache :as cache]
    [phzr.game-object-factory :as object-factory]
    [phzr.group :as group]
    [phzr.physics.arcade :as arcade-physics]
@@ -12,6 +13,8 @@
    [bubbles.bubble :as bubble]
    [bubbles.sound-wrapper :as sw]
    [bubbles.utils :as utils :refer [log cordova?]]))
+
+(def start-button-center-offset {:x -32 :y -32 })
 
 (defn get-highscore []
   (or (.getItem js/localStorage "highscore") 0))
@@ -46,7 +49,10 @@
 
 (defn create-start-button [game]
   (object-factory/button (:add game)
-                         368 233
+                         (+ (/ (:width game) 2)
+                            (:x start-button-center-offset))
+                         (+ (/ (:height game) 2)
+                            (:y start-button-center-offset))
                          "start-button"
                          #(start-game game)
                          nil

@@ -15,37 +15,37 @@
 (def info-position-y 16)
 
 (defn add-score [game score]
-  (object-factory/text (:add game) 270 info-position-y
-                       (str "Score: " score)
+  (object-factory/text (:add game) 170 info-position-y
+                       (str "S: " score)
                        {:font "24px Arial",
                         :fill "#FFFFFF",
                         :align "center"}))
 
 (defn add-highscore [game highscore]
-  (object-factory/text (:add game) 72 info-position-y
-                       (str "Highscore: " highscore)
+  (object-factory/text (:add game) 70 info-position-y
+                       (str "H: " highscore)
                        {:font "24px Arial",
                         :fill "#FFFFFF",
                         :align "center"}))
 
 (defn add-lives [game lives]
-  (object-factory/text (:add game) 400 info-position-y
-                       (str "Lives: " lives)
+  (object-factory/text (:add game) 270 info-position-y
+                       (str "L: " lives)
                        {:font "24px Arial",
                         :fill "#FFFFFF",
                         :align "center"}))
 
 (defn set-score-text! [score]
   (let [score-text (:score-text @state-atom)]
-    (utils/set-attr! score-text [:text] (str "Score: " score))))
+    (utils/set-attr! score-text [:text] (str "S: " score))))
 
 (defn set-highscore-text! [highscore]
   (let [highscore-text (:highscore-text @state-atom)]
-    (utils/set-attr! highscore-text [:text] (str "Highscore: " highscore))))
+    (utils/set-attr! highscore-text [:text] (str "H: " highscore))))
 
 (defn set-lives-text! [lives]
   (let [lives-text (:lives-text @state-atom)]
-    (utils/set-attr! lives-text [:text] (str "Lives: " lives))))
+    (utils/set-attr! lives-text [:text] (str "L: " lives))))
 
 (defn init! [game initial-state]
   (let [{:keys [score highscore lives]} initial-state]

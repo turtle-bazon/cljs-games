@@ -4,11 +4,14 @@
    [phzr.physics :as physics]
    [phzr.state-manager :as sm]
    [bubbles.sound-wrapper :as sw]
-   [bubbles.utils :as utils :refer [log]]))
+   [bubbles.utils :as utils :refer [log cordova?]]))
 
 (defn state-preload [game]
   (doto (:load game)
-    (loader/image "background" "assets/images/background.png")
+    (loader/image "background" (if (cordova?)
+                                 "assets/images/background-portrait.png"
+                                 ;; dev
+                                 "assets/images/background-portrait.png"))
     (loader/image "separator" "assets/images/separator.png")
     (loader/spritesheet "start-button" "assets/images/start-button.png" 64 64)
     (loader/spritesheet "restart-button" "assets/images/restart-button.png" 64 64)

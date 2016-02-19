@@ -92,22 +92,28 @@
                  bubble-create-offset-y)))
 
 (defn next-state [state]
-  (cond
-    (= (:wave-bubble-number state) 1)
-    (-> state
-        (update :wave-bubble-number inc)
-        (assoc :next-interval (:small-interval state)))
-    (< (:wave-bubble-number state) (:wave-size state))
-    (update state :wave-bubble-number inc)
-    (= (:wave-bubble-number state) (:wave-size state))
-    (-> state
-        (update :wave-number inc)
-        (update :wave-size #(+ % (:wave-step state)))
-        (assoc :wave-bubble-number 1)
-        (assoc :next-interval (:big-interval state))
-        (update :big-interval #(* % (:big-interval-factor state))))
-    (= (:wave-bubble-number state) (:wave-size state))
-    (assoc state :next-interval (:big-interval state))))
+  (let [{:keys [small-interval
+                big-interval
+                big-interval-factor
+                wave-size
+                wave-bubble-number
+                wave-step]} state]
+    (cond
+      (= (:wave-bubble-number state) 1)
+      (-> state
+          (update :wave-bubble-number inc)
+          (assoc :next-interval small-interval))
+      (< wave-bubble-number wave-size)
+      (update state :wave-bubble-number inc)
+      (= wave-bubble-number wave-size)
+      (-> state
+          (update :wave-number inc)
+          (update :wave-size #(+ % wave-step))
+          (assoc :wave-bubble-number 1)
+          (assoc :next-interval big-interval)
+          (update :big-interval #(* % big-interval-factor)))
+      (= (:wave-bubble-number state) wave-size)
+      (assoc state :next-interval big-interval))))
 
 (defn generate-bubble [game bubbles state]
   (when (not ((:is-game-over-fn bubbles)))
