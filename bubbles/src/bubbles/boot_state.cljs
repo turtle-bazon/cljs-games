@@ -13,8 +13,8 @@
                                  ;; dev
                                  "assets/images/background-portrait.png"))
     (loader/image "separator" "assets/images/separator.png")
-    (loader/spritesheet "start-button" "assets/images/start-button.png" 64 64)
-    (loader/spritesheet "restart-button" "assets/images/restart-button.png" 64 64)
+    (loader/spritesheet "start-button" "assets/images/start-button.png" 128 128)
+    (loader/spritesheet "restart-button" "assets/images/restart-button.png" 128 128)
     (loader/spritesheet "exit-button" "assets/images/exit-button.png" 64 64)
     (loader/spritesheet "bubble" "assets/images/bubble.png" 96 96)
     (loader/spritesheet "fullscreen-button" "assets/images/fullscreen-button.png" 50 50)

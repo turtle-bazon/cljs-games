@@ -17,8 +17,8 @@
    inkscape:version="0.48.5 r10040"
    sodipodi:docname="start-button.svg"
    inkscape:export-filename="/home/turtle/scm-controlled/cljs-games/bubbles/resources/public/assets/images/start-button.png"
-   inkscape:export-xdpi="90"
-   inkscape:export-ydpi="90">
+   inkscape:export-xdpi="180"
+   inkscape:export-ydpi="180">
   <defs
      id="defs4">
     <linearGradient
@@ -639,10 +639,10 @@
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
-     inkscape:window-width="1680"
-     inkscape:window-height="989"
+     inkscape:window-width="1920"
+     inkscape:window-height="1025"
      inkscape:window-x="-2"
-     inkscape:window-y="38"
+     inkscape:window-y="32"
      inkscape:window-maximized="1"
      objecttolerance="10"
      guidetolerance="20"
@@ -896,7 +896,7 @@
        id="g14323">
       <path
          transform="matrix(1.0456853,0,0,1.0456853,64.823607,980.9814)"
-         d="m -122,42.3125 a 12.3125,12.3125 0 1 1 -24.625,0 12.3125,12.3125 0 1 1 24.625,0 z"
+         d="m -122,42.3125 c 0,6.800006 -5.51249,12.3125 -12.3125,12.3125 -6.80001,0 -12.3125,-5.512494 -12.3125,-12.3125 0,-6.800006 5.51249,-12.3125 12.3125,-12.3125 6.80001,0 12.3125,5.512494 12.3125,12.3125 z"
          sodipodi:ry="12.3125"
          sodipodi:rx="12.3125"
          sodipodi:cy="42.3125"
