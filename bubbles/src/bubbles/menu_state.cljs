@@ -53,7 +53,8 @@
                          (+ (/ (:height game) 2)
                             (:y start-button-center-offset))
                          "start-button"
-                         #(start-game game)
+                         #(do (sw/play (sw/get-sound game "bubble-vanish-sound"))
+                              (start-game game))
                          nil
                          0 1 1))
 

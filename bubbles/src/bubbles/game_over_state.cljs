@@ -12,6 +12,7 @@
    [phzr.timer :as timer]
    [bubbles.bubble :as bubble]
    [bubbles.info-panel :as info-panel]
+   [bubbles.sound-wrapper :as sw]
    [bubbles.utils :as utils :refer [log cordova?]]))
 
 (def state-atom (atom))
@@ -28,7 +29,8 @@
                          (+ (/ (:height game) 2)
                             (:y restart-button-center-offset))
                          "restart-button"
-                         #(restart-game game)
+                         #(do (sw/play (sw/get-sound game "bubble-vanish-sound"))
+                              (restart-game game))
                          nil
                          0 1 1))
 
