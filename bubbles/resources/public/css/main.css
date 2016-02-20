@@ -2,3 +2,8 @@
   font-family: 'Flubber';
   src: url('../fonts/FLUBBER_.TTF') format('truetype');
 }
+
+.font-preload{
+  position: absolute;
+  left: -100px;
+}
