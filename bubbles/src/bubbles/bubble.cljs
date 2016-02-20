@@ -159,7 +159,4 @@
                                                background-offset-x 0
                                                image-width image-height
                                                "background")]
-    (object-factory/tile-sprite (:add game)
-                                0 50 (:width game) 5
-                                "separator")
     background))

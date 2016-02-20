@@ -13,7 +13,6 @@
                                  "assets/images/background-portrait.png"
                                  ;; dev
                                  "assets/images/background-portrait.png"))
-    (loader/image "separator" "assets/images/separator.png")
     (loader/spritesheet "start-button" "assets/images/start-button.png"
                         (:width dimens/start-button) (:height dimens/start-button))
     (loader/spritesheet "restart-button" "assets/images/restart-button.png"
