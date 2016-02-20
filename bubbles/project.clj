@@ -10,8 +10,8 @@
                                   [org.clojure/tools.reader "0.10.0"]
                                   [com.cemerick/piggieback "0.2.1"]
                                   [figwheel-sidecar "0.5.0-3"]]
-                   :plugins [[cider/cider-nrepl "0.10.1"]
-                             [refactor-nrepl "1.2.0"]]
+                   :plugins [[cider/cider-nrepl "0.10.2"]
+                             [refactor-nrepl "2.0.0"]]
                    :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]
                                   :timeout 120000}}}
   :figwheel {:server-ip "0.0.0.0"
