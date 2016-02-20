@@ -12,28 +12,25 @@
    [bubbles.utils :as utils :refer [log]]))
 
 (def state-atom (atom))
-(def info-position-y 16)
+(def info-position-y 14)
+(def font {:font "28px Flubber"
+           :fill "#FFFFFF"
+           :align "center"})
 
 (defn add-score [game score]
   (object-factory/text (:add game) 170 info-position-y
                        (str "S: " score)
-                       {:font "24px Arial",
-                        :fill "#FFFFFF",
-                        :align "center"}))
+                       font))
 
 (defn add-highscore [game highscore]
   (object-factory/text (:add game) 70 info-position-y
                        (str "H: " highscore)
-                       {:font "24px Arial",
-                        :fill "#FFFFFF",
-                        :align "center"}))
+                       font))
 
 (defn add-lives [game lives]
   (object-factory/text (:add game) 270 info-position-y
                        (str "L: " lives)
-                       {:font "24px Arial",
-                        :fill "#FFFFFF",
-                        :align "center"}))
+                       font))
 
 (defn set-score-text! [score]
   (let [score-text (:score-text @state-atom)]
