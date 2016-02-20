@@ -59,7 +59,8 @@
   (create-fullscreen-button game)
   (utils/set-attr! game [:scale :full-screen-scale-mode]
                    (scale-manager/const :show-all))
-  (aset (:scale game) "pageAlignHorizontally" true))
+  ;(aset (:scale game) "pageAlignHorizontally" true)
+  )
 
 (defn handle-mobile [game]
   (create-exit-button game)
