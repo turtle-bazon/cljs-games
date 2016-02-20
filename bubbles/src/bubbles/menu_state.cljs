@@ -10,10 +10,9 @@
    [phzr.state-manager :as sm]
    [phzr.timer :as timer]
    [bubbles.bubble :as bubble]
+   [bubbles.dimensions :as dimens]
    [bubbles.sound-wrapper :as sw]
    [bubbles.utils :as utils :refer [log cordova?]]))
-
-(def start-button-center-offset {:x -32 :y -32 })
 
 (defn get-highscore []
   (or (.getItem js/localStorage "highscore") 0))
@@ -48,10 +47,8 @@
 
 (defn create-start-button [game]
   (object-factory/button (:add game)
-                         (+ (/ (:width game) 2)
-                            (:x start-button-center-offset))
-                         (+ (/ (:height game) 2)
-                            (:y start-button-center-offset))
+                         (/ (- (:width game) (:width dimens/start-button)) 2)
+                         (/ (- (:height game) (:height dimens/start-button)) 2)
                          "start-button"
                          #(do (sw/play (sw/get-sound game "bubble-vanish-sound"))
                               (start-game game))

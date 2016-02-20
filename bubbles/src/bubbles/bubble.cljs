@@ -9,12 +9,13 @@
    [phzr.sound :as sound]
    [phzr.sprite :as sprite]
    [phzr.timer :as timer]
+   [bubbles.dimensions :as dimens]
    [bubbles.sound-wrapper :as sw]
    [bubbles.utils :as utils :refer [log]]))
 
-(def playfield-rect (rect/->Rectangle 0 55 800 425))
-(def bubble-size 96)
-(def bubble-create-offset-y 150)
+(def playfield-offset-y 55)
+(def bubble-size (:width dimens/bubble))
+(def bubble-create-bottom-offset-y 150)
 (def bubble-velocity 30)
 (def bubble-life-time 10000)
 (def initial-state {:small-interval 100
@@ -52,7 +53,7 @@
   ((:on-vanish bubbles)))
 
 (defn update-bubble [game bubble bubbles]
-  (if (< (:y bubble) (:y playfield-rect))
+  (if (< (:y bubble) playfield-offset-y)
     (vanish bubble bubbles)
     (let [elapsed (get-in game [:time :physics-elapsed-ms])
           left-time (- (.-leftTime bubble) elapsed)]
@@ -88,8 +89,10 @@
 (defn add-random-bubble [game bubbles]
   (add-bubble game bubbles
               (rand-int (- (:width game) bubble-size))
-              (+ (rand-int (- (:height game) bubble-size bubble-create-offset-y))
-                 bubble-create-offset-y)))
+              (+ (rand-int (- (:height game)
+                              bubble-size
+                              bubble-create-bottom-offset-y))
+                 bubble-create-bottom-offset-y)))
 
 (defn next-state [state]
   (let [{:keys [small-interval
@@ -125,7 +128,7 @@
                    (generate-bubble game bubbles new-state))
                  nil nil))))
 
-(defn handle-click [game event bubbles on-hit on-miss]
+(defn handle-click [game event playfield-rect bubbles on-hit on-miss]
   (when (not (some some?
                    (for [bubble (reverse (:children bubbles))]
                      (when (bubble-tapped game bubble bubbles event)
@@ -134,12 +137,14 @@
       (on-miss))))
 
 (defn init-bubbles [game on-hit on-miss on-vanish is-game-over-fn]
-  (let [bubbles-group (object-factory/physics-group (:add game))
-        bubbles bubbles-group]
+  (let [bubbles (object-factory/physics-group (:add game))
+        playfield-rect (rect/->Rectangle 0 playfield-offset-y
+                                         (:width game)
+                                         (- (:height game) playfield-offset-y))]
     (signal/add (get-in game [:input :on-down])
                 (fn [event]
-                  (handle-click game event bubbles on-hit on-miss)))
-    {:group bubbles-group
+                  (handle-click game event playfield-rect bubbles on-hit on-miss)))
+    {:group bubbles
      :on-vanish on-vanish
      :is-game-over-fn is-game-over-fn}))
 
@@ -153,7 +158,6 @@
         background (object-factory/tile-sprite (:add game)
                                                background-offset-x 0
                                                image-width image-height
-                                               ;; (:width game) (:height game)
                                                "background")]
     (object-factory/tile-sprite (:add game)
                                 0 50 (:width game) 5

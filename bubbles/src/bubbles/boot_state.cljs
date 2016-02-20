@@ -3,6 +3,7 @@
    [phzr.loader :as loader]
    [phzr.physics :as physics]
    [phzr.state-manager :as sm]
+   [bubbles.dimensions :as dimens]
    [bubbles.sound-wrapper :as sw]
    [bubbles.utils :as utils :refer [log cordova?]]))
 
@@ -13,11 +14,16 @@
                                  ;; dev
                                  "assets/images/background-portrait.png"))
     (loader/image "separator" "assets/images/separator.png")
-    (loader/spritesheet "start-button" "assets/images/start-button.png" 128 128)
-    (loader/spritesheet "restart-button" "assets/images/restart-button.png" 128 128)
-    (loader/spritesheet "exit-button" "assets/images/exit-button.png" 64 64)
-    (loader/spritesheet "bubble" "assets/images/bubble.png" 96 96)
-    (loader/spritesheet "fullscreen-button" "assets/images/fullscreen-button.png" 50 50)
+    (loader/spritesheet "start-button" "assets/images/start-button.png"
+                        (:width dimens/start-button) (:height dimens/start-button))
+    (loader/spritesheet "restart-button" "assets/images/restart-button.png"
+                        (:width dimens/restart-button) (:height dimens/restart-button))
+    (loader/spritesheet "exit-button" "assets/images/exit-button.png"
+                        (:width dimens/exit-button) (:height dimens/exit-button))
+    (loader/spritesheet "bubble" "assets/images/bubble.png"
+                        (:width dimens/bubble) (:height dimens/bubble))
+    (loader/spritesheet "fullscreen-button" "assets/images/fullscreen-button.png"
+                        (:width dimens/fullscreen-button) (:height dimens/fullscreen-button))
     (sw/load-sound "music" "assets/audio/music.ogg")
     (sw/load-sound "bubble-vanish-sound" "assets/audio/bubble-vanish.ogg")))
 

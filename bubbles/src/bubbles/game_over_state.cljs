@@ -11,23 +11,20 @@
    [phzr.state-manager :as sm]
    [phzr.timer :as timer]
    [bubbles.bubble :as bubble]
+   [bubbles.dimensions :as dimens]
    [bubbles.info-panel :as info-panel]
    [bubbles.sound-wrapper :as sw]
    [bubbles.utils :as utils :refer [log cordova?]]))
 
 (def state-atom (atom))
 
-(def restart-button-center-offset {:x -32 :y -32 })
-
 (defn restart-game [game]
   (sm/start (:state game) "play" true))
 
 (defn create-restart-button [game]
   (object-factory/button (:add game)
-                         (+ (/ (:width game) 2)
-                            (:x restart-button-center-offset))
-                         (+ (/ (:height game) 2)
-                            (:y restart-button-center-offset))
+                         (/ (- (:width game) (:width dimens/restart-button)) 2)
+                         (/ (- (:height game) (:height dimens/restart-button)) 2)
                          "restart-button"
                          #(do (sw/play (sw/get-sound game "bubble-vanish-sound"))
                               (restart-game game))
