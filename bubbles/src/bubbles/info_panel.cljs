@@ -1,8 +1,10 @@
 (ns bubbles.info-panel
   (:require
+   [cljsjs.phaser :as jsphaser]
    [phzr.animation-manager :as animation-manager]
    [phzr.game-object-factory :as object-factory]
    [phzr.group :as group]
+   [phzr.impl.utils.core :refer [clj->phaser phaser->clj]]
    [phzr.physics.arcade :as arcade-physics]
    [phzr.scale-manager :as scale-manager]
    [phzr.sound :as sound]
@@ -17,20 +19,37 @@
            :fill "#FFFFFF"
            :align "center"})
 
+(defn apply-text-effects [text]
+  (let [gradient (.createLinearGradient (:context text) 0 0 0 (:height text))]
+    (.addColorStop gradient 0 "#FFFFFF")
+    (.addColorStop gradient 1 "#707070")
+    (utils/set-attr! text [:stroke] "#000000")
+    (utils/set-attr! text [:stroke-thickness] 2)
+    (utils/set-attr! text [:fill] gradient)
+    (phaser->clj (.setShadow text
+                             (clj->phaser 1)
+                             (clj->phaser 1)
+                             (clj->phaser "#101010")
+                             (clj->phaser 5)))
+    text))
+
 (defn add-score [game score]
-  (object-factory/text (:add game) 170 info-position-y
-                       (str "S: " score)
-                       font))
+  (apply-text-effects
+   (object-factory/text (:add game) 170 info-position-y
+                        (str "S: " score)
+                        font)))
 
 (defn add-highscore [game highscore]
-  (object-factory/text (:add game) 70 info-position-y
-                       (str "H: " highscore)
-                       font))
+  (apply-text-effects
+   (object-factory/text (:add game) 70 info-position-y
+                        (str "H: " highscore)
+                        font)))
 
 (defn add-lives [game lives]
-  (object-factory/text (:add game) 270 info-position-y
-                       (str "L: " lives)
-                       font))
+  (apply-text-effects
+   (object-factory/text (:add game) 270 info-position-y
+                        (str "L: " lives)
+                        font)))
 
 (defn set-score-text! [score]
   (let [score-text (:score-text @state-atom)]
