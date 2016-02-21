@@ -34,7 +34,7 @@
     (game/destroy old-game))
   (let [game-size (get-game-size)
         game (game/->Game (:width game-size) (:height game-size)
-                          (p/phaser-constants :canvas) "game")
+                          (p/phaser-constants :auto) "game")
         state-manager (:state game)]
     (reset! game-atom game)
     (sm/add state-manager "boot" boot-state/state-obj)
