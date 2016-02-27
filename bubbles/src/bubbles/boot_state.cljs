@@ -23,6 +23,7 @@
     (loader/spritesheet "fullscreen-button" "assets/images/fullscreen-button.png"
                         (:width dimens/fullscreen-button) (:height dimens/fullscreen-button))
     (sw/load-sound "music" "assets/audio/music.ogg")
+    (sw/load-sound "bubble-create-sound" "assets/audio/bubble-create.ogg")
     (sw/load-sound "bubble-vanish-sound" "assets/audio/bubble-vanish.ogg")))
 
 (defn state-create [game]

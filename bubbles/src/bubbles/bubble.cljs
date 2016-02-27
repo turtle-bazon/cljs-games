@@ -84,6 +84,7 @@
     (utils/set-attr! bubble [:body :velocity :y] (- bubble-velocity))
     (utils/set-attr! bubble [:frame] bubble-index)
     (set! (.-leftTime bubble) bubble-life-time)
+    (sw/play (sw/get-sound game "bubble-create-sound"))
     bubble))
 
 (defn add-random-bubble [game bubbles]
