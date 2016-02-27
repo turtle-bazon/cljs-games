@@ -152,8 +152,8 @@
   (generate-bubble game bubbles initial-state))
 
 (defn add-background [game]
-  (let [image-width 569
-        image-height 854
+  (let [image-width (:width dimens/background)
+        image-height (:height dimens/background)
         background-offset-x (- (/ (- image-width (:width game)) 2))
         background (object-factory/tile-sprite (:add game)
                                                background-offset-x 0

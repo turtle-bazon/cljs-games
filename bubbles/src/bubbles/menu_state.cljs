@@ -58,18 +58,13 @@
 (defn handle-desktop [game]
   (create-fullscreen-button game)
   (utils/set-attr! game [:scale :full-screen-scale-mode]
-                   (scale-manager/const :show-all))
-  ;(aset (:scale game) "pageAlignHorizontally" true)
-  )
+                   (scale-manager/const :show-all)))
 
 (defn handle-mobile [game]
   (create-exit-button game)
   (let [scale (:scale game)]
     (utils/set-attr! game [:scale :scale-mode]
                      (scale-manager/const :show-all))
-    (aset scale "pageAlignHorizontally" true)
-    (aset scale "pageAlignVertically" true)
-    (aset scale "setScreenSize" true)
     (scale-manager/refresh scale)))
 
 (defn state-create [game]

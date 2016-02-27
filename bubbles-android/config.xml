@@ -11,15 +11,24 @@
     <access origin="*" />
     <platform name="android">
         <allow-intent href="market:*" />
+        <splash density="port-hdpi" src="res/screen/android/splash-port-hdpi.png" />
+        <splash density="port-ldpi" src="res/screen/android/splash-port-hdpi.png" />
+        <splash density="port-mdpi" src="res/screen/android/splash-port-hdpi.png" />
+        <splash density="port-xhdpi" src="res/screen/android/splash-port-hdpi.png" />
+        <splash density="port-xxhdpi" src="res/screen/android/splash-port-hdpi.png" />
+        <splash density="port-xxxhdpi" src="res/screen/android/splash-port-hdpi.png" />
     </platform>
     <platform name="ios">
         <allow-intent href="itms:*" />
         <allow-intent href="itms-apps:*" />
     </platform>
-    <preference name="Fullscreen" value="true" />
-    <preference name="Orientation" value="landscape" />
+    <preference name="Orientation" value="portrait" />
     <preference name="EnableViewportScale" value="false" />
+    <preference name="SplashScreen" value="screen" />
+    <preference name="SplashScreenDelay" value="10000" />
     <plugin name="cordova-plugin-whitelist" spec="1" />
     <plugin name="cordova-plugin-media" spec="~2.1.0" />
     <plugin name="cordova-plugin-device" spec="~1.1.1" />
+    <plugin name="cordova-plugin-splashscreen" spec="~3.1.0" />
+    <plugin name="cordova-plugin-fullscreen" spec="~1.0.8" />
 </widget>
