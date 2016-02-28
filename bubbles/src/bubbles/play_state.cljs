@@ -9,6 +9,7 @@
    [phzr.sprite :as sprite]
    [phzr.state-manager :as sm]
    [phzr.timer :as timer]
+   [phzr.utils.debug :as debug]
    [bubbles.bubble :as bubble]
    [bubbles.info-panel :as info-panel]
    [bubbles.utils :as utils :refer [log cordova?]]))
@@ -106,7 +107,12 @@
             (assoc initial-state :bubbles bubbles))
     (info-panel/init! game initial-state)
     (set-highscore! (get-highscore))
+    (utils/set-attr! game [:time :advanced-timing] true)
     (bubble/start-bubbles game bubbles)))
+
+(defn state-render [game]
+  (debug/text (:debug game) (str "FPS: " (get-in game [:time :fps]))
+              2 14 "#00ff00"))
 
 (defn state-update [game]
   (let [{:keys [bubbles lives]} @state-atom]
@@ -116,4 +122,5 @@
 
 (def state-obj
   {:create state-create
-   :update state-update})
+   :update state-update
+   :render state-render})
