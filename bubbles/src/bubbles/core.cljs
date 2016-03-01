@@ -19,8 +19,10 @@
     (game/destroy old-game))
   (let [game (game/->Game (:width game-size) (:height game-size)
                           (p/phaser-constants :canvas) "game")
-        state-manager (:state game)]
+        state-manager (:state game)
+        correction-coefficient (/ (:height game-size) 569)] ;;; TODO: EDIT THIS !!! 
     (reset! game-atom game)
+    (set! (.-cc game) correction-coefficient)
     (sm/add state-manager "boot" boot-state/state-obj)
     (sm/add state-manager "menu" menu-state/state-obj)
     (sm/add state-manager "play" play-state/state-obj)
@@ -71,7 +73,9 @@
 (defn init-game []
   (if (cordova?)
     (get-game-size-mobile)
-    (run-game {:width (aget js/window "innerWidth") :height (aget js/window "innerHeight")})))
+    (let [width (aget js/window "innerWidth")
+          height (aget js/window "innerHeight")]
+      (run-game {:width width :height height}))))
 
 (defn ^:export start []
   (init-game))

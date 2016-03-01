@@ -59,7 +59,7 @@
           left-time (- (.-leftTime bubble) elapsed)]
       (if (<= left-time 0)
         (vanish bubble bubbles)
-        (let [scale (/ left-time bubble-life-time)
+        (let [scale (* (.-cc game) (/ left-time bubble-life-time))
               cur-size (:width bubble)
               new-size (* bubble-size scale)
               offset (/ (- cur-size new-size) 2)]
@@ -88,12 +88,15 @@
     bubble))
 
 (defn add-random-bubble [game bubbles]
-  (add-bubble game bubbles
-              (rand-int (- (:width game) bubble-size))
-              (+ (rand-int (- (:height game)
-                              bubble-size
-                              bubble-create-bottom-offset-y))
-                 bubble-create-bottom-offset-y)))
+  (let [correction-coefficient (.-cc game)
+        bubble (add-bubble game bubbles
+                           (rand-int (- (:width game) (* correction-coefficient bubble-size)))
+                           (+ (rand-int (- (:height game)
+                                           (* correction-coefficient bubble-size)
+                                           bubble-create-bottom-offset-y))
+                              bubble-create-bottom-offset-y))]
+    (utils/set-attr! bubble [:scale :x] correction-coefficient)
+    (utils/set-attr! bubble [:scale :y] correction-coefficient)))
 
 (defn next-state [state]
   (let [{:keys [small-interval
@@ -157,7 +160,7 @@
         image-height (:height dimens/background)
         background-offset-x (- (/ (- image-width (:width game)) 2))
         background (object-factory/tile-sprite (:add game)
-                                               background-offset-x 0
-                                               image-width image-height
+                                               0 0
+                                               (:width game) (:height game)
                                                "background")]
     background))

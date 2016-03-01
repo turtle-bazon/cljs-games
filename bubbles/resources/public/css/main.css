@@ -8,7 +8,8 @@
   left: -100px;
 }
 
-#game {
-  width: 854px;
-  margin: auto;
+body {
+  margin: 0;
+  overflow: hidden;
 }
+
