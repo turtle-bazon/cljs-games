@@ -71,7 +71,7 @@
 (defn init-game []
   (if (cordova?)
     (get-game-size-mobile)
-    (run-game game-size-desktop)))
+    (run-game {:width (aget js/window "innerWidth") :height (aget js/window "innerHeight")})))
 
 (defn ^:export start []
   (init-game))
