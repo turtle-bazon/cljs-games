@@ -1,6 +1,6 @@
-target
-classes
-checkouts
+/target/
+/classes/
+/checkouts/
 figwheel_server.log
 pom.xml
 pom.xml.asc
@@ -11,11 +11,18 @@ resources/public/js/out/*
 \.nrepl-port
 [\\/]main.js$
 ^\.git
+\.gitignore
 
 figwheel_server.log
-out
+/out/
 
 # cordova
 /platforms/
 /plugins/
 /www/assets/
+
+# android
+\.idea/
+\.gradle/
+\.iml$
+/build/
