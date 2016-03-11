@@ -63,7 +63,8 @@
 
 (defn handle-is-immersive-mode-supported [supported]
   (if supported
-    (.immersiveMode js/AndroidFullScreen handle-immersive-mode fail)
+    (handle-immersive-mode)
+    ;; (.immersiveMode js/AndroidFullScreen handle-immersive-mode fail)
     (.leanMode js/AndroidFullScreen handle-lean-mode fail)))
 
 (defn get-game-size-mobile []

@@ -43,7 +43,7 @@
                     (square (/ bubble-size 2)))]
     (when (<= squared-distance
               (square radius))
-      (sound/play (.-vanish-sound bubbles))
+      (sound/play (:vanish-sound bubbles))
       (destroy bubble)
       true)))
 
@@ -83,7 +83,7 @@
     (utils/set-attr! bubble [:body :velocity :y] (- bubble-velocity))
     (utils/set-attr! bubble [:frame] bubble-index)
     (set! (.-leftTime bubble) bubble-life-time)
-    (sound/play (.-vanish-sound bubbles))
+    (sound/play (:create-sound bubbles))
     bubble))
 
 (defn add-random-bubble [game bubbles]
@@ -133,27 +133,26 @@
 
 (defn handle-click [game event playfield-rect bubbles on-hit on-miss]
   (when (not (some some?
-                   (for [bubble (reverse (:children bubbles))]
+                   (for [bubble (reverse (get-in bubbles [:group :children]))]
                      (when (bubble-tapped game bubble bubbles event)
                        (on-hit)))))
     (when (rect/contains-point- playfield-rect (:position event))
       (on-miss))))
 
 (defn init-bubbles [game on-hit on-miss on-vanish is-game-over-fn]
-  (let [bubbles (object-factory/physics-group (:add game))
+  (let [group (object-factory/physics-group (:add game))
         playfield-rect (rect/->Rectangle 0 playfield-offset-y
                                          (:width game)
-                                         (- (:height game) playfield-offset-y))]
+                                         (- (:height game) playfield-offset-y))
+        bubbles {:group group
+                 :on-vanish on-vanish
+                 :vanish-sound (object-factory/audio (:add game) "bubble-vanish-sound")
+                 :create-sound (object-factory/audio (:add game) "bubble-create-sound")
+                 :is-game-over-fn is-game-over-fn}]
     (signal/add (get-in game [:input :on-down])
                 (fn [event]
                   (handle-click game event playfield-rect bubbles on-hit on-miss)))
-    (set! (.-vanish-sound bubbles)
-          (object-factory/audio (:add game) "bubble-vanish-sound"))
-    (set! (.-create-sound bubbles)
-          (object-factory/audio (:add game) "bubble-create-sound"))
-    {:group bubbles
-     :on-vanish on-vanish
-     :is-game-over-fn is-game-over-fn}))
+    bubbles))
 
 (defn start-bubbles [game bubbles]
   (generate-bubble game bubbles initial-state))

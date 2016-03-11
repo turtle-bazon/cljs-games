@@ -8,4 +8,4 @@
 (defn log [obj]
   (.log js/console obj))
 
-(def mobile? (aget js/window "mobile") true false)
+(def mobile? (if (aget js/window "mobile") true false))
