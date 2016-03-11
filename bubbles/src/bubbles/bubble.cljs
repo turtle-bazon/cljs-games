@@ -10,7 +10,6 @@
    [phzr.sprite :as sprite]
    [phzr.timer :as timer]
    [bubbles.dimensions :as dimens]
-   [bubbles.sound-wrapper :as sw]
    [bubbles.utils :as utils :refer [log]]))
 
 (def playfield-offset-y 55)
@@ -44,7 +43,7 @@
                     (square (/ bubble-size 2)))]
     (when (<= squared-distance
               (square radius))
-      (sw/play (sw/get-sound game "bubble-vanish-sound"))
+      (sound/play (.-vanish-sound bubbles))
       (destroy bubble)
       true)))
 
@@ -84,7 +83,7 @@
     (utils/set-attr! bubble [:body :velocity :y] (- bubble-velocity))
     (utils/set-attr! bubble [:frame] bubble-index)
     (set! (.-leftTime bubble) bubble-life-time)
-    (sw/play (sw/get-sound game "bubble-create-sound"))
+    (sound/play (.-vanish-sound bubbles))
     bubble))
 
 (defn add-random-bubble [game bubbles]
@@ -148,6 +147,10 @@
     (signal/add (get-in game [:input :on-down])
                 (fn [event]
                   (handle-click game event playfield-rect bubbles on-hit on-miss)))
+    (set! (.-vanish-sound bubbles)
+          (object-factory/audio (:add game) "bubble-vanish-sound"))
+    (set! (.-create-sound bubbles)
+          (object-factory/audio (:add game) "bubble-create-sound"))
     {:group bubbles
      :on-vanish on-vanish
      :is-game-over-fn is-game-over-fn}))

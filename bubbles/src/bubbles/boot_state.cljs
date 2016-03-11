@@ -4,12 +4,11 @@
    [phzr.physics :as physics]
    [phzr.state-manager :as sm]
    [bubbles.dimensions :as dimens]
-   [bubbles.sound-wrapper :as sw]
-   [bubbles.utils :as utils :refer [log cordova?]]))
+   [bubbles.utils :as utils :refer [log mobile?]]))
 
 (defn state-preload [game]
   (doto (:load game)
-    (loader/image "background" (if (cordova?)
+    (loader/image "background" (if mobile?
                                  "assets/images/background-portrait.png"
                                  "assets/images/background.png"))
     (loader/spritesheet "start-button" "assets/images/start-button.png"
@@ -22,9 +21,9 @@
                         (:width dimens/bubble) (:height dimens/bubble))
     (loader/spritesheet "fullscreen-button" "assets/images/fullscreen-button.png"
                         (:width dimens/fullscreen-button) (:height dimens/fullscreen-button))
-    (sw/load-sound "music" "assets/audio/music.ogg")
-    (sw/load-sound "bubble-create-sound" "assets/audio/bubble-create.ogg")
-    (sw/load-sound "bubble-vanish-sound" "assets/audio/bubble-vanish.ogg")))
+    (loader/audio "music" "assets/audio/music.ogg")
+    (loader/audio "bubble-create-sound" "assets/audio/bubble-create.ogg")
+    (loader/audio "bubble-vanish-sound" "assets/audio/bubble-vanish.ogg")))
 
 (defn state-create [game]
   (physics/start-system (:physics game) (physics/const :arcade))

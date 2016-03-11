@@ -13,8 +13,7 @@
    [bubbles.bubble :as bubble]
    [bubbles.dimensions :as dimens]
    [bubbles.info-panel :as info-panel]
-   [bubbles.sound-wrapper :as sw]
-   [bubbles.utils :as utils :refer [log cordova?]]))
+   [bubbles.utils :as utils :refer [log mobile?]]))
 
 (def state-atom (atom))
 
@@ -26,7 +25,8 @@
                          (/ (- (:width game) (:width dimens/restart-button)) 2)
                          (/ (- (:height game) (:height dimens/restart-button)) 2)
                          "restart-button"
-                         #(do (sw/play (sw/get-sound game "bubble-vanish-sound"))
+                         #(do (sound/play (object-factory/audio (:add game)
+                                                                "bubble-vanish-sound"))
                               (restart-game game))
                          nil
                          0 1 1))
@@ -66,7 +66,7 @@
   (bubble/add-background game)
   (info-panel/init! game @state-atom)
   (create-restart-button game)
-  (if (cordova?)
+  (if mobile?
     (handle-mobile game)
     (handle-desktop game)))
 

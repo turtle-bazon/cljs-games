@@ -11,8 +11,7 @@
    [phzr.timer :as timer]
    [bubbles.bubble :as bubble]
    [bubbles.dimensions :as dimens]
-   [bubbles.sound-wrapper :as sw]
-   [bubbles.utils :as utils :refer [log cordova?]]))
+   [bubbles.utils :as utils :refer [log mobile?]]))
 
 (defn get-highscore []
   (or (.getItem js/localStorage "highscore") 0))
@@ -50,7 +49,8 @@
                          (/ (- (:width game) (:width dimens/start-button)) 2)
                          (/ (- (:height game) (:height dimens/start-button)) 2)
                          "start-button"
-                         #(do (sw/play (sw/get-sound game "bubble-vanish-sound"))
+                         #(do (sound/play (object-factory/audio (:add game)
+                                                                "bubble-vanish-sound"))
                               (start-game game))
                          nil
                          0 1 1))
@@ -70,10 +70,10 @@
 (defn state-create [game]
   (bubble/add-background game)
   (create-start-button game)
-  (if (cordova?)
+  (if mobile?
     (handle-mobile game)
     (handle-desktop game))
-  (sw/loop-sound (sw/get-sound game "music") 37000))
+  (sound/loop-full (object-factory/audio (:add game) "music")))
 
 (def state-obj
   {:create state-create})

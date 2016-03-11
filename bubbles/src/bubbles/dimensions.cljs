@@ -1,8 +1,8 @@
 (ns bubbles.dimensions
   (:require
-   [bubbles.utils :as utils :refer [log cordova?]]))
+   [bubbles.utils :as utils :refer [log mobile?]]))
 
-(def background (if (cordova?)
+(def background (if mobile?
                   {:width 569 :height 854}
                   {:width 854 :height 569}))
 (def start-button {:width 128 :height 128})

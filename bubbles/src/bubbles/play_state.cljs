@@ -12,7 +12,7 @@
    [phzr.utils.debug :as debug]
    [bubbles.bubble :as bubble]
    [bubbles.info-panel :as info-panel]
-   [bubbles.utils :as utils :refer [log cordova?]]))
+   [bubbles.utils :as utils :refer [log mobile?]]))
 
 (def state-atom (atom))
 
@@ -98,7 +98,7 @@
 
 (defn state-create [game]
   (bubble/add-background game)
-  (if (cordova?)
+  (if mobile?
     (handle-mobile game)
     (handle-desktop game))
   (let [bubbles (bubble/init-bubbles game on-bubble-hit on-bubble-miss

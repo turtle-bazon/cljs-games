@@ -6,7 +6,7 @@
             [bubbles.menu-state :as menu-state]
             [bubbles.play-state :as play-state]
             [bubbles.game-over-state :as game-over-state]
-            [bubbles.utils :refer [log cordova?]]))
+            [bubbles.utils :refer [log mobile?]]))
 
 (defonce game-atom (atom nil))
 (def size-atom (atom {}))
@@ -71,7 +71,7 @@
                              handle-is-immersive-mode-supported fail))
 
 (defn init-game []
-  (if (cordova?)
+  (if mobile?
     (get-game-size-mobile)
     (let [width (aget js/window "innerWidth")
           height (aget js/window "innerHeight")]
