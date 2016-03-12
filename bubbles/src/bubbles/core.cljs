@@ -73,7 +73,8 @@
 
 (defn init-game []
   (if mobile?
-    (get-game-size-mobile)
+    (run-game {:width 480 :height 854})
+    ;; (get-game-size-mobile)
     (let [width (aget js/window "innerWidth")
           height (aget js/window "innerHeight")]
       (run-game {:width width :height height}))))

@@ -6,17 +6,31 @@ import android.os.Handler;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.ViewSwitcher;
+
+import org.xwalk.core.XWalkDownloadListener;
+import org.xwalk.core.XWalkView;
 
 public class FullscreenActivity extends AppCompatActivity {
+    // default
     private final Handler mHideHandler = new Handler();
     private View mContentView;
+
+    // crosswalk
+    private XWalkView mXWalkView;
+
+    // viewSwitcher
+    private ViewSwitcher switcher;
+    private static final int REFRESH_SCREEN = 1;
 
     private final Runnable mHideRunnable = new Runnable() {
         @Override
         public void run() {
-            Intent intent = new Intent(FullscreenActivity.this, MainActivity.class);
-            startActivity(intent);
-            FullscreenActivity.this.finish();
+            switcher.showNext();
+
+//            Intent intent = new Intent(FullscreenActivity.this, MainActivity.class);
+//            startActivity(intent);
+//            FullscreenActivity.this.finish();
         }
     };
 
@@ -24,8 +38,18 @@ public class FullscreenActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fullscreen);
-        mContentView = findViewById(R.id.splashScreen);
-        delayedRun(3000);
+        mContentView = findViewById(R.id.profileSwitcher);
+
+        // crosswalk
+        mXWalkView = (XWalkView) findViewById(R.id.activity_main);
+        mXWalkView.load("file:///android_asset/www/index.html", null);
+
+        // viewSwitcher
+        switcher = (ViewSwitcher) findViewById(R.id.profileSwitcher);
+//        startScan();
+
+        // app
+        delayedRun(8000);
     }
 
     @Override
