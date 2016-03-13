@@ -10,7 +10,6 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
-import android.widget.ViewSwitcher;
 
 import org.xwalk.core.XWalkView;
 
@@ -19,13 +18,13 @@ import java.lang.reflect.Method;
 public class FullscreenActivity extends AppCompatActivity {
     private final Handler mHideSplashHandler = new Handler();
     private View mContentView;
-    private ViewSwitcher switcher;
     private XWalkView mXWalkView;
+    private LaunchScreenManager launchScreenManager;
 
     private final Runnable mShowGameRunnable = new Runnable() {
         @Override
         public void run() {
-            switcher.showNext();
+            launchScreenManager.performHideLaunchScreen();
         }
     };
 
@@ -33,8 +32,7 @@ public class FullscreenActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fullscreen);
-        switcher = (ViewSwitcher) findViewById(R.id.profileSwitcher);
-        mContentView = switcher;
+        mContentView = findViewById(R.id.fullscreen_view);
 
         // crosswalk
         mXWalkView = (XWalkView) findViewById(R.id.activity_main);
@@ -43,7 +41,11 @@ public class FullscreenActivity extends AppCompatActivity {
                 realSize.x, realSize.y), null);
         mXWalkView.load("file:///android_asset/www/index.html", null);
 
-        delayedRun(8000);
+        hide();
+
+        launchScreenManager = new LaunchScreenManager(this);
+        launchScreenManager.displayLaunchScreen("complete", "");
+        delayedRun(5000);
     }
 
     private Point getDeviceRealSize() {
