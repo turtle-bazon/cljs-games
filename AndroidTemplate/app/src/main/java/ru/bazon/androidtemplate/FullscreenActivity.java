@@ -1,36 +1,31 @@
 package ru.bazon.androidtemplate;
 
-import android.content.Intent;
+import android.graphics.Point;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.DisplayMetrics;
+import android.util.Log;
+import android.view.Display;
 import android.view.View;
 import android.widget.ViewSwitcher;
 
-import org.xwalk.core.XWalkDownloadListener;
 import org.xwalk.core.XWalkView;
 
-public class FullscreenActivity extends AppCompatActivity {
-    // default
-    private final Handler mHideHandler = new Handler();
-    private View mContentView;
+import java.lang.reflect.Method;
 
-    // crosswalk
+public class FullscreenActivity extends AppCompatActivity {
+    private final Handler mHideSplashHandler = new Handler();
+    private View mContentView;
+    private ViewSwitcher switcher;
     private XWalkView mXWalkView;
 
-    // viewSwitcher
-    private ViewSwitcher switcher;
-    private static final int REFRESH_SCREEN = 1;
-
-    private final Runnable mHideRunnable = new Runnable() {
+    private final Runnable mShowGameRunnable = new Runnable() {
         @Override
         public void run() {
             switcher.showNext();
-
-//            Intent intent = new Intent(FullscreenActivity.this, MainActivity.class);
-//            startActivity(intent);
-//            FullscreenActivity.this.finish();
         }
     };
 
@@ -38,18 +33,51 @@ public class FullscreenActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fullscreen);
-        mContentView = findViewById(R.id.profileSwitcher);
+        switcher = (ViewSwitcher) findViewById(R.id.profileSwitcher);
+        mContentView = switcher;
 
         // crosswalk
         mXWalkView = (XWalkView) findViewById(R.id.activity_main);
+        Point realSize = getDeviceRealSize();
+        mXWalkView.evaluateJavascript(String.format("var mobile = true; var deviceWidth = %s; var deviceHeight = %s;",
+                realSize.x, realSize.y), null);
         mXWalkView.load("file:///android_asset/www/index.html", null);
 
-        // viewSwitcher
-        switcher = (ViewSwitcher) findViewById(R.id.profileSwitcher);
-//        startScan();
-
-        // app
         delayedRun(8000);
+    }
+
+    private Point getDeviceRealSize() {
+        Display display = getWindowManager().getDefaultDisplay();
+        int realWidth;
+        int realHeight;
+
+        if (Build.VERSION.SDK_INT >= 17) {
+            //new pleasant way to get real metrics
+            DisplayMetrics realMetrics = new DisplayMetrics();
+            display.getRealMetrics(realMetrics);
+            realWidth = realMetrics.widthPixels;
+            realHeight = realMetrics.heightPixels;
+
+        } else if (Build.VERSION.SDK_INT >= 14) {
+            //reflection for this weird in-between time
+            try {
+                Method mGetRawH = Display.class.getMethod("getRawHeight");
+                Method mGetRawW = Display.class.getMethod("getRawWidth");
+                realWidth = (Integer) mGetRawW.invoke(display);
+                realHeight = (Integer) mGetRawH.invoke(display);
+            } catch (Exception e) {
+                //this may not be 100% accurate, but it's all we've got
+                realWidth = display.getWidth();
+                realHeight = display.getHeight();
+                Log.e("Display Info", "Couldn't use reflection to get the real display metrics.");
+            }
+
+        } else {
+            //This should be close, as lower API devices should not have window navigation bars
+            realWidth = display.getWidth();
+            realHeight = display.getHeight();
+        }
+        return new Point(realWidth, realHeight);
     }
 
     @Override
@@ -84,7 +112,7 @@ public class FullscreenActivity extends AppCompatActivity {
      * previously scheduled calls.
      */
     private void delayedRun(int delayMillis) {
-        mHideHandler.removeCallbacks(mHideRunnable);
-        mHideHandler.postDelayed(mHideRunnable, delayMillis);
+        mHideSplashHandler.removeCallbacks(mShowGameRunnable);
+        mHideSplashHandler.postDelayed(mShowGameRunnable, delayMillis);
     }
 }

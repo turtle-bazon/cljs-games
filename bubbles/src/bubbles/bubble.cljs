@@ -15,7 +15,7 @@
 (def playfield-offset-y 55)
 (def bubble-size (:width dimens/bubble))
 (def bubble-create-bottom-offset-y 150)
-(def bubble-velocity 30)
+(def bubble-velocity 90)
 (def bubble-life-time 10000)
 (def initial-state {:small-interval 100
                     :big-interval 3000

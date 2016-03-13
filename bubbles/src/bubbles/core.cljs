@@ -29,13 +29,7 @@
     (sm/add state-manager "game-over" game-over-state/state-obj)
     (sm/start state-manager "boot" nil)))
 
-(defn success []
-  (log "success"))
-
-(defn fail []
-  (log "fail"))
-
-(defn set-size-android [size]
+(defn get-size-android [size]
   (let [screen-width (:width size)
         screen-height (:height size)
         device-ratio (/ screen-width screen-height)
@@ -43,41 +37,10 @@
         width (* device-ratio height)]
     (run-game {:width width :height height})))
 
-(defn on-height [height]
-  (let [game-height (/ height (aget js/window "devicePixelRatio"))
-        size (swap! size-atom assoc :height game-height)]
-    (set-size-android size)))
-
-(defn on-width [width]
-  (let [game-width (/ width (aget js/window "devicePixelRatio"))
-        size (swap! size-atom assoc :width game-width)]
-    (.immersiveHeight js/AndroidFullScreen on-height fail)))
-
-(defn handle-immersive-mode []
-  (.immersiveWidth js/AndroidFullScreen on-width fail))
-
-(defn handle-lean-mode []
-  (let [width (aget js/screen "width")
-        height (aget js/screen "height")]
-    (run-game {:width width :height height})))
-
-(defn handle-is-immersive-mode-supported [supported]
-  (if supported
-    (handle-immersive-mode)
-    ;; (.immersiveMode js/AndroidFullScreen handle-immersive-mode fail)
-    (.leanMode js/AndroidFullScreen handle-lean-mode fail)))
-
-(defn get-game-size-mobile []
-  (.isImmersiveModeSupported js/AndroidFullScreen
-                             handle-is-immersive-mode-supported fail))
-
 (defn init-game []
-  (if mobile?
-    (run-game {:width 480 :height 854})
-    ;; (get-game-size-mobile)
-    (let [width (aget js/window "innerWidth")
-          height (aget js/window "innerHeight")]
-      (run-game {:width width :height height}))))
+  (run-game (if mobile?
+              (get-size-android {:width js/deviceWidth :height js/deviceHeight})
+              game-size-desktop)))
 
 (defn ^:export start []
   (init-game))
