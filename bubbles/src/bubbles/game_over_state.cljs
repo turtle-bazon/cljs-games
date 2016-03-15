@@ -13,7 +13,7 @@
    [bubbles.bubble :as bubble]
    [bubbles.dimensions :as dimens]
    [bubbles.info-panel :as info-panel]
-   [bubbles.utils :as utils :refer [log mobile?]]))
+   [bubbles.utils :as utils :refer [log mobile? exit-app]]))
 
 (def state-atom (atom))
 
@@ -44,9 +44,6 @@
                          #(switch-fullscreen game)
                          nil
                          0 1 1))
-
-(defn exit-app []
-  (.exitApp (aget js/navigator "app")))
 
 (defn create-exit-button [game]
   (object-factory/button (:add game)

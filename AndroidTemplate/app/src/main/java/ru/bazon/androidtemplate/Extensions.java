@@ -18,15 +18,27 @@ public class Extensions {
             new HashMap<String, XWalkExtension>();
 
     public static void load(Context context, FullscreenActivity activity) {
-
-        String jsApiContent = "";
-        try {
-            jsApiContent = getExtensionJSFileContent(
-                    context, LaunchScreenExtension.JS_API_PATH, true);
-            sBuiltinExtensions.put(LaunchScreenExtension.JS_API_PATH,
-                    new LaunchScreenExtension(jsApiContent, activity));
-        } catch (IOException e) {
-            Log.w(TAG, "Failed to read JS API file: " + LaunchScreenExtension.JS_API_PATH);
+        {
+            String jsApiContent = "";
+            try {
+                jsApiContent = getExtensionJSFileContent(
+                        context, LaunchScreenExtension.JS_API_PATH, true);
+                sBuiltinExtensions.put(LaunchScreenExtension.JS_API_PATH,
+                        new LaunchScreenExtension(jsApiContent, activity));
+            } catch (IOException e) {
+                Log.w(TAG, "Failed to read JS API file: " + LaunchScreenExtension.JS_API_PATH);
+            }
+        }
+        {
+            String jsApiContent = "";
+            try {
+                jsApiContent = getExtensionJSFileContent(
+                        context, ExitAppExtension.JS_API_PATH, true);
+                sBuiltinExtensions.put(ExitAppExtension.JS_API_PATH,
+                        new ExitAppExtension(jsApiContent, activity));
+            } catch (IOException e) {
+                Log.w(TAG, "Failed to read JS API file: " + LaunchScreenExtension.JS_API_PATH);
+            }
         }
     }
 

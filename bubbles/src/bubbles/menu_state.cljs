@@ -11,13 +11,10 @@
    [phzr.timer :as timer]
    [bubbles.bubble :as bubble]
    [bubbles.dimensions :as dimens]
-   [bubbles.utils :as utils :refer [log mobile?]]))
+   [bubbles.utils :as utils :refer [log mobile? exit-app]]))
 
 (defn get-highscore []
   (or (.getItem js/localStorage "highscore") 0))
-
-(defn exit-app []
-  (.exitApp (aget js/navigator "app")))
 
 (defn create-exit-button [game]
   (object-factory/button (:add game)

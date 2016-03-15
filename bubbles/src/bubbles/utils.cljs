@@ -9,3 +9,6 @@
   (.log js/console obj))
 
 (def mobile? (if (aget js/window "mobile") true false))
+
+(defn exit-app []
+  (.exitApp js/exitAppExtension "" (fn [] false)))

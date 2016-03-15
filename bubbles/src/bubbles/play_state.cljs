@@ -12,7 +12,7 @@
    [phzr.utils.debug :as debug]
    [bubbles.bubble :as bubble]
    [bubbles.info-panel :as info-panel]
-   [bubbles.utils :as utils :refer [log mobile?]]))
+   [bubbles.utils :as utils :refer [log mobile? exit-app]]))
 
 (def state-atom (atom))
 
@@ -64,9 +64,6 @@
 
 (defn on-bubble-vanish []
   (update-lives! dec))
-
-(defn exit-app []
-  (.exitApp (aget js/navigator "app")))
 
 (defn create-exit-button [game]
   (object-factory/button (:add game)
