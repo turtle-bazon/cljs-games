@@ -28,6 +28,7 @@
                 :compiler {:output-to "resources/public/js/main.js"
                            :main bubbles.core
                            :optimizations :advanced
-                           :pretty-print false}}]}
+                           :pretty-print false
+                           :externs ["externs/bubbles.js"]}}]}
   :min-lein-version "2.5.3")
 

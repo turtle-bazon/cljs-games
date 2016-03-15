@@ -3,7 +3,6 @@ package ru.bazon.androidtemplate;
 import android.graphics.Point;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
@@ -16,36 +15,24 @@ import org.xwalk.core.XWalkView;
 import java.lang.reflect.Method;
 
 public class FullscreenActivity extends AppCompatActivity {
-    private final Handler mHideSplashHandler = new Handler();
-    private View mContentView;
-    private XWalkView mXWalkView;
-    private LaunchScreenManager launchScreenManager;
-
-    private final Runnable mShowGameRunnable = new Runnable() {
-        @Override
-        public void run() {
-            launchScreenManager.performHideLaunchScreen();
-        }
-    };
+    private View contentView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fullscreen);
-        mContentView = findViewById(R.id.fullscreen_view);
+        contentView = findViewById(R.id.fullscreen_view);
 
         // crosswalk
-        mXWalkView = (XWalkView) findViewById(R.id.activity_main);
+        org.xwalk.core.internal.extension.api.launchscreen.LaunchScreenExtension a;
+        Extensions.load(this, this);
+        XWalkView mXWalkView = (XWalkView) findViewById(R.id.activity_main);
         Point realSize = getDeviceRealSize();
         mXWalkView.evaluateJavascript(String.format("var mobile = true; var deviceWidth = %s; var deviceHeight = %s;",
                 realSize.x, realSize.y), null);
         mXWalkView.load("file:///android_asset/www/index.html", null);
 
-        hide();
-
-        launchScreenManager = new LaunchScreenManager(this);
-        launchScreenManager.displayLaunchScreen("complete", "");
-        delayedRun(5000);
+        hideSystemUi();
     }
 
     private Point getDeviceRealSize() {
@@ -86,11 +73,11 @@ public class FullscreenActivity extends AppCompatActivity {
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
         if (hasFocus) {
-            hide();
+            hideSystemUi();
         }
     }
 
-    private void hide() {
+    private void hideSystemUi() {
         // Hide UI first
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -100,21 +87,11 @@ public class FullscreenActivity extends AppCompatActivity {
         // Note that some of these constants are new as of API 16 (Jelly Bean)
         // and API 19 (KitKat). It is safe to use them, as they are inlined
         // at compile-time and do nothing on earlier devices.
-        mContentView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
+        contentView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
                 | View.SYSTEM_UI_FLAG_FULLSCREEN
                 | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                 | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
                 | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                 | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
-    }
-
-
-    /**
-     * Schedules a call to hide() in [delay] milliseconds, canceling any
-     * previously scheduled calls.
-     */
-    private void delayedRun(int delayMillis) {
-        mHideSplashHandler.removeCallbacks(mShowGameRunnable);
-        mHideSplashHandler.postDelayed(mShowGameRunnable, delayMillis);
     }
 }

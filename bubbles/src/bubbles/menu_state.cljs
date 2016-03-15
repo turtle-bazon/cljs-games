@@ -65,7 +65,8 @@
   (let [scale (:scale game)]
     (utils/set-attr! game [:scale :scale-mode]
                      (scale-manager/const :show-all))
-    (scale-manager/refresh scale)))
+    (scale-manager/refresh scale))
+    (.hideLaunchScreen js/launchScreen "" (fn [] nil)))
 
 (defn state-create [game]
   (bubble/add-background game)

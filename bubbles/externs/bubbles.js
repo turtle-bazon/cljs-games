@@ -1,0 +1,2 @@
+var launchScreen;
+function hideLaunchScreen() { };
