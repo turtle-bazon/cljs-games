@@ -1,4 +1,4 @@
-package ru.bazon.androidtemplate;
+package ru.bazon.androidtemplate.extensions;
 
 import android.app.Activity;
 
@@ -7,8 +7,8 @@ import org.xwalk.core.XWalkExtension;
 import java.util.Date;
 
 public class LaunchScreenExtension extends XWalkExtension {
-    private static String name = "launchScreen";
-    public static String JS_API_PATH = "launch_screen.js";
+    private static String name = "launchScreenExtension";
+    public static String JS_API_PATH = "extension_launch_screen.js";
 
     private long createTime;
     private int showMs = 3000;
@@ -26,7 +26,7 @@ public class LaunchScreenExtension extends XWalkExtension {
     public void onMessage(int i, String s) {
         long curTime = new Date().getTime();
         long leftMs = createTime + showMs - curTime;
-        long offsetMs = 100 < leftMs ? leftMs : 100;
+        long offsetMs = 0 < leftMs ? leftMs : 0;
         try {
             Thread.sleep(offsetMs);
         } catch (InterruptedException e) {

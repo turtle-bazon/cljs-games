@@ -1,4 +1,4 @@
-package ru.bazon.androidtemplate;
+package ru.bazon.androidtemplate.extensions;
 
 import android.app.Activity;
 
@@ -6,7 +6,7 @@ import org.xwalk.core.XWalkExtension;
 
 public class ExitAppExtension extends XWalkExtension {
     private static String name = "exitAppExtension";
-    public static String JS_API_PATH = "exit_app_extension.js";
+    public static String JS_API_PATH = "extension_exit_app.js";
 
     private Activity activity;
 

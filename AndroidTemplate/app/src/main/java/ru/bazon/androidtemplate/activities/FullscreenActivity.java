@@ -1,4 +1,4 @@
-package ru.bazon.androidtemplate;
+package ru.bazon.androidtemplate.activities;
 
 import android.graphics.Point;
 import android.os.Build;
@@ -13,6 +13,9 @@ import android.view.View;
 import org.xwalk.core.XWalkView;
 
 import java.lang.reflect.Method;
+
+import ru.bazon.androidtemplate.extensions.Extensions;
+import ru.bazon.androidtemplate.R;
 
 public class FullscreenActivity extends AppCompatActivity {
     private View contentView;

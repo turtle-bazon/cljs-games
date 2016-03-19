@@ -1,4 +1,4 @@
-package ru.bazon.androidtemplate;
+package ru.bazon.androidtemplate.extensions;
 
 import android.content.Context;
 import android.content.res.AssetManager;
@@ -11,6 +11,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+
+import ru.bazon.androidtemplate.activities.FullscreenActivity;
 
 public class Extensions {
     private static final String TAG = "Extensions";
@@ -36,6 +38,17 @@ public class Extensions {
                         context, ExitAppExtension.JS_API_PATH, true);
                 sBuiltinExtensions.put(ExitAppExtension.JS_API_PATH,
                         new ExitAppExtension(jsApiContent, activity));
+            } catch (IOException e) {
+                Log.w(TAG, "Failed to read JS API file: " + LaunchScreenExtension.JS_API_PATH);
+            }
+        }
+        {
+            String jsApiContent = "";
+            try {
+                jsApiContent = getExtensionJSFileContent(
+                        context, AboutExtension.JS_API_PATH, true);
+                sBuiltinExtensions.put(AboutExtension.JS_API_PATH,
+                        new AboutExtension(jsApiContent, activity));
             } catch (IOException e) {
                 Log.w(TAG, "Failed to read JS API file: " + LaunchScreenExtension.JS_API_PATH);
             }

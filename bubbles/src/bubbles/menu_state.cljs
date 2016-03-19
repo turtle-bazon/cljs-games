@@ -13,6 +13,8 @@
    [bubbles.dimensions :as dimens]
    [bubbles.utils :as utils :refer [log mobile? exit-app]]))
 
+(def update-number-atom (atom 0))
+
 (defn get-highscore []
   (or (.getItem js/localStorage "highscore") 0))
 
@@ -22,7 +24,7 @@
                          "exit-button"
                          #(exit-app)
                          nil
-                         0 1 1))
+                         0 1 0 1))
 
 (defn switch-fullscreen [game]
   (let [scale (:scale game)]
@@ -36,7 +38,7 @@
                          "fullscreen-button"
                          #(switch-fullscreen game)
                          nil
-                         0 1 1))
+                         0 1 0 1))
 
 (defn start-game [game]
   (sm/start (:state game) "play" true))
@@ -50,7 +52,21 @@
                                                                 "bubble-vanish-sound"))
                               (start-game game))
                          nil
-                         0 1 1))
+                         0 1 0 1))
+
+(defn show-about []
+  (.showAboutDialog js/aboutExtension "" (fn [] false)))
+
+(defn create-about-button [game]
+  (object-factory/button (:add game)
+                         (/ (- (:width game) (:width dimens/start-button)) 2)
+                         (+ (/ (- (:height game) (:height dimens/start-button)) 2) (:height dimens/start-button) 10)
+                         "start-button"
+                         #(do (sound/play (object-factory/audio (:add game)
+                                                                "bubble-vanish-sound"))
+                              (show-about))
+                         nil
+                         0 1 0 1))
 
 (defn handle-desktop [game]
   (create-fullscreen-button game)
@@ -58,12 +74,12 @@
                    (scale-manager/const :show-all)))
 
 (defn handle-mobile [game]
+  (create-about-button game)
   (create-exit-button game)
   (let [scale (:scale game)]
     (utils/set-attr! game [:scale :scale-mode]
                      (scale-manager/const :show-all))
-    (scale-manager/refresh scale))
-    (.hideLaunchScreen js/launchScreen "" (fn [] nil)))
+    (scale-manager/refresh scale)))
 
 (defn state-create [game]
   (bubble/add-background game)
@@ -73,5 +89,14 @@
     (handle-desktop game))
   (sound/loop-full (object-factory/audio (:add game) "music")))
 
+(defn state-render [game]
+  (when mobile?
+  (let [update-number @update-number-atom]
+    (when (< update-number 5)
+      (when (= 4 update-number)
+        (.hideLaunchScreen js/launchScreenExtension "" (fn [] nil)))
+      (swap! update-number-atom inc)))))
+
 (def state-obj
-  {:create state-create})
+  {:create state-create
+   :render state-render})

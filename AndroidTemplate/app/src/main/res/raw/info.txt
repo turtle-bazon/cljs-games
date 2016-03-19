@@ -1,0 +1,6 @@
+<h3>[appName]</h3>
+
+Version [versionName]<br>
+2016<br>
+<br>
+Bazon Group

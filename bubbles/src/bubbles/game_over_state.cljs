@@ -29,7 +29,7 @@
                                                                 "bubble-vanish-sound"))
                               (restart-game game))
                          nil
-                         0 1 1))
+                         0 1 0 1))
 
 (defn switch-fullscreen [game]
   (let [scale (:scale game)]
@@ -43,7 +43,7 @@
                          "fullscreen-button"
                          #(switch-fullscreen game)
                          nil
-                         0 1 1))
+                         0 1 0 1))
 
 (defn create-exit-button [game]
   (object-factory/button (:add game)
@@ -51,7 +51,7 @@
                          "exit-button"
                          #(exit-app)
                          nil
-                         0 1 1))
+                         0 1 0 1))
 
 (defn handle-desktop [game]
   (create-fullscreen-button game))
