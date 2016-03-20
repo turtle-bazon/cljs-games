@@ -1,4 +1,4 @@
-package ru.bazon.androidtemplate.activities;
+package ru.bazongroup.bubbles.activities;
 
 import android.graphics.Point;
 import android.os.Build;
@@ -14,8 +14,8 @@ import org.xwalk.core.XWalkView;
 
 import java.lang.reflect.Method;
 
-import ru.bazon.androidtemplate.extensions.Extensions;
-import ru.bazon.androidtemplate.R;
+import ru.bazongroup.bubbles.extensions.Extensions;
+import ru.bazongroup.bubbles.R;
 
 public class FullscreenActivity extends AppCompatActivity {
     private View contentView;

@@ -1,4 +1,4 @@
-package ru.bazon.androidtemplate.activities;
+package ru.bazongroup.bubbles.activities;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -10,8 +10,8 @@ import android.text.util.Linkify;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import ru.bazon.androidtemplate.R;
-import ru.bazon.androidtemplate.helpers.RawTextReader;
+import ru.bazongroup.bubbles.R;
+import ru.bazongroup.bubbles.helpers.RawTextReader;
 
 public class AboutDialog extends Dialog {
     private final Context context;

@@ -1,12 +1,12 @@
-package ru.bazon.androidtemplate.extensions;
+package ru.bazongroup.bubbles.extensions;
 
 import android.app.Activity;
 
 import org.xwalk.core.XWalkExtension;
 
-import ru.bazon.androidtemplate.BubblesApplication;
-import ru.bazon.androidtemplate.R;
-import ru.bazon.androidtemplate.activities.AboutDialog;
+import ru.bazongroup.bubbles.BubblesApplication;
+import ru.bazongroup.bubbles.R;
+import ru.bazongroup.bubbles.activities.AboutDialog;
 
 public class AboutExtension extends XWalkExtension {
     private static String name = "aboutExtension";
@@ -43,7 +43,7 @@ public class AboutExtension extends XWalkExtension {
     private void showAboutDialog() {
         BubblesApplication app = (BubblesApplication) activity.getApplication();
         AboutDialog about = new AboutDialog(activity, app.getApplicationLabel(), app.getVersionName(),
-                R.drawable.bubble);
+                R.mipmap.ic_launcher);
         about.setTitle(R.string.about);
         about.show();
     }

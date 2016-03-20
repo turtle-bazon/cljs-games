@@ -1,4 +1,4 @@
-package ru.bazon.androidtemplate.helpers;
+package ru.bazongroup.bubbles.helpers;
 
 import android.content.Context;
 

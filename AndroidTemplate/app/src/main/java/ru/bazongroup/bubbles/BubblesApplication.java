@@ -1,4 +1,4 @@
-package ru.bazon.androidtemplate;
+package ru.bazongroup.bubbles;
 
 import android.app.Application;
 import android.content.pm.ApplicationInfo;

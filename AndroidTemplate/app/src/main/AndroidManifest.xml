@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="ru.bazon.androidtemplate">
+    package="ru.bazongroup.bubbles">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
@@ -9,7 +9,7 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:name="ru.bazon.androidtemplate.BubblesApplication"
+        android:name=".BubblesApplication"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity

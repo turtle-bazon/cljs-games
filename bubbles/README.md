@@ -1,7 +1,11 @@
 # bubbles
 
-Used free sounds:
+Used free resources:
 
-music: https://freesound.org/people/FoolBoyMedia/sounds/232996/
-bubble vanish: https://freesound.org/people/jcallison/sounds/258269/
-bubble create: https://freesound.org/people/Glaneur de sons/sounds/104944/
+sounds:
+music https://freesound.org/people/FoolBoyMedia/sounds/232996/
+bubble vanish https://freesound.org/people/jcallison/sounds/258269/
+bubble create https://freesound.org/people/Glaneur de sons/sounds/104944/
+
+fonts:
+http://www.1001fonts.com/flubber-font.html

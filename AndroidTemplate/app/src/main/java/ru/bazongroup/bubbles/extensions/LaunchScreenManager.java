@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-package ru.bazon.androidtemplate.extensions;
+package ru.bazongroup.bubbles.extensions;
 
 import android.app.Activity;
 import android.app.Dialog;

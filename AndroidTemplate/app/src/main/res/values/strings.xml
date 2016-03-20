@@ -1,9 +1,4 @@
 <resources>
-    <string name="app_name">AndroidTemplate</string>
-
-    <string name="dummy_button">Dummy Button</string>
-    <string name="dummy_content">DUMMY\nCONTENT</string>
-    <string name="title_activity_main">MainActivity</string>
+    <string name="app_name">Bubbles</string>
     <string name="about">About</string>
-
 </resources>

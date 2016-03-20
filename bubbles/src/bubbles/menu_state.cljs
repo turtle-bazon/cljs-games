@@ -91,11 +91,11 @@
 
 (defn state-render [game]
   (when mobile?
-  (let [update-number @update-number-atom]
-    (when (< update-number 5)
-      (when (= 4 update-number)
-        (.hideLaunchScreen js/launchScreenExtension "" (fn [] nil)))
-      (swap! update-number-atom inc)))))
+    (let [update-number @update-number-atom]
+      (when (< update-number 5)
+        (when (= 4 update-number)
+          (.hideLaunchScreen js/launchScreenExtension "" (fn [] nil)))
+        (swap! update-number-atom inc)))))
 
 (def state-obj
   {:create state-create

@@ -1,4 +1,4 @@
-package ru.bazon.androidtemplate.extensions;
+package ru.bazongroup.bubbles.extensions;
 
 import android.app.Activity;
 

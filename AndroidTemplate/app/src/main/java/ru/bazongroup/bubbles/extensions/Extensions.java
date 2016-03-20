@@ -1,4 +1,4 @@
-package ru.bazon.androidtemplate.extensions;
+package ru.bazongroup.bubbles.extensions;
 
 import android.content.Context;
 import android.content.res.AssetManager;
@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 
-import ru.bazon.androidtemplate.activities.FullscreenActivity;
+import ru.bazongroup.bubbles.activities.FullscreenActivity;
 
 public class Extensions {
     private static final String TAG = "Extensions";
