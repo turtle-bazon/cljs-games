@@ -21,6 +21,7 @@
                         (:width dimens/bubble) (:height dimens/bubble))
     (loader/spritesheet "fullscreen-button" "assets/images/fullscreen-button.png"
                         (:width dimens/fullscreen-button) (:height dimens/fullscreen-button))
+    (loader/image "lives" "assets/images/lives.png")
     (loader/audio "music" "assets/audio/music.ogg")
     (loader/audio "bubble-create-sound" "assets/audio/bubble-create.ogg")
     (loader/audio "bubble-vanish-sound" "assets/audio/bubble-vanish.ogg")))

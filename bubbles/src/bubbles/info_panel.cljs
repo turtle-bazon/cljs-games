@@ -19,6 +19,10 @@
            :fill "#FFFFFF"
            :align "center"})
 
+;; For text effect
+(defn wrap-text [value]
+  (str " " value " "))
+
 (defn apply-text-effects [text]
   (let [gradient (.createLinearGradient (:context text) 0 0 0 (:height text))]
     (.addColorStop gradient 0 "#FFFFFF")
@@ -36,32 +40,35 @@
 (defn add-score [game score]
   (apply-text-effects
    (object-factory/text (:add game) 170 info-position-y
-                        (str "S: " score)
+                        (wrap-text (str "S: " score))
                         font)))
 
 (defn add-highscore [game highscore]
   (apply-text-effects
    (object-factory/text (:add game) 70 info-position-y
-                        (str "H: " highscore)
+                        (wrap-text (str "H: " highscore))
                         font)))
 
 (defn add-lives [game lives]
+  (object-factory/image (:add game)
+                        270 3
+                        "lives")
   (apply-text-effects
-   (object-factory/text (:add game) 270 info-position-y
-                        (str "L: " lives)
+   (object-factory/text (:add game) 310 info-position-y
+                        (wrap-text lives)
                         font)))
 
 (defn set-score-text! [score]
   (let [score-text (:score-text @state-atom)]
-    (utils/set-attr! score-text [:text] (str "S: " score))))
+    (utils/set-attr! score-text [:text] (wrap-text (str "S: " score)))))
 
 (defn set-highscore-text! [highscore]
   (let [highscore-text (:highscore-text @state-atom)]
-    (utils/set-attr! highscore-text [:text] (str "H: " highscore))))
+    (utils/set-attr! highscore-text [:text] (wrap-text (str "H: " highscore)))))
 
 (defn set-lives-text! [lives]
   (let [lives-text (:lives-text @state-atom)]
-    (utils/set-attr! lives-text [:text] (str "L: " lives))))
+    (utils/set-attr! lives-text [:text] (wrap-text lives))))
 
 (defn init! [game initial-state]
   (let [{:keys [score highscore lives]} initial-state]
