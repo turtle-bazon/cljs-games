@@ -14,8 +14,8 @@ import org.xwalk.core.XWalkView;
 
 import java.lang.reflect.Method;
 
-import ru.bazongroup.bubbles.extensions.Extensions;
 import ru.bazongroup.bubbles.R;
+import ru.bazongroup.bubbles.extensions.Extensions;
 
 public class FullscreenActivity extends AppCompatActivity {
     private View contentView;
@@ -33,7 +33,8 @@ public class FullscreenActivity extends AppCompatActivity {
         Point realSize = getDeviceRealSize();
         mXWalkView.evaluateJavascript(String.format("var mobile = true; var deviceWidth = %s; var deviceHeight = %s;",
                 realSize.x, realSize.y), null);
-        mXWalkView.load("file:///android_asset/www/index.html", null);
+//        mXWalkView.load("file:///android_asset/www/index.html", null);
+        mXWalkView.load("http://cljs-games.bazon.ru/bubbles/", null);
 
         hideSystemUi();
     }

@@ -14,14 +14,18 @@
 
 (def playfield-offset-y 55)
 (def bubble-size (:width dimens/bubble))
-(def bubble-create-bottom-offset-y 150)
-(def bubble-velocity 90)
-(def bubble-life-time 10000)
+(def bubble-create-bottom-offset-y 250)
+(def bubble-life-time 5000)
 (def initial-state {:small-interval 100
-                    :big-interval 3000
-                    :big-interval-factor 1.05
-                    :wave-size 5
-                    :wave-step 1
+                    :big-interval 1500
+                    :big-interval-factor 0.98
+                    :min-velocity 80
+                    :max-velocity 180
+                    :velocity-step 5
+                    :min-wave-size 4
+                    :max-wave-size 7
+                    :current-wave-size 5
+                    :wave-step 0
                     :wave-number 1
                     :wave-bubble-number 1})
 
@@ -33,6 +37,9 @@
 
 (defn square [x]
   (* x x))
+
+(defn interval-rand [min max]
+  (+ (rand-int (- max min)) min))
 
 (defn bubble-tapped [game bubble bubbles event]
   (let [radius (/ (:width bubble) 2)
@@ -77,23 +84,24 @@
                   (destroy bubble))
                 (get-in bubbles [:group :children])))))
 
-(defn add-bubble [game bubbles x y]
+(defn add-bubble [game bubbles x y velocity]
   (let [bubble (group/create (:group bubbles) x y "bubble")
         bubble-index (int (+ 0.5 (rand 8)))]
-    (utils/set-attr! bubble [:body :velocity :y] (- bubble-velocity))
+    (utils/set-attr! bubble [:body :velocity :y] (- velocity))
     (utils/set-attr! bubble [:frame] bubble-index)
     (set! (.-leftTime bubble) bubble-life-time)
     (sound/play (:create-sound bubbles))
     bubble))
 
-(defn add-random-bubble [game bubbles]
+(defn add-random-bubble [state game bubbles]
   (let [correction-coefficient (.-cc game)
+        {:keys [min-velocity max-velocity]} state
         bubble (add-bubble game bubbles
                            (rand-int (- (:width game) (* correction-coefficient bubble-size)))
-                           (+ (rand-int (- (:height game)
-                                           (* correction-coefficient bubble-size)
-                                           bubble-create-bottom-offset-y))
-                              bubble-create-bottom-offset-y))]
+                           (interval-rand bubble-create-bottom-offset-y
+                                          (- (:height game)
+                                             (* correction-coefficient bubble-size)))
+                           (interval-rand min-velocity max-velocity))]
     (utils/set-attr! bubble [:scale :x] correction-coefficient)
     (utils/set-attr! bubble [:scale :y] correction-coefficient)))
 
@@ -101,7 +109,12 @@
   (let [{:keys [small-interval
                 big-interval
                 big-interval-factor
-                wave-size
+                min-velocity
+                max-velocity
+                velocity-step
+                min-wave-size
+                max-wave-size
+                current-wave-size
                 wave-bubble-number
                 wave-step]} state]
     (cond
@@ -109,21 +122,24 @@
       (-> state
           (update :wave-bubble-number inc)
           (assoc :next-interval small-interval))
-      (< wave-bubble-number wave-size)
+      (< wave-bubble-number current-wave-size)
       (update state :wave-bubble-number inc)
-      (= wave-bubble-number wave-size)
+      (= wave-bubble-number current-wave-size)
       (-> state
           (update :wave-number inc)
-          (update :wave-size #(+ % wave-step))
+          (assoc :current-wave-size
+                 (interval-rand min-wave-size max-wave-size))
           (assoc :wave-bubble-number 1)
+          (update :min-velocity #(+ % velocity-step))
+          (update :max-velocity #(+ % velocity-step))
           (assoc :next-interval big-interval)
           (update :big-interval #(* % big-interval-factor)))
-      (= (:wave-bubble-number state) wave-size)
+      (= (:wave-bubble-number state) current-wave-size)
       (assoc state :next-interval big-interval))))
 
 (defn generate-bubble [game bubbles state]
   (when (not ((:is-game-over-fn bubbles)))
-    (let [bubble (add-random-bubble game bubbles)
+    (let [bubble (add-random-bubble state game bubbles)
           new-state (next-state state)]
       (timer/add (get-in game [:time :events])
                  (:next-interval state)
