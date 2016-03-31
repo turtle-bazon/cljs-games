@@ -38,33 +38,39 @@
     text))
 
 (defn add-score [game score]
+  (object-factory/image (:add game)
+                        190 3
+                        "score")
   (apply-text-effects
-   (object-factory/text (:add game) 170 info-position-y
-                        (wrap-text (str "S: " score))
+   (object-factory/text (:add game) 235 info-position-y
+                        (wrap-text score)
                         font)))
 
 (defn add-highscore [game highscore]
+  (object-factory/image (:add game)
+                        70 3
+                        "highscore")
   (apply-text-effects
-   (object-factory/text (:add game) 70 info-position-y
-                        (wrap-text (str "H: " highscore))
+   (object-factory/text (:add game) 115 info-position-y
+                        (wrap-text highscore)
                         font)))
 
 (defn add-lives [game lives]
   (object-factory/image (:add game)
-                        270 3
+                        300 3
                         "lives")
   (apply-text-effects
-   (object-factory/text (:add game) 310 info-position-y
+   (object-factory/text (:add game) 340 info-position-y
                         (wrap-text lives)
                         font)))
 
 (defn set-score-text! [score]
   (let [score-text (:score-text @state-atom)]
-    (utils/set-attr! score-text [:text] (wrap-text (str "S: " score)))))
+    (utils/set-attr! score-text [:text] (wrap-text score))))
 
 (defn set-highscore-text! [highscore]
   (let [highscore-text (:highscore-text @state-atom)]
-    (utils/set-attr! highscore-text [:text] (wrap-text (str "H: " highscore)))))
+    (utils/set-attr! highscore-text [:text] (wrap-text highscore))))
 
 (defn set-lives-text! [lives]
   (let [lives-text (:lives-text @state-atom)]
