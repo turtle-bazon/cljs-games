@@ -13,6 +13,8 @@
                                  "assets/images/background.png"))
     (loader/spritesheet "start-button" "assets/images/start-button.png"
                         (:width dimens/start-button) (:height dimens/start-button))
+    (loader/spritesheet "about-button" "assets/images/about-button.png"
+                        (:width dimens/about-button) (:height dimens/about-button))
     (loader/spritesheet "restart-button" "assets/images/restart-button.png"
                         (:width dimens/restart-button) (:height dimens/restart-button))
     (loader/spritesheet "exit-button" "assets/images/exit-button.png"

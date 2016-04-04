@@ -11,20 +11,12 @@
    [phzr.timer :as timer]
    [bubbles.bubble :as bubble]
    [bubbles.dimensions :as dimens]
-   [bubbles.utils :as utils :refer [log mobile? exit-app]]))
+   [bubbles.utils :as utils :refer [log mobile? create-exit-button]]))
 
 (def update-number-atom (atom 0))
 
 (defn get-highscore []
   (or (.getItem js/localStorage "highscore") 0))
-
-(defn create-exit-button [game]
-  (object-factory/button (:add game)
-                         0 0
-                         "exit-button"
-                         #(exit-app)
-                         nil
-                         0 1 0 1))
 
 (defn switch-fullscreen [game]
   (let [scale (:scale game)]
@@ -59,9 +51,9 @@
 
 (defn create-about-button [game]
   (object-factory/button (:add game)
-                         (/ (- (:width game) (:width dimens/start-button)) 2)
-                         (+ (/ (- (:height game) (:height dimens/start-button)) 2) (:height dimens/start-button) 10)
-                         "start-button"
+                         (/ (- (:width game) (:width dimens/about-button)) 2)
+                         (+ (/ (- (:height game) (:height dimens/about-button)) 2) (:height dimens/about-button) 10)
+                         "about-button"
                          #(do (sound/play (object-factory/audio (:add game)
                                                                 "bubble-vanish-sound"))
                               (show-about))
@@ -76,10 +68,10 @@
 (defn handle-mobile [game]
   (create-about-button game)
   (create-exit-button game)
-  (let [scale (:scale game)]
-    (utils/set-attr! game [:scale :scale-mode]
-                     (scale-manager/const :show-all))
-    (scale-manager/refresh scale)))
+  (comment (let [scale (:scale game)]
+     (utils/set-attr! game [:scale :scale-mode]
+                      (scale-manager/const :show-all))
+     (scale-manager/refresh scale))))
 
 (defn state-create [game]
   (bubble/add-background game)

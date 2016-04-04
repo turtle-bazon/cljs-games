@@ -11,9 +11,10 @@
    [phzr.sprite :as sprite]
    [phzr.state-manager :as sm]
    [phzr.timer :as timer]
-   [bubbles.utils :as utils :refer [log]]))
+   [bubbles.utils :as utils :refer [log mobile?]]))
 
 (def state-atom (atom))
+(def info-position-x (if mobile? 90 15))
 (def info-position-y 14)
 (def font {:font "28px Flubber"
            :fill "#FFFFFF"
@@ -39,28 +40,31 @@
 
 (defn add-score [game score]
   (object-factory/image (:add game)
-                        190 3
+                        (+ info-position-x 120) 3
                         "score")
   (apply-text-effects
-   (object-factory/text (:add game) 235 info-position-y
+   (object-factory/text (:add game)
+                        (+ info-position-x 165) info-position-y
                         (wrap-text score)
                         font)))
 
 (defn add-highscore [game highscore]
   (object-factory/image (:add game)
-                        70 3
+                        info-position-x 3
                         "highscore")
   (apply-text-effects
-   (object-factory/text (:add game) 115 info-position-y
+   (object-factory/text (:add game)
+                        (+ info-position-x 45) info-position-y
                         (wrap-text highscore)
                         font)))
 
 (defn add-lives [game lives]
   (object-factory/image (:add game)
-                        300 3
+                        (+ info-position-x 230) 3
                         "lives")
   (apply-text-effects
-   (object-factory/text (:add game) 340 info-position-y
+   (object-factory/text (:add game)
+                        (+ info-position-x 270) info-position-y
                         (wrap-text lives)
                         font)))
 
