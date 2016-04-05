@@ -21,6 +21,8 @@
                         (:width dimens/exit-button) (:height dimens/exit-button))
     (loader/spritesheet "bubble" "assets/images/bubble.png"
                         (:width dimens/bubble) (:height dimens/bubble))
+    (loader/spritesheet "bubble-anim" "assets/images/bubble-anim.png"
+                        (* 1 (:width dimens/bubble)) (:height dimens/bubble))
     (loader/spritesheet "fullscreen-button" "assets/images/fullscreen-button.png"
                         (:width dimens/fullscreen-button) (:height dimens/fullscreen-button))
     (loader/image "lives" "assets/images/lives.png")

@@ -85,12 +85,16 @@
                 (get-in bubbles [:group :children])))))
 
 (defn add-bubble [game bubbles x y velocity]
-  (let [bubble (group/create (:group bubbles) x y "bubble")
+  (let [bubble (group/create (:group bubbles) x y "bubble-anim")
+        frame-rate (interval-rand 12 20)
+        animation (animation-manager/add (:animations bubble)
+                                         "warp" [4 3 2 3 4 5 6 5] frame-rate true)
         bubble-index (int (+ 0.5 (rand 8)))]
     (utils/set-attr! bubble [:body :velocity :y] (- velocity))
-    (utils/set-attr! bubble [:frame] bubble-index)
+    ;; (utils/set-attr! bubble [:frame] bubble-index)
     (set! (.-leftTime bubble) bubble-life-time)
     (sound/play (:create-sound bubbles))
+    (animation-manager/play (:animations bubble) "warp")
     bubble))
 
 (defn add-random-bubble [state game bubbles]
