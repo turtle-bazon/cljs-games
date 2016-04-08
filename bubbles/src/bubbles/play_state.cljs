@@ -96,7 +96,7 @@
             (assoc initial-state :bubbles bubbles))
     (info-panel/init! game initial-state)
     (set-highscore! (get-highscore))
-    (utils/set-attr! game [:time :advanced-timing] true)
+    ;; (utils/set-attr! game [:time :advanced-timing] true)
     (bubble/start-bubbles game bubbles)))
 
 (defn state-render [game]
@@ -112,4 +112,5 @@
 (def state-obj
   {:create state-create
    :update state-update
-   :render state-render})
+   ;; :render state-render
+   })

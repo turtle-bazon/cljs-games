@@ -14,15 +14,15 @@
 
 (def playfield-offset-y 55)
 (def bubble-size (:width dimens/bubble))
-(def bubble-create-bottom-offset-y 250)
-(def bubble-life-time 5000)
+(def bubble-create-bottom-offset-y 400)
+(def bubble-life-time 6000)
 (def initial-state {:small-interval 100
                     :big-interval 1500
                     :big-interval-factor 0.98
-                    :min-velocity 80
+                    :min-velocity 120
                     :max-velocity 180
                     :velocity-step 5
-                    :min-wave-size 4
+                    :min-wave-size 5
                     :max-wave-size 7
                     :current-wave-size 5
                     :wave-step 0
@@ -85,16 +85,12 @@
                 (get-in bubbles [:group :children])))))
 
 (defn add-bubble [game bubbles x y velocity]
-  (let [bubble (group/create (:group bubbles) x y "bubble-anim")
-        frame-rate (interval-rand 12 20)
-        animation (animation-manager/add (:animations bubble)
-                                         "warp" [4 3 2 3 4 5 6 5] frame-rate true)
+  (let [bubble (group/create (:group bubbles) x y "bubble")
         bubble-index (int (+ 0.5 (rand 8)))]
     (utils/set-attr! bubble [:body :velocity :y] (- velocity))
-    ;; (utils/set-attr! bubble [:frame] bubble-index)
+    (utils/set-attr! bubble [:frame] bubble-index)
     (set! (.-leftTime bubble) bubble-life-time)
     (sound/play (:create-sound bubbles))
-    (animation-manager/play (:animations bubble) "warp")
     bubble))
 
 (defn add-random-bubble [state game bubbles]

@@ -68,10 +68,10 @@
 (defn handle-mobile [game]
   (create-about-button game)
   (create-exit-button game)
-  (comment (let [scale (:scale game)]
-     (utils/set-attr! game [:scale :scale-mode]
-                      (scale-manager/const :show-all))
-     (scale-manager/refresh scale))))
+  (let [scale (:scale game)]
+    (utils/set-attr! game [:scale :scale-mode]
+                     (scale-manager/const :show-all))
+    (scale-manager/refresh scale)))
 
 (defn state-create [game]
   (bubble/add-background game)
