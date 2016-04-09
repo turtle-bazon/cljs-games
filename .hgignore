@@ -19,10 +19,13 @@ figwheel_server.log
 # cordova
 /platforms/
 /plugins/
-/www/assets/
+bubbles-android/www/assets/
 
 # android
 \.idea/
 \.gradle/
 \.iml$
 /build/
+
+# crosswalk
+/www/assets/js/

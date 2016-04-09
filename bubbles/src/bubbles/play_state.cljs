@@ -18,7 +18,7 @@
 
 (def initial-state {:score 0
                     :highscore 0
-                    :lives 10})
+                    :lives 3})
 
 (defn set-score! [score]
   (let [state (swap! state-atom assoc :score score)]
