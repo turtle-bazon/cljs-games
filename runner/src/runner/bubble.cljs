@@ -14,17 +14,17 @@
    [runner.utils :as utils :refer [log]]))
 
 (def playfield-offset-x 0)
-(def top 100)
-(def bottom 500)
+(def top 110)
+(def bottom 450)
 (def bubble-size (:width dimens/bubble))
 (def player-x 50)
 (def player-y (- bottom bubble-size))
 (def score-per-second 10)
 (def initial-state {:score 0
                     :min-interval 500
-                    :max-interval 1500
-                    :velocity-x 400
-                    :velocity-y 500
+                    :max-interval 1000
+                    :velocity-x 400; 400
+                    :velocity-y 600 ;500
                     :acceleration-x 200})
 (def state-atom (atom initial-state))
 
@@ -38,7 +38,7 @@
   (* x x))
 
 (defn interval-rand [min max]
-  (+ (rand-int (- max min)) min))
+  (+ (rand-int (+ max (- min) 1)) min))
 
 (defn bubble-tapped [game bubble bubbles event]
   (let [radius (/ (:width bubble) 2)
@@ -49,7 +49,6 @@
                     (square (/ bubble-size 2)))]
     (when (<= squared-distance
               (square radius))
-      (sound/play (:vanish-sound bubbles))
       (destroy bubble)
       true)))
 
@@ -112,9 +111,10 @@
 (defn add-bubble [game bubbles x y velocity-x velocity-y]
   (let [bubble (group/create (:group bubbles) x y "bubble")
         bubble-index (int (+ 0.5 (rand 8)))]
-    (utils/set-attr! bubble [:body :velocity :y] (- velocity-y))
-    (utils/set-attr! bubble [:frame] bubble-index)
-    (sound/play (:create-sound bubbles))
+    (utils/set-attr! bubble [:body :velocity :y]
+                     (if (< (rand) 0.5)
+                       velocity-y
+                       (- velocity-y)))
     bubble))
 
 (defn add-random-bubble [state game bubbles]

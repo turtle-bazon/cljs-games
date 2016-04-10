@@ -17,8 +17,7 @@
                         (:width dimens/restart-button) (:height dimens/restart-button))
     (loader/spritesheet "exit-button" "assets/images/exit-button.png"
                         (:width dimens/exit-button) (:height dimens/exit-button))
-    (loader/spritesheet "bubble" "assets/images/bubble.png"
-                        (:width dimens/bubble) (:height dimens/bubble))
+    (loader/image "bubble" "assets/images/bubble.png")
     (loader/spritesheet "fullscreen-button" "assets/images/fullscreen-button.png"
                         (:width dimens/fullscreen-button) (:height dimens/fullscreen-button))
     (loader/image "lives" "assets/images/lives.png")
