@@ -11,6 +11,16 @@
 
 (def mobile? (if (aget js/window "mobile") true false))
 
+(def environment
+  (if (aget js/window "mobile")
+    {:display :mobile
+     :use :app}
+    {:display :mobile
+     :use :browser}))
+
+(comment {:display :desktop
+          :use :browser})
+
 (defn exit-app []
   (.exitApp js/exitAppExtension "" (fn [] false)))
 

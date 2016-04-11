@@ -1,8 +1,8 @@
 (ns bubbles.dimensions
   (:require
-   [bubbles.utils :as utils :refer [log mobile?]]))
+   [bubbles.utils :as utils :refer [environment log]]))
 
-(def background (if mobile?
+(def background (if (= :mobile (:display environment))
                   {:width 569 :height 854}
                   {:width 854 :height 569}))
 (def start-button {:width 128 :height 128})

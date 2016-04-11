@@ -13,7 +13,7 @@
    [bubbles.bubble :as bubble]
    [bubbles.dimensions :as dimens]
    [bubbles.info-panel :as info-panel]
-   [bubbles.utils :as utils :refer [log mobile? create-exit-button]]))
+   [bubbles.utils :as utils :refer [environment log create-exit-button]]))
 
 (def state-atom (atom))
 
@@ -55,7 +55,7 @@
   (bubble/add-background game)
   (info-panel/init! game @state-atom)
   (create-restart-button game)
-  (if mobile?
+  (if (= :app (:use environment))
     (handle-mobile game)
     (handle-desktop game)))
 
