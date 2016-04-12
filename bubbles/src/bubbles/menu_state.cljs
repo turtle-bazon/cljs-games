@@ -11,7 +11,7 @@
    [phzr.timer :as timer]
    [bubbles.bubble :as bubble]
    [bubbles.dimensions :as dimens]
-   [bubbles.utils :as utils :refer [log mobile?]]))
+   [bubbles.utils :as utils :refer [environment log]]))
 
 (def update-number-atom (atom 0))
 
@@ -75,13 +75,13 @@
 (defn state-create [game]
   (bubble/add-background game)
   (create-start-button game)
-  (if mobile?
+  (if (= :app (:use environment))
     (handle-mobile game)
     (handle-desktop game))
   (sound/loop-full (object-factory/audio (:add game) "music")))
 
 (defn state-render [game]
-  (when mobile?
+  (when (= :app (:use environment))
     (let [update-number @update-number-atom]
       (when (< update-number 5)
         (when (= 4 update-number)

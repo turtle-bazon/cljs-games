@@ -11,7 +11,7 @@
    [phzr.sprite :as sprite]
    [phzr.state-manager :as sm]
    [phzr.timer :as timer]
-   [bubbles.utils :as utils :refer [log mobile?]]))
+   [bubbles.utils :as utils :refer [environment log]]))
 
 (def state-atom (atom))
 (def info-position-x 20)

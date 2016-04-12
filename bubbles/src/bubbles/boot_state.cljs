@@ -4,11 +4,11 @@
    [phzr.physics :as physics]
    [phzr.state-manager :as sm]
    [bubbles.dimensions :as dimens]
-   [bubbles.utils :as utils :refer [log mobile?]]))
+   [bubbles.utils :as utils :refer [environment log]]))
 
 (defn state-preload [game]
   (doto (:load game)
-    (loader/image "background" (if mobile?
+    (loader/image "background" (if (= :mobile (:display environment))
                                  "assets/images/background-portrait.png"
                                  "assets/images/background.png"))
     (loader/spritesheet "start-button" "assets/images/start-button.png"
@@ -23,14 +23,11 @@
     (loader/audio "music" "assets/audio/music.ogg")
     (loader/audio "bubble-create-sound" "assets/audio/bubble-create.ogg")
     (loader/audio "bubble-vanish-sound" "assets/audio/bubble-vanish.ogg"))
-  (if mobile?
-    (doto (:load game)
-      (loader/spritesheet "about-button" "assets/images/about-button.png"
-                          (:width dimens/about-button) (:height dimens/about-button)))
-    (doto (:load game)
-      (loader/spritesheet "fullscreen-button" "assets/images/fullscreen-button.png"
-                          (:width dimens/fullscreen-button)
-                          (:height dimens/fullscreen-button)))))
+  (if (= :app (:use environment))
+    (loader/spritesheet (:load game) "about-button" "assets/images/about-button.png"
+                        (:width dimens/about-button) (:height dimens/about-button))
+    (loader/spritesheet (:load game) "fullscreen-button" "assets/images/fullscreen-button.png"
+                        (:width dimens/fullscreen-button) (:height dimens/fullscreen-button))))
 
 (defn state-create [game]
   (physics/start-system (:physics game) (physics/const :arcade))

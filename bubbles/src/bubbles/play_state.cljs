@@ -12,7 +12,7 @@
    [phzr.utils.debug :as debug]
    [bubbles.bubble :as bubble]
    [bubbles.info-panel :as info-panel]
-   [bubbles.utils :as utils :refer [log mobile?]]))
+   [bubbles.utils :as utils :refer [environment log]]))
 
 (def state-atom (atom))
 
@@ -87,7 +87,7 @@
 
 (defn state-create [game]
   (bubble/add-background game)
-  (if mobile?
+  (if (= :app (:use environment))
     (handle-mobile game)
     (handle-desktop game))
   (let [bubbles (bubble/init-bubbles game on-bubble-hit on-bubble-miss

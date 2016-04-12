@@ -6,7 +6,7 @@
             [bubbles.menu-state :as menu-state]
             [bubbles.play-state :as play-state]
             [bubbles.game-over-state :as game-over-state]
-            [bubbles.utils :refer [log mobile?]]))
+            [bubbles.utils :refer [environment log]]))
 
 (defonce game-atom (atom nil))
 (def size-atom (atom {}))
@@ -38,10 +38,11 @@
     (run-game {:width width :height height})))
 
 (defn init-game []
-  (run-game (if mobile?
-              {:width 569 :height 854}
-              (get-size-android {:width (aget js/window "deviceWidth")
-                                 :height (aget js/window "deviceHeight")})
+  (run-game (if (= :mobile (:display environment))
+              (get-size-android {:width (or (aget js/window "deviceWidth")
+                                            (aget js/window "innerWidth"))
+                                 :height (or (aget js/window "deviceHeight")
+                                             (aget js/window "innerHeight"))})
               game-size-desktop)))
 
 (defn ^:export start []
