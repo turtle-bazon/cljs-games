@@ -14,7 +14,7 @@
    [bubbles.utils :as utils :refer [log mobile?]]))
 
 (def state-atom (atom))
-(def info-position-x (if mobile? 90 15))
+(def info-position-x 20)
 (def info-position-y 14)
 (def font {:font "28px Flubber"
            :fill "#FFFFFF"

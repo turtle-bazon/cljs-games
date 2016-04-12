@@ -10,14 +10,3 @@
   (.log js/console obj))
 
 (def mobile? (if (aget js/window "mobile") true false))
-
-(defn exit-app []
-  (.exitApp js/exitAppExtension "" (fn [] false)))
-
-(defn create-exit-button [game]
-  (object-factory/button (:add game)
-                         10 0
-                         "exit-button"
-                         #(exit-app)
-                         nil
-                         0 1 0 1))

@@ -13,7 +13,7 @@
    [bubbles.bubble :as bubble]
    [bubbles.dimensions :as dimens]
    [bubbles.info-panel :as info-panel]
-   [bubbles.utils :as utils :refer [log mobile? create-exit-button]]))
+   [bubbles.utils :as utils :refer [log mobile?]]))
 
 (def state-atom (atom))
 
@@ -49,7 +49,7 @@
   (create-fullscreen-button game))
 
 (defn handle-mobile [game]
-  (create-exit-button game))
+  )
 
 (defn state-create [game]
   (bubble/add-background game)

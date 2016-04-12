@@ -11,7 +11,7 @@
    [phzr.timer :as timer]
    [bubbles.bubble :as bubble]
    [bubbles.dimensions :as dimens]
-   [bubbles.utils :as utils :refer [log mobile? create-exit-button]]))
+   [bubbles.utils :as utils :refer [log mobile?]]))
 
 (def update-number-atom (atom 0))
 
@@ -67,7 +67,6 @@
 
 (defn handle-mobile [game]
   (create-about-button game)
-  (create-exit-button game)
   (let [scale (:scale game)]
     (utils/set-attr! game [:scale :scale-mode]
                      (scale-manager/const :show-all))

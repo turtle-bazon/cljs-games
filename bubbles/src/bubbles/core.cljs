@@ -39,6 +39,7 @@
 
 (defn init-game []
   (run-game (if mobile?
+              {:width 569 :height 854}
               (get-size-android {:width (aget js/window "deviceWidth")
                                  :height (aget js/window "deviceHeight")})
               game-size-desktop)))
