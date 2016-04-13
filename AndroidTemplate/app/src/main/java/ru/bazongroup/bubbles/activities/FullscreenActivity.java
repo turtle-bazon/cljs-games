@@ -30,13 +30,32 @@ public class FullscreenActivity extends AppCompatActivity {
         org.xwalk.core.internal.extension.api.launchscreen.LaunchScreenExtension a;
         Extensions.load(this, this);
         XWalkView mXWalkView = (XWalkView) findViewById(R.id.activity_main);
-        Point realSize = getDeviceRealSize();
+        Point realSize = getDeviceAvailableSize();
         mXWalkView.evaluateJavascript(String.format("var mobile = true; var deviceWidth = %s; var deviceHeight = %s;",
                 realSize.x, realSize.y), null);
         mXWalkView.load("file:///android_asset/www/index.html", null);
 //        mXWalkView.load("http://cljs-games.bazon.ru/bubbles/", null);
 
         hideSystemUi();
+    }
+
+    private Point getDeviceAvailableSize() {
+        Display display = getWindowManager().getDefaultDisplay();
+        int realWidth;
+        int realHeight;
+        if (Build.VERSION.SDK_INT >= 19) {
+            //new pleasant way to get real metrics
+            DisplayMetrics realMetrics = new DisplayMetrics();
+            display.getRealMetrics(realMetrics);
+            realWidth = realMetrics.widthPixels;
+            realHeight = realMetrics.heightPixels;
+        } else {
+            Point point = new Point();
+            display.getSize(point);
+            realWidth = point.x;
+            realHeight = point.y;
+        }
+        return new Point(realWidth, realHeight);
     }
 
     private Point getDeviceRealSize() {
@@ -50,7 +69,6 @@ public class FullscreenActivity extends AppCompatActivity {
             display.getRealMetrics(realMetrics);
             realWidth = realMetrics.widthPixels;
             realHeight = realMetrics.heightPixels;
-
         } else if (Build.VERSION.SDK_INT >= 14) {
             //reflection for this weird in-between time
             try {
