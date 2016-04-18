@@ -4,6 +4,7 @@
    [phzr.core :as pcore]
    [phzr.game-object-factory :as object-factory]
    [phzr.group :as group]
+   [phzr.point :as point]
    [phzr.rectangle :as rect]
    [phzr.signal :as signal]
    [phzr.sound :as sound]
@@ -179,11 +180,13 @@
   (generate-bubble game bubbles initial-state))
 
 (defn add-background [game]
-  (let [image-width (:width dimens/background)
-        image-height (:height dimens/background)
-        background-offset-x (- (/ (- image-width (:width game)) 2))
-        background (object-factory/tile-sprite (:add game)
-                                               0 0
-                                               (:width game) (:height game)
-                                               "background")]
+  (let [game-width (inc (:width game))
+        game-height (inc (:height game))
+        image-width (:width dimens/background-landscape)
+        image-height (:height dimens/background-landscape)
+        background (object-factory/image (:add game) 0 0 "background")
+        scale-width (/ game-width image-width)
+        scale-height (/ game-height image-height)
+        result-scale (max scale-width scale-height)]
+    (point/set-to (:scale background) result-scale result-scale)
     background))

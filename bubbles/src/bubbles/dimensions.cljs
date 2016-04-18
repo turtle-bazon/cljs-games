@@ -2,9 +2,8 @@
   (:require
    [bubbles.utils :as utils :refer [environment log]]))
 
-(def background (if (= :mobile (:display environment))
-                  {:width 800 :height 1440}
-                  {:width 854 :height 569}))
+(def background-portrait {:width 569 :height 854})
+(def background-landscape {:width 854 :height 569})
 (def start-button {:width 128 :height 128})
 (def about-button {:width 128 :height 128})
 (def restart-button {:width 128 :height 128})

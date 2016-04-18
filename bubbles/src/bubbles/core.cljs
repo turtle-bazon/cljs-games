@@ -21,7 +21,8 @@
 
 (defn run-game [game-size]
   (when-let [old-game @game-atom]
-    (game/destroy old-game))
+    (game/destroy old-game)
+    (reset! game-atom nil))
   (let [game (game/->Game (:width game-size) (:height game-size)
                           (p/phaser-constants :auto) "game")
         state-manager (:state game)
@@ -40,16 +41,13 @@
         screen-ratio (/ screen-width screen-height)
         height mobile-height
         width (int (+ (* screen-ratio height) 0.5))]
-    {:width width
-     :height height}))
+    {:width screen-width
+     :height screen-height}))
 
 (defn init-game []
-  (run-game (if (= :mobile (:display environment))
-              (get-size-android {:width (or (aget js/window "deviceWidth")
-                                            (aget js/window "innerWidth"))
-                                 :height (or (aget js/window "deviceHeight")
-                                             (aget js/window "innerHeight"))})
-              game-size-desktop)))
+  (let [pixel-ratio (aget js/window "devicePixelRatio")]
+    (run-game {:width (* (aget js/window "innerWidth") pixel-ratio)
+               :height (* (aget js/window "innerHeight") pixel-ratio)})))
 
 (defn ^:export start []
   (init-game))

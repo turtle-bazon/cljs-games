@@ -8,7 +8,7 @@
 
 (defn state-preload [game]
   (doto (:load game)
-    (loader/image "background" (if (= :mobile (:display environment))
+    (loader/image "background" (if (< (:width game) (:height game))
                                  "assets/images/background-portrait.png"
                                  "assets/images/background.png"))
     (loader/spritesheet "start-button" "assets/images/start-button.png"
