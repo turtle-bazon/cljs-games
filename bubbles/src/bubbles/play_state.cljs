@@ -12,7 +12,7 @@
    [phzr.utils.debug :as debug]
    [bubbles.bubble :as bubble]
    [bubbles.info-panel :as info-panel]
-   [bubbles.utils :as utils :refer [environment log]]))
+   [bubbles.utils :as utils :refer [environment log set-attr!]]))
 
 (def state-atom (atom))
 
@@ -104,6 +104,7 @@
               2 14 "#00ff00"))
 
 (defn state-update [game]
+  (utils/set-attr! game [:force-single-update] true)
   (let [{:keys [bubbles lives]} @state-atom]
     (bubble/update-bubbles game bubbles)
     (when (<= lives 0)
