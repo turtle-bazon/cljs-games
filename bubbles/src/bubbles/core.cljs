@@ -18,7 +18,7 @@
   (when-let [old-game @game-atom]
     (game/destroy old-game))
   (let [game (game/->Game (:width game-size) (:height game-size)
-                          (p/phaser-constants :canvas) "game")
+                          (p/phaser-constants :auto) "game")
         state-manager (:state game)
         correction-coefficient (/ (:height game-size) 569)] ;;; TODO: EDIT THIS !!! 
     (reset! game-atom game)
