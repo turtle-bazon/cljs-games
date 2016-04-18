@@ -59,11 +59,16 @@
 (defn on-bubble-hit []
   (update-score! inc))
 
+(defn dec-min-zero [n]
+  (if (<= n 0)
+    0
+    (dec n)))
+
 (defn on-bubble-miss []
-  (update-lives! dec))
+  (update-lives! dec-min-zero))
 
 (defn on-bubble-vanish []
-  (update-lives! dec))
+  (update-lives! dec-min-zero))
 
 (defn switch-fullscreen [game]
   (let [scale (:scale game)]
