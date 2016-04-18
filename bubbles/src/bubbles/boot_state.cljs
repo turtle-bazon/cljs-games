@@ -22,7 +22,9 @@
     (loader/image "highscore" "assets/images/highscore.png")
     (loader/audio "music" "assets/audio/music.ogg")
     (loader/audio "bubble-create-sound" "assets/audio/bubble-create.ogg")
-    (loader/audio "bubble-vanish-sound" "assets/audio/bubble-vanish.ogg"))
+    (loader/audio "bubble-vanish-sound" "assets/audio/bubble-vanish.ogg")
+    (loader/audio "lifeloss" "assets/audio/lifeloss.ogg")
+    (loader/audio "gameover" "assets/audio/gameover.ogg"))
   (if (= :app (:use environment))
     (loader/spritesheet (:load game) "about-button" "assets/images/about-button.png"
                         (:width dimens/about-button) (:height dimens/about-button))

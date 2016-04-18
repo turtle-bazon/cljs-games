@@ -55,17 +55,18 @@
       (destroy bubble)
       true)))
 
-(defn vanish [bubble bubbles]
+(defn vanish [game bubble bubbles]
   (destroy bubble)
+  (sound/play (.-lifeloss-sound game))
   ((:on-vanish bubbles)))
 
 (defn update-bubble [game bubble bubbles]
   (if (< (:y bubble) playfield-offset-y)
-    (vanish bubble bubbles)
+    (vanish game bubble bubbles)
     (let [elapsed (get-in game [:time :physics-elapsed-ms])
           left-time (- (.-leftTime bubble) elapsed)]
       (if (<= left-time 0)
-        (vanish bubble bubbles)
+        (vanish game bubble bubbles)
         (let [scale (* (.-cc game) (/ left-time bubble-life-time))
               cur-size (:width bubble)
               new-size (* bubble-size scale)
@@ -78,12 +79,11 @@
 
 (defn update-bubbles [game bubbles]
   (if (not ((:is-game-over-fn bubbles)))
-    (doall (map (fn [bubble]
-                  (update-bubble game bubble bubbles))
-                (get-in bubbles [:group :children])))
-    (doall (map (fn [bubble]
-                  (destroy bubble))
-                (get-in bubbles [:group :children])))))
+    (doseq [bubble (get-in bubbles [:group :children])]
+      (update-bubble game bubble bubbles))
+    (do (sound/play (.-gameover-sound game))
+        (doseq [bubble (get-in bubbles [:group :children])]
+          (destroy bubble)))))
 
 (defn add-bubble [game bubbles x y velocity]
   (let [bubble (group/create (:group bubbles) x y "bubble")
@@ -155,6 +155,7 @@
                      (when (bubble-tapped game bubble bubbles event)
                        (on-hit)))))
     (when (rect/contains-point- playfield-rect (:position event))
+      (sound/play (.-lifeloss-sound game))
       (on-miss))))
 
 (defn init-bubbles [game on-hit on-miss on-vanish is-game-over-fn]
@@ -167,6 +168,8 @@
                  :vanish-sound (object-factory/audio (:add game) "bubble-vanish-sound")
                  :create-sound (object-factory/audio (:add game) "bubble-create-sound")
                  :is-game-over-fn is-game-over-fn}]
+    (set! (.-lifeloss-sound game) (object-factory/audio (:add game) "lifeloss"))
+    (set! (.-gameover-sound game) (object-factory/audio (:add game) "gameover"))
     (signal/add (get-in game [:input :on-down])
                 (fn [event]
                   (handle-click game event playfield-rect bubbles on-hit on-miss)))
