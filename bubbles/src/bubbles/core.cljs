@@ -20,12 +20,7 @@
     (.sqrt js/Math (+ (* width width) (* height height)))))
 
 (defn run-game [game-size]
-  (log "run-game")
-  (log @game-atom)
-  (log (str game-size))
   (when-let [old-game @game-atom]
-    (log "when-let")
-    (log old-game)
     (game/destroy old-game))
   (let [game (game/->Game (:width game-size) (:height game-size)
                           (p/phaser-constants :auto) "game")
@@ -49,8 +44,6 @@
      :height height}))
 
 (defn init-game []
-  (log "init fn")
-  (log @game-atom)
   (run-game (if (= :mobile (:display environment))
               (get-size-android {:width (or (aget js/window "deviceWidth")
                                             (aget js/window "innerWidth"))
@@ -59,6 +52,4 @@
               game-size-desktop)))
 
 (defn ^:export start []
-  (log "start fn")
-  (log @game-atom)
   (init-game))
