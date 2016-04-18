@@ -45,9 +45,8 @@
      :height screen-height}))
 
 (defn init-game []
-  (let [pixel-ratio (aget js/window "devicePixelRatio")]
-    (run-game {:width (* (aget js/window "innerWidth") pixel-ratio)
-               :height (* (aget js/window "innerHeight") pixel-ratio)})))
+  (run-game {:width (aget js/window "innerWidth")
+             :height (aget js/window "innerHeight")}))
 
 (defn ^:export start []
   (init-game))
