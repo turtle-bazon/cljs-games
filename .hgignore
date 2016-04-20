@@ -29,3 +29,5 @@ bubbles-android/www/assets/
 
 # crosswalk
 /www/assets/js/
+
+bubbles/android/armeabi-v7a/app/src/main/assets/www
