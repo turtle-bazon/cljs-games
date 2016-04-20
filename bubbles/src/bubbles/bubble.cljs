@@ -78,11 +78,14 @@
           (utils/set-attr! bubble [:x] (+ (:x bubble) offset))
           (utils/set-attr! bubble [:y] (+ (:y bubble) offset)))))))
 
-(defn update-bubbles [game bubbles]
+(defn update-bubbles [game {:keys [bubbles score highscore]}]
   (if (not ((:is-game-over-fn bubbles)))
     (doseq [bubble (get-in bubbles [:group :children])]
       (update-bubble game bubble bubbles))
-    (do (sound/play (.-gameover-sound game))
+    (do (if (and (> score 10)
+                 (> score highscore))
+          (sound/play (.-recordbeat-sound game))
+          (sound/play (.-gameover-sound game)))
         (doseq [bubble (get-in bubbles [:group :children])]
           (destroy bubble)))))
 
@@ -171,6 +174,7 @@
                  :is-game-over-fn is-game-over-fn}]
     (set! (.-lifeloss-sound game) (object-factory/audio (:add game) "lifeloss"))
     (set! (.-gameover-sound game) (object-factory/audio (:add game) "gameover"))
+    (set! (.-recordbeat-sound game) (object-factory/audio (:add game) "recordbeat"))
     (signal/add (get-in game [:input :on-down])
                 (fn [event]
                   (handle-click game event playfield-rect bubbles on-hit on-miss)))

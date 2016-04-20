@@ -110,8 +110,8 @@
 
 (defn state-update [game]
   (utils/set-attr! game [:force-single-update] true)
-  (let [{:keys [bubbles lives]} @state-atom]
-    (bubble/update-bubbles game bubbles)
+  (let [{:keys [lives] :as state} @state-atom]
+    (bubble/update-bubbles game state)
     (when (<= lives 0)
       (game-over! game))))
 
