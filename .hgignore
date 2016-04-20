@@ -41,3 +41,7 @@ bubbles/android/arm64-v8a/local.properties
 bubbles/android/x86/app/app-release.apk
 bubbles/android/x86/app/src/main/assets/www
 bubbles/android/x86/local.properties
+
+bubbles/android/x86_64/app/app-release.apk
+bubbles/android/x86_64/app/src/main/assets/www
+bubbles/android/x86_64/local.properties
