@@ -121,7 +121,7 @@
 
 (defn card-component
   [card x y options]
-  [:div.unselectable.card-place
+  [:div.card-place
    (merge {:style {:left (str x "px")
                    :top (str y "px")
                    :background-image image-url
