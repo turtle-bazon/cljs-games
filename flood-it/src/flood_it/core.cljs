@@ -45,6 +45,7 @@
         cell-width (/ (.-width surface) (get-field-width field))
         cell-height (/ (.-height surface) (get-field-height field))]
     (set-info (str "turns left " (get-field-turnes-left field)))
+    (.clearRect context 0 0 (.-width surface) (.-height surface))
     (doseq [y (range 0 (get-field-height field))
             x (range 0 (get-field-width field))
             :let [cell (get-cell-at field x y)]]
