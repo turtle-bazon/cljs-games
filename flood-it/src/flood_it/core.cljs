@@ -5,59 +5,37 @@
 (def colors ["yellow" "orange" "red" "green" "blue" "pink"])
 (def field (atom nil))
 
-(defn create-field
-  [width height max-turnes-count table]
-  {:width width :height height :turnes-left max-turnes-count :table table})
-
-(defn get-field-width
-  [field]
-  (:width field))
-
-(defn get-field-height
-  [field]
-  (:height field))
-
-(defn get-field-turnes-left
-  [field]
-  (:turnes-left field))
-
-(defn get-cell-at
-  [field x y]
+(defn cell-at [field x y]
   ((:table field) [x y]))
 
-(defn get-current-color
-  [field]
+(defn current-color [field]
   (get-in field [:table [0 0]]))
 
-(defn set-info
-  [info]
+(defn set-info [info]
   (ef/at "#info" (ef/content info)))
 
-(defn draw-cell
-  [context cell x y width height]
+(defn draw-cell [context cell x y width height]
   (set! (.-fillStyle context) (colors cell))
   (.fillRect context (* x width) (* y height) width height))
 
-(defn draw-field
-  [field]
+(defn draw-field [field]
   (let [surface (.getElementById js/document "canvas")
         context (.getContext surface "2d")
-        cell-width (/ (.-width surface) (get-field-width field))
-        cell-height (/ (.-height surface) (get-field-height field))]
-    (set-info (str "turns left " (get-field-turnes-left field)))
+        cell-width (/ (.-width surface) (:width field))
+        cell-height (/ (.-height surface) (:height field))]
+    (set-info (str "turns left " (:turns-left field)))
     (.clearRect context 0 0 (.-width surface) (.-height surface))
-    (doseq [y (range 0 (get-field-height field))
-            x (range 0 (get-field-width field))
-            :let [cell (get-cell-at field x y)]]
+    (doseq [y (range 0 (:height field))
+            x (range 0 (:width field))
+            :let [cell (cell-at field x y)]]
       (draw-cell context cell x y cell-width cell-height))))
 
-(defn- update-field
-  [field x y old-color new-color processed]
+(defn- update-field [field x y old-color new-color processed]
   (if (or (contains? processed [x y])
-          (not (<= 0 x (dec (get-field-width field))))
-          (not (<= 0 y (dec (get-field-height field)))))
+          (not (<= 0 x (dec (:width field))))
+          (not (<= 0 y (dec (:height field)))))
     {:field field :processed processed}
-    (let [cell (get-cell-at field x y)]
+    (let [cell (cell-at field x y)]
       (if (and (not= cell old-color)
                (not= cell new-color))
         {:field field :processed processed}
@@ -73,38 +51,36 @@
                      :processed processed})
                   next-coords))))))
 
-(defn get-game-state
-  [field]
-  (let [color (get-current-color field)]
+(defn get-game-state [field]
+  (let [color (current-color field)]
     (if (every? #(= % color) (vals (:table field)))
       :win
-      (if (> (get-field-turnes-left field) 0)
+      (if (> (:turns-left field) 0)
         :in-process
         :loss))))
 
-(defn update-game-state
-  [field]
+(defn update-game-state [field]
   (let [state (get-game-state field)]
-    (cond (= state :win) (set-info (str "Win! (turns left " (get-field-turnes-left field) ")"))
+    (cond (= state :win) (set-info (str "Win! (turns left " (:turns-left field) ")"))
           (= state :loss) (set-info "Loss :(")
           :else nil)))
 
-(defn ^:export set-color
-  [color]
-  (when (= (get-game-state @field) :in-process)
-    (reset! field (:field (update-field @field 0 0 (get-current-color @field) color #{})))
-    (swap! field update-in [:turnes-left] dec)
+(defn ^:export set-color [color]
+  (when (and (= (get-game-state @field) :in-process)
+             (not= color (current-color @field)))
+    (reset! field (:field (update-field @field 0 0 (current-color @field) color #{})))
+    (swap! field update-in [:turns-left] dec)
     (draw-field @field)
     (update-game-state @field)))
 
-(defn generate-field
-  [width height max-turnes-count]
-  (create-field
-   width height max-turnes-count
-   (into {}
-         (for [y (range 0 height)
-               x (range 0 width)]
-           [[x y] (rand-int 6)]))))
+(defn generate-field [width height max-turns-count]
+  {:width      width
+   :height     height
+   :turns-left max-turns-count
+   :table      (into {}
+                     (for [y (range 0 height)
+                           x (range 0 width)]
+                       [[x y] (rand-int 6)]))})
 
 (defn ^:export start []
   (reset! field (generate-field 14 14 25))
